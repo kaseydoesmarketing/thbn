@@ -5,22 +5,78 @@ var config = require('../config/nano');
  * Google Gemini Image Generation Client
  * "Nano Banana" is the community nickname for Gemini's image generation models
  * Uses gemini-2.0-flash-exp for image generation
+ *
+ * Rate Limits (Free Tier):
+ * - Gemini 1.5 Flash: ~15 RPM
+ * - Gemini 1.5 Pro: ~2 RPM
  */
 class GeminiImageClient {
     constructor() {
         this.apiKey = config.nanoBanana.apiKey;
         this.baseUrl = 'https://generativelanguage.googleapis.com/v1beta';
         this.model = 'gemini-2.0-flash-exp'; // Supports image generation
-        this.timeout = config.nanoBanana.timeout || 60000;
+        this.timeout = config.nanoBanana.timeout || 120000; // 2 min timeout for image gen
+
+        // Rate limiting: Paid tier has much higher limits (~1000 RPM for Flash)
+        // Using 1 second interval for safety
+        this.requestQueue = [];
+        this.lastRequestTime = 0;
+        this.minRequestInterval = 1000; // 1 second between requests (safe for paid tier)
+    }
+
+    /**
+     * Wait for rate limit before making request
+     */
+    async waitForRateLimit() {
+        var now = Date.now();
+        var timeSinceLastRequest = now - this.lastRequestTime;
+
+        if (timeSinceLastRequest < this.minRequestInterval) {
+            var waitTime = this.minRequestInterval - timeSinceLastRequest;
+            console.log('[Gemini] Rate limit: waiting ' + (waitTime / 1000) + 's before next request');
+            await new Promise(function(resolve) { setTimeout(resolve, waitTime); });
+        }
+
+        this.lastRequestTime = Date.now();
+    }
+
+    /**
+     * Exponential backoff retry wrapper
+     */
+    async withRetry(fn, maxAttempts, baseDelay) {
+        maxAttempts = maxAttempts || 3;
+        baseDelay = baseDelay || 1000;
+
+        var lastError;
+
+        for (var attempt = 1; attempt <= maxAttempts; attempt++) {
+            try {
+                return await fn();
+            } catch (error) {
+                lastError = error;
+                var isRetryable = error.response &&
+                    (error.response.status === 429 || error.response.status >= 500);
+
+                if (!isRetryable || attempt === maxAttempts) {
+                    throw error;
+                }
+
+                // Exponential backoff with jitter
+                var delay = baseDelay * Math.pow(2, attempt - 1);
+                var jitter = Math.random() * 1000;
+                var totalDelay = delay + jitter;
+
+                console.log('[Gemini] Request failed (attempt ' + attempt + '/' + maxAttempts + '), retrying in ' + Math.round(totalDelay / 1000) + 's...');
+                await new Promise(function(resolve) { setTimeout(resolve, totalDelay); });
+            }
+        }
+
+        throw lastError;
     }
 
     /**
      * Creates a thumbnail generation job using Gemini API
-     * @param {Object} payload - The job payload
-     * @param {string} payload.prompt - The text prompt
-     * @param {string[]} payload.face_images - URLs of face reference images (for context)
-     * @param {string} payload.style_preset - The style ID
-     * @returns {Promise<Object>} The generation result with image URLs
+     * Generates fewer variants to stay within rate limits
      */
     async createThumbnailJob(payload) {
         try {
@@ -30,42 +86,35 @@ class GeminiImageClient {
             // Build enhanced prompt for YouTube thumbnail
             var enhancedPrompt = this.buildThumbnailPrompt(prompt, style);
 
-            console.log('[Gemini] Generating image with prompt:', enhancedPrompt.substring(0, 100) + '...');
+            console.log('[Gemini] Generating thumbnails with prompt:', enhancedPrompt.substring(0, 100) + '...');
 
-            // Generate multiple variants (with rate limit handling)
+            // Generate 4 variants (paid tier has high limits)
             var variants = [];
             var numVariants = 4;
-            var delayBetweenRequests = 2000; // 2 seconds between requests to avoid rate limits
 
             for (var i = 0; i < numVariants; i++) {
                 try {
-                    // Add delay between requests to avoid rate limits
-                    if (i > 0) {
-                        await new Promise(function(resolve) { setTimeout(resolve, delayBetweenRequests); });
-                    }
+                    console.log('[Gemini] Generating variant ' + (i + 1) + '/' + numVariants + '...');
 
                     var imageData = await this.generateSingleImage(enhancedPrompt, i);
                     if (imageData) {
                         variants.push({
-                            variant_label: String.fromCharCode(65 + i), // A, B, C, D
+                            variant_label: String.fromCharCode(65 + i), // A, B
                             image_data: imageData.data,
                             mime_type: imageData.mimeType
                         });
-                        console.log('[Gemini] Generated variant ' + String.fromCharCode(65 + i));
+                        console.log('[Gemini] Successfully generated variant ' + String.fromCharCode(65 + i));
                     }
                 } catch (variantError) {
-                    console.error('[Gemini] Variant ' + i + ' failed:', variantError.message);
-                    // If rate limited, wait longer before next attempt
-                    if (variantError.message && variantError.message.includes('429')) {
-                        console.log('[Gemini] Rate limited, waiting 10 seconds...');
-                        await new Promise(function(resolve) { setTimeout(resolve, 10000); });
-                    }
+                    console.error('[Gemini] Variant ' + (i + 1) + ' failed:', variantError.message);
                 }
             }
 
             if (variants.length === 0) {
-                throw new Error('Failed to generate any image variants');
+                throw new Error('Failed to generate any image variants. The API may be rate limited - please try again in a few minutes.');
             }
+
+            console.log('[Gemini] Successfully generated ' + variants.length + ' variants');
 
             return {
                 status: 'completed',
@@ -78,55 +127,63 @@ class GeminiImageClient {
     }
 
     /**
-     * Generate a single image using Gemini
+     * Generate a single image using Gemini with rate limiting and retry
      */
     async generateSingleImage(prompt, variantIndex) {
-        var url = this.baseUrl + '/models/' + this.model + ':generateContent?key=' + this.apiKey;
+        var self = this;
 
-        // Add slight variation to prompt for different results
-        var variations = [
-            '',
-            ' with dramatic lighting',
-            ' with vibrant colors',
-            ' with high contrast'
-        ];
-        var variedPrompt = prompt + (variations[variantIndex] || '');
+        return await this.withRetry(async function() {
+            // Wait for rate limit
+            await self.waitForRateLimit();
 
-        var requestBody = {
-            contents: [{
-                parts: [{
-                    text: variedPrompt
-                }]
-            }],
-            generationConfig: {
-                responseModalities: ['image', 'text'],
-                responseMimeType: 'text/plain'
-            }
-        };
+            var url = self.baseUrl + '/models/' + self.model + ':generateContent?key=' + self.apiKey;
 
-        var response = await axios.post(url, requestBody, {
-            timeout: this.timeout,
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
+            // Add slight variation to prompt for different results
+            var variations = [
+                '',
+                ', with a different composition and angle',
+                ', with dramatic lighting',
+                ', with vibrant colors'
+            ];
+            var variedPrompt = prompt + (variations[variantIndex] || '');
 
-        // Extract image from response
-        var candidates = response.data.candidates || [];
-        if (candidates.length > 0) {
-            var parts = candidates[0].content?.parts || [];
-            for (var j = 0; j < parts.length; j++) {
-                var part = parts[j];
-                if (part.inlineData) {
-                    return {
-                        data: part.inlineData.data,
-                        mimeType: part.inlineData.mimeType || 'image/png'
-                    };
+            var requestBody = {
+                contents: [{
+                    parts: [{
+                        text: variedPrompt
+                    }]
+                }],
+                generationConfig: {
+                    responseModalities: ['image', 'text'],
+                    responseMimeType: 'text/plain'
+                }
+            };
+
+            var response = await axios.post(url, requestBody, {
+                timeout: self.timeout,
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            // Extract image from response
+            var candidates = response.data.candidates || [];
+            if (candidates.length > 0) {
+                var parts = candidates[0].content?.parts || [];
+                for (var j = 0; j < parts.length; j++) {
+                    var part = parts[j];
+                    if (part.inlineData) {
+                        return {
+                            data: part.inlineData.data,
+                            mimeType: part.inlineData.mimeType || 'image/png'
+                        };
+                    }
                 }
             }
-        }
 
-        return null;
+            console.log('[Gemini] No image in response, got text instead');
+            return null;
+        }, 3, 5000); // 3 attempts, 5 second base delay
     }
 
     /**
@@ -145,21 +202,19 @@ class GeminiImageClient {
 
         var styleText = styleModifiers[style] || styleModifiers['photorealistic'];
 
-        var prompt = 'Create a YouTube thumbnail image: ' + userPrompt + '. ' +
+        var prompt = 'Generate a high-quality YouTube thumbnail image. ' +
+            'Content: ' + userPrompt + '. ' +
             'Style: ' + styleText + '. ' +
-            'Requirements: 16:9 aspect ratio, attention-grabbing, high quality, ' +
-            'suitable for YouTube thumbnail at 1280x720 resolution, ' +
-            'clear focal point, professional quality.';
+            'Requirements: 16:9 aspect ratio (1280x720), attention-grabbing, ' +
+            'professional quality, clear focal point, suitable for YouTube.';
 
         return prompt;
     }
 
     /**
      * Poll is not needed for Gemini - it returns results immediately
-     * This method is kept for API compatibility
      */
     async pollJob(jobId) {
-        // Gemini returns results synchronously, no polling needed
         return { status: 'completed' };
     }
 
@@ -172,18 +227,18 @@ class GeminiImageClient {
                 throw new Error('Gemini API Bad Request: ' + message);
             }
             if (status === 401 || status === 403) {
-                throw new Error('Gemini API Key invalid or unauthorized');
+                throw new Error('Gemini API Key invalid or unauthorized. Please check your API key.');
             }
             if (status === 429) {
-                throw new Error('Gemini API Rate Limit Exceeded');
+                throw new Error('Gemini API Rate Limit Exceeded. Please wait a minute and try again, or upgrade to a paid tier.');
             }
             if (status >= 500) {
-                throw new Error('Gemini Service Unavailable');
+                throw new Error('Gemini Service Unavailable. Please try again later.');
             }
 
             throw new Error('Gemini API Error (' + status + '): ' + message);
         } else if (error.request) {
-            throw new Error('Gemini Network Error: No response received');
+            throw new Error('Gemini Network Error: Could not connect to API');
         } else {
             throw new Error('Gemini Client Error: ' + error.message);
         }
