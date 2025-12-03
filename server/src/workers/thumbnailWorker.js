@@ -25,72 +25,72 @@ thumbnailQueue.queue.process('generate', async function(job) {
         // Update progress
         job.progress(10);
 
-        // Prepare face image URLs
-        var faceImageUrls = (data.faceImages || []).map(function(img) {
-            if (typeof img === 'string') return img;
-            return img.url || img;
-        }).filter(Boolean);
-
         // Build prompt
         var prompt = data.brief;
         if (data.niche) {
             prompt = '[' + data.niche.toUpperCase() + ' NICHE] ' + prompt;
         }
-        if (data.style) {
-            prompt = prompt + ' Style: ' + data.style;
-        }
 
         job.progress(20);
 
-        // Call Nano Banana API
-        console.log('[Worker] Calling Nano Banana API...');
-        var nanoJob = await nanoClient.createThumbnailJob({
+        // Call Gemini API (Nano Banana)
+        console.log('[Worker] Calling Gemini API...');
+        var result = await nanoClient.createThumbnailJob({
             prompt: prompt,
-            face_images: faceImageUrls,
-            style_preset: data.style || 'default'
+            style_preset: data.style || 'photorealistic'
         });
 
-        console.log('[Worker] Nano Banana job created: ' + nanoJob.job_id);
+        console.log('[Worker] Gemini returned ' + (result.variants ? result.variants.length : 0) + ' variants');
 
-        // Update job with Nano job ID
-        await db.query(
-            'UPDATE thumbnail_jobs SET nano_job_id = $1 WHERE id = $2',
-            [nanoJob.job_id, jobId]
-        );
-
-        job.progress(40);
-
-        // Poll for completion
-        console.log('[Worker] Polling for completion...');
-        var result = await nanoClient.pollJob(nanoJob.job_id);
-
-        console.log('[Worker] Nano Banana job completed with ' + (result.images ? result.images.length : 0) + ' variants');
-
-        job.progress(70);
+        job.progress(50);
 
         // Store variants
-        var variants = result.images || result.variants || [];
+        var variants = result.variants || [];
         var storedVariants = [];
 
         for (var i = 0; i < variants.length; i++) {
             var variant = variants[i];
-            var variantLabel = 'v' + (i + 1);
-            var storageUrl = variant.url;
+            var variantLabel = variant.variant_label || ('v' + (i + 1));
+            var storageUrl = null;
+
+            // Convert base64 to buffer
+            var imageBuffer = Buffer.from(variant.image_data, 'base64');
+            var contentType = variant.mime_type || 'image/png';
 
             // Upload to Supabase if configured
             if (storageService.isConfigured()) {
                 try {
-                    var uploaded = await storageService.uploadThumbnailFromUrl(
-                        variant.url,
+                    var uploaded = await storageService.uploadThumbnail(
+                        imageBuffer,
                         userId,
                         jobId,
-                        variantLabel
+                        variantLabel,
+                        contentType
                     );
-                    storageUrl = uploaded.url;
-                    console.log('[Worker] Uploaded variant ' + variantLabel + ' to Supabase');
+                    if (uploaded) {
+                        storageUrl = uploaded.url;
+                        console.log('[Worker] Uploaded variant ' + variantLabel + ' to Supabase');
+                    }
                 } catch (uploadErr) {
-                    console.error('[Worker] Supabase upload failed, using original URL:', uploadErr.message);
+                    console.error('[Worker] Supabase upload failed:', uploadErr.message);
                 }
+            }
+
+            // If no Supabase, save locally
+            if (!storageUrl) {
+                var fs = require('fs');
+                var path = require('path');
+                var ext = contentType.includes('jpeg') ? '.jpg' : '.png';
+                var localDir = path.join(__dirname, '../../uploads', jobId);
+
+                if (!fs.existsSync(localDir)) {
+                    fs.mkdirSync(localDir, { recursive: true });
+                }
+
+                var localPath = path.join(localDir, variantLabel + ext);
+                fs.writeFileSync(localPath, imageBuffer);
+                storageUrl = '/uploads/' + jobId + '/' + variantLabel + ext;
+                console.log('[Worker] Saved variant ' + variantLabel + ' locally');
             }
 
             // Store in database
@@ -104,7 +104,7 @@ thumbnailQueue.queue.process('generate', async function(job) {
                 url: storageUrl
             });
 
-            job.progress(70 + Math.round((i + 1) / variants.length * 25));
+            job.progress(50 + Math.round((i + 1) / variants.length * 45));
         }
 
         // Mark job as completed
@@ -114,7 +114,7 @@ thumbnailQueue.queue.process('generate', async function(job) {
         );
 
         job.progress(100);
-        console.log('[Worker] Job ' + jobId + ' completed successfully');
+        console.log('[Worker] Job ' + jobId + ' completed successfully with ' + storedVariants.length + ' variants');
 
         return {
             success: true,
