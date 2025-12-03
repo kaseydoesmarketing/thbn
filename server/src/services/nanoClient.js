@@ -32,12 +32,18 @@ class GeminiImageClient {
 
             console.log('[Gemini] Generating image with prompt:', enhancedPrompt.substring(0, 100) + '...');
 
-            // Generate multiple variants
+            // Generate multiple variants (with rate limit handling)
             var variants = [];
             var numVariants = 4;
+            var delayBetweenRequests = 2000; // 2 seconds between requests to avoid rate limits
 
             for (var i = 0; i < numVariants; i++) {
                 try {
+                    // Add delay between requests to avoid rate limits
+                    if (i > 0) {
+                        await new Promise(function(resolve) { setTimeout(resolve, delayBetweenRequests); });
+                    }
+
                     var imageData = await this.generateSingleImage(enhancedPrompt, i);
                     if (imageData) {
                         variants.push({
@@ -45,9 +51,15 @@ class GeminiImageClient {
                             image_data: imageData.data,
                             mime_type: imageData.mimeType
                         });
+                        console.log('[Gemini] Generated variant ' + String.fromCharCode(65 + i));
                     }
                 } catch (variantError) {
                     console.error('[Gemini] Variant ' + i + ' failed:', variantError.message);
+                    // If rate limited, wait longer before next attempt
+                    if (variantError.message && variantError.message.includes('429')) {
+                        console.log('[Gemini] Rate limited, waiting 10 seconds...');
+                        await new Promise(function(resolve) { setTimeout(resolve, 10000); });
+                    }
                 }
             }
 
