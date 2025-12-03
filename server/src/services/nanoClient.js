@@ -14,14 +14,18 @@ class GeminiImageClient {
     constructor() {
         this.apiKey = config.nanoBanana.apiKey;
         this.baseUrl = 'https://generativelanguage.googleapis.com/v1beta';
-        this.model = 'gemini-2.0-flash-exp'; // Supports image generation
+        // Use stable image model - "Nano Banana" = gemini-2.0-flash-exp-image-generation
+        // Options: gemini-2.0-flash-exp, imagen-3.0-generate-002
+        this.model = process.env.GEMINI_MODEL || 'gemini-2.0-flash-exp';
         this.timeout = config.nanoBanana.timeout || 120000; // 2 min timeout for image gen
 
-        // Rate limiting: Paid tier has much higher limits (~1000 RPM for Flash)
-        // Using 1 second interval for safety
+        // Rate limiting for image models:
+        // Free tier: ~10-20 RPM, ~100 RPD
+        // Paid tier: ~500 RPM, ~2000 RPD
+        // Using 4 second interval to stay safe (~15 RPM)
         this.requestQueue = [];
         this.lastRequestTime = 0;
-        this.minRequestInterval = 1000; // 1 second between requests (safe for paid tier)
+        this.minRequestInterval = 4000; // 4 seconds between requests (~15 RPM safe)
     }
 
     /**
@@ -88,9 +92,10 @@ class GeminiImageClient {
 
             console.log('[Gemini] Generating thumbnails with prompt:', enhancedPrompt.substring(0, 100) + '...');
 
-            // Generate 4 variants (paid tier has high limits)
+            // Generate 2 variants to conserve daily image quota
+            // Free: ~100/day, Paid: ~2000/day
             var variants = [];
-            var numVariants = 4;
+            var numVariants = 2;
 
             for (var i = 0; i < numVariants; i++) {
                 try {
