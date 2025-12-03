@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thumbnail Builder - Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Inter:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <!-- Placeholder for icons -->
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-left">
+            <div class="logo">
+                <div class="logo-icon">
+                    <!-- CSS Shape for Logo -->
+                    <div class="play-shape"></div>
+                </div>
+                <span class="logo-text">Thumbnail Builder</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">Dashboard</a></li>
+                <li><a href="create.html">Create</a></li>
+                <li><a href="library.html" class="active">Library</a></li>
+                <li><a href="presets.html">Presets</a></li>
+                <li><a href="account.html">Account</a></li>
+            </ul>
+        </div>
+        <div class="nav-right">
+            <div class="powered-by">
+                <span>Powered by Title Tester Pro v8</span>
+                <i class="fas fa-rocket"></i>
+            </div>
+            <div class="user-profile">
+                <img src="https://via.placeholder.com/32" alt="User">
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="dashboard-container">
+
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-content">
+                <h1>Design Viral Thumbnails <br> <span class="text-gradient">in Minutes.</span></h1>
+                <p class="hero-sub">Upload your face, choose your style, and generate pro-level YouTube thumbnails
+                    you’re proud to put your name on.</p>
+                <div class="hero-actions">
+                    <button class="btn btn-primary">Start New Session</button>
+                    <button class="btn btn-secondary">View Gallery</button>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="tilted-mockup">
+                    <!-- Abstract representation of the UI -->
+                    <div class="mockup-header"></div>
+                    <div class="mockup-grid">
+                        <div class="mockup-item"></div>
+                        <div class="mockup-item"></div>
+                        <div class="mockup-item"></div>
+                        <div class="mockup-item"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features -->
+        <section class="features">
+            <div class="feature-card">
+                <div class="feature-icon icon-face"></div>
+                <h3>Face-Locked Realism</h3>
+                <p>We imprint your face into thumbnails so your channel feels consistent.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon icon-style"></div>
+                <h3>Niche-Driven Styles</h3>
+                <p>Choose from proven styles like Reaction, Vlog, Finance, and more.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon icon-test"></div>
+                <h3>Test Anywhere</h3>
+                <p>Export directly to YouTube Studio or Title Tester Pro v8.</p>
+            </div>
+        </section>
+
+        <!-- Recent Sessions -->
+        <section class="recent-sessions">
+            <div class="section-header">
+                <h2>Recent Sessions</h2>
+                <a href="#" class="view-all">View All</a>
+            </div>
+            <table class="sessions-table">
+                <thead>
+                    <tr>
+                        <th>Video</th>
+                        <th>Created</th>
+                        <th>Variants</th>
+                        <th>Exported To</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="video-cell">
+                            <div class="video-thumb"></div>
+                            <span>"I Quit My Job..."</span>
+                        </td>
+                        <td>2 hours ago</td>
+                        <td>4 Generated</td>
+                        <td>YouTube Studio</td>
+                        <td><span class="status-chip completed">Completed</span></td>
+                    </tr>
+                    <tr>
+                        <td class="video-cell">
+                            <div class="video-thumb"></div>
+                            <span>iPhone 16 Review</span>
+                        </td>
+                        <td>Yesterday</td>
+                        <td>8 Generated</td>
+                        <td>Title Tester Pro</td>
+                        <td><span class="status-chip testing">Testing</span></td>
+                    </tr>
+                    <tr>
+                        <td class="video-cell">
+                            <div class="video-thumb"></div>
+                            <span>Reacting to MrBeast</span>
+                        </td>
+                        <td>Dec 1, 2025</td>
+                        <td>2 Generated</td>
+                        <td>-</td>
+                        <td><span class="status-chip draft">Draft</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+    </main>
+
+</body>
+
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thumbnail Builder - Presets</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-left">
+            <div class="logo">
+                <div class="logo-icon">
+                    <div class="play-shape"></div>
+                </div>
+                <span class="logo-text">Thumbnail Builder</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">Dashboard</a></li>
+                <li><a href="create.html">Create</a></li>
+                <li><a href="library.html">Library</a></li>
+                <li><a href="presets.html" class="active">Presets</a></li>
+            </ul>
+        </div>
+        <div class="nav-right">
+            <div class="powered-by">
+                <span>Powered by Title Tester Pro v8</span>
+                <i class="fas fa-rocket"></i>
+            </div>
+            <div class="user-profile">
+                <img src="https://via.placeholder.com/32" alt="User">
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="dashboard-container">
+        
+        <div class="section-header">
+            <h2>Style Presets</h2>
+            <button class="btn btn-primary">Create New Preset</button>
+        </div>
+
+        <div class="style-grid-layout" style="display: block;">
+            <div class="style-carousel" style="flex-wrap: wrap; overflow: visible;">
+                <div class="style-card">
+                    <div class="style-preview" style="background: linear-gradient(45deg, #ff0055, #000);"></div>
+                    <div class="style-info">
+                        <h4>Bold Reaction</h4>
+                        <p style="font-size: 12px; color: var(--text-muted);">High contrast, big face.</p>
+                    </div>
+                </div>
+                <div class="style-card">
+                    <div class="style-preview" style="background: #fff; color: #000;"></div>
+                    <div class="style-info">
+                        <h4>Clean Minimal</h4>
+                        <p style="font-size: 12px; color: var(--text-muted);">White background, product focus.</p>
+                    </div>
+                </div>
+                <div class="style-card">
+                    <div class="style-preview" style="background: #1a1a1a; border-left: 5px solid #00ff94;"></div>
+                    <div class="style-info">
+                        <h4>Tech Review</h4>
+                        <p style="font-size: 12px; color: var(--text-muted);">Dark mode, green accents.</p>
+                    </div>
+                </div>
+                 <div class="style-card">
+                    <div class="style-preview" style="background: #000; border: 1px solid #333; display: flex; align-items: center; justify-content: center; color: #555;">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                    <div class="style-info">
+                        <h4>New Preset</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+</body>
+</html>

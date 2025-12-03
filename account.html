@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thumbnail Builder - Account</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-left">
+            <div class="logo">
+                <div class="logo-icon">
+                    <div class="play-shape"></div>
+                </div>
+                <span class="logo-text">Thumbnail Builder</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">Dashboard</a></li>
+                <li><a href="create.html">Create</a></li>
+                <li><a href="library.html">Library</a></li>
+                <li><a href="presets.html">Presets</a></li>
+                <li><a href="account.html" class="active">Account</a></li>
+            </ul>
+        </div>
+        <div class="nav-right">
+            <div class="powered-by">
+                <span>Powered by Title Tester Pro v8</span>
+                <i class="fas fa-rocket"></i>
+            </div>
+            <div class="user-profile">
+                <img src="https://via.placeholder.com/32" alt="User">
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="dashboard-container">
+        
+        <div class="section-header">
+            <h2>Account Settings</h2>
+        </div>
+
+        <div class="split-layout">
+            <!-- Profile Card -->
+            <div class="left-panel-content">
+                <div class="input-card">
+                    <h3>Profile</h3>
+                    <div style="display: flex; align-items: center; gap: 24px; margin-top: 20px;">
+                        <img src="https://via.placeholder.com/80" alt="Profile" style="border-radius: 50%; border: 2px solid var(--primary-orange);">
+                        <div>
+                            <h4 style="font-size: 18px; margin-bottom: 4px;">Creator Name</h4>
+                            <p style="color: var(--text-muted); font-size: 14px;">creator@example.com</p>
+                            <button class="btn-xs" style="margin-top: 8px;">Change Avatar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-card" style="margin-top: 24px;">
+                    <h3>Subscription</h3>
+                    <div style="margin-top: 16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <span style="color: var(--text-muted);">Current Plan</span>
+                            <span class="status-chip completed">Pro Plan</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="color: var(--text-muted);">Next Billing</span>
+                            <span>Jan 1, 2026</span>
+                        </div>
+                        <button class="btn btn-secondary" style="width: 100%; margin-top: 24px;">Manage Subscription</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings -->
+            <div class="right-panel-content">
+                <div class="input-card">
+                    <h3>App Settings</h3>
+                    
+                    <div style="margin-top: 24px;">
+                        <h4 style="font-size: 14px; margin-bottom: 12px;">Integrations</h4>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--bg-dark); border-radius: 8px; border: 1px solid var(--border); margin-bottom: 12px;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <i class="fab fa-youtube" style="color: #FF0000;"></i>
+                                <span>YouTube Channel</span>
+                            </div>
+                            <span class="status-chip completed">Connected</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--bg-dark); border-radius: 8px; border: 1px solid var(--border);">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <i class="fas fa-rocket" style="color: var(--primary-orange);"></i>
+                                <span>Title Tester Pro</span>
+                            </div>
+                            <span class="status-chip completed">Connected</span>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 32px;">
+                        <h4 style="font-size: 14px; margin-bottom: 12px;">Preferences</h4>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <span style="color: var(--text-muted); font-size: 14px;">Dark Mode</span>
+                            <i class="fas fa-toggle-on" style="color: var(--primary-orange); font-size: 24px;"></i>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="color: var(--text-muted); font-size: 14px;">Email Notifications</span>
+                            <i class="fas fa-toggle-on" style="color: var(--primary-orange); font-size: 24px;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+</body>
+</html>

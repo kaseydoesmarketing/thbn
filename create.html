@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thumbnail Builder - Create</title>
+    <link rel="stylesheet" href="styles.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Inter:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+
+<body class="create-mode">
+
+    <!-- Left Stepper -->
+    <aside class="stepper-sidebar">
+        <a href="index.html" class="logo-small">
+            <div class="logo-icon-sm"></div>
+        </a>
+        <ul class="steps-list">
+            <li class="step-item active" data-step="1">
+                <div class="step-num">1</div>
+                <span class="step-label">Face</span>
+            </li>
+            <li class="step-item" data-step="2">
+                <div class="step-num">2</div>
+                <span class="step-label">Video</span>
+            </li>
+            <li class="step-item" data-step="3">
+                <div class="step-num">3</div>
+                <span class="step-label">Style</span>
+            </li>
+            <li class="step-item" data-step="4">
+                <div class="step-num">4</div>
+                <span class="step-label">Brief</span>
+            </li>
+            <li class="step-item" data-step="5">
+                <div class="step-num">5</div>
+                <span class="step-label">Thumbnails</span>
+            </li>
+            <li class="step-item" data-step="6">
+                <div class="step-num">6</div>
+                <span class="step-label">Export</span>
+            </li>
+        </ul>
+        <div class="stepper-footer">
+            <div class="user-avatar-sm"></div>
+        </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <div class="workspace">
+
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <div class="video-context">
+                <div class="video-icon-placeholder"><i class="fab fa-youtube"></i></div>
+                <span class="video-title-display">Select a video to begin...</span>
+            </div>
+            <div class="top-actions">
+                <button class="btn-ghost">Save Draft</button>
+                <div class="powered-pill">Powered by Title Tester Pro v8</div>
+            </div>
+        </header>
+
+        <!-- Main Canvas -->
+        <main class="canvas">
+
+            <!-- Step 1: Face -->
+            <div class="step-content active" id="step-1">
+                <div class="step-header">
+                    <h2>Upload Your Face</h2>
+                    <p>We’ll imprint your face into the thumbnails so your channel feels consistent and recognizable.
+                    </p>
+                </div>
+                <div class="upload-area">
+                    <div class="upload-box">
+                        <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                        <h3>Upload 3–10 photos of your face</h3>
+                        <ul>
+                            <li>Front-facing & side profiles</li>
+                            <li>Different expressions (shocked, happy, angry)</li>
+                            <li>Bright, clear lighting</li>
+                        </ul>
+                        <button class="btn btn-secondary">Browse Files</button>
+                    </div>
+                    <div class="face-gallery">
+                        <!-- Sample Faces -->
+                        <div class="face-card">
+                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop"
+                                alt="Face">
+                            <span class="status-badge good">Good</span>
+                        </div>
+                        <div class="face-card">
+                            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop"
+                                alt="Face">
+                            <span class="status-badge good">Good</span>
+                        </div>
+                        <div class="face-card">
+                            <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&h=150&fit=crop"
+                                alt="Face">
+                            <span class="status-badge warning">Low Light</span>
+                        </div>
+                        <div class="face-card add-new">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Video -->
+            <div class="step-content" id="step-2">
+                <div class="step-header">
+                    <h2>Choose the Video</h2>
+                    <p>Link your YouTube video or paste a URL to fetch metadata.</p>
+                </div>
+                <div class="split-layout">
+                    <div class="left-panel-content">
+                        <div class="tabs">
+                            <button class="tab active">Paste URL</button>
+                            <button class="tab">From Channel</button>
+                        </div>
+                        <div class="input-card">
+                            <label>YouTube URL</label>
+                            <div class="input-group">
+                                <input type="text" placeholder="https://youtube.com/watch?v=..."
+                                    value="https://youtube.com/watch?v=dQw4w9WgXcQ">
+                                <button class="btn btn-primary">Fetch</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="right-panel-content">
+                        <div class="video-preview-card">
+                            <img src="https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg"
+                                class="video-thumb-large" alt="Video Thumb">
+                            <div class="video-meta">
+                                <h3>Rick Astley - Never Gonna Give You Up</h3>
+                                <p class="desc">The official video for “Never Gonna Give You Up” by Rick Astley...</p>
+                                <div class="tags">
+                                    <span class="tag">Music</span>
+                                    <span class="tag">80s</span>
+                                    <span class="tag">Pop</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Style -->
+            <div class="step-content" id="step-3">
+                <div class="step-header">
+                    <h2>Pick Style & Niche</h2>
+                </div>
+                <div class="style-grid-layout">
+                    <div class="niche-selector">
+                        <h3>Niche</h3>
+                        <div class="niche-grid">
+                            <div class="niche-card active"><i class="fas fa-fire"></i> Reaction</div>
+                            <div class="niche-card"><i class="fas fa-gamepad"></i> Gaming</div>
+                            <div class="niche-card"><i class="fas fa-chalkboard-teacher"></i> Tutorial</div>
+                            <div class="niche-card"><i class="fas fa-microphone"></i> Podcast</div>
+                            <div class="niche-card"><i class="fas fa-chart-line"></i> Finance</div>
+                            <div class="niche-card"><i class="fas fa-laptop-code"></i> Tech</div>
+                        </div>
+                    </div>
+                    <div class="style-carousel-container">
+                        <h3>Style Presets</h3>
+                        <div class="style-carousel">
+                            <div class="style-card active">
+                                <div class="style-preview" style="background: linear-gradient(45deg, #ff0055, #000);">
+                                </div>
+                                <h4>Bold Reaction</h4>
+                            </div>
+                            <div class="style-card">
+                                <div class="style-preview" style="background: #fff; color: #000;"></div>
+                                <h4>Clean Minimal</h4>
+                            </div>
+                            <div class="style-card">
+                                <div class="style-preview" style="background: #1a1a1a; border-left: 5px solid #00ff94;">
+                                </div>
+                                <h4>Tech Review</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Brief -->
+            <div class="step-content" id="step-4">
+                <div class="step-header">
+                    <h2>Tell Us What to Design</h2>
+                </div>
+                <div class="brief-container">
+                    <div class="chat-interface">
+                        <div class="chat-bubble system">
+                            Example: "Close-up of me shocked on the left, big text 'HE LIED TO US' on the right, dark
+                            background with neon streaks."
+                        </div>
+                        <textarea class="brief-input" placeholder="Describe your thumbnail idea..."></textarea>
+                        <div class="quick-chips">
+                            <span class="chip-label">Emotions:</span>
+                            <button class="chip">Shocked</button>
+                            <button class="chip">Happy</button>
+                            <button class="chip">Angry</button>
+                            <span class="chip-label">Layout:</span>
+                            <button class="chip">Split Screen</button>
+                            <button class="chip">Face Left</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 5: Thumbnails -->
+            <div class="step-content" id="step-5">
+                <div class="step-header">
+                    <h2>Review Your Thumbnails</h2>
+                </div>
+                <div class="thumbnails-layout">
+                    <div class="thumbnails-grid">
+                        <!-- Generated Thumbnails -->
+                        <div class="thumb-card">
+                            <div class="thumb-img-placeholder" style="background: #222;">V1</div>
+                            <div class="thumb-actions">
+                                <span>Variant 1</span>
+                                <i class="far fa-star"></i>
+                            </div>
+                        </div>
+                        <div class="thumb-card active">
+                            <div class="thumb-img-placeholder" style="background: #333;">V2</div>
+                            <div class="thumb-actions">
+                                <span>Variant 2</span>
+                                <i class="fas fa-star" style="color: var(--primary-orange)"></i>
+                            </div>
+                        </div>
+                        <div class="thumb-card">
+                            <div class="thumb-img-placeholder" style="background: #222;">V3</div>
+                            <div class="thumb-actions">
+                                <span>Variant 3</span>
+                                <i class="far fa-star"></i>
+                            </div>
+                        </div>
+                        <div class="thumb-card">
+                            <div class="thumb-img-placeholder" style="background: #222;">V4</div>
+                            <div class="thumb-actions">
+                                <span>Variant 4</span>
+                                <i class="far fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 6: Export -->
+            <div class="step-content" id="step-6">
+                <div class="step-header">
+                    <h2>Export & Test</h2>
+                </div>
+                <div class="export-options">
+                    <div class="export-card">
+                        <i class="fab fa-youtube export-icon"></i>
+                        <h3>Download for YouTube</h3>
+                        <p>Get the high-res PNG ready for upload.</p>
+                        <button class="btn btn-secondary">Download PNG</button>
+                    </div>
+                    <div class="export-card highlight">
+                        <i class="fas fa-rocket export-icon"></i>
+                        <h3>Send to Testing</h3>
+                        <p>Export directly to Title Tester Pro v8 for A/B testing.</p>
+                        <button class="btn btn-primary">Export to Title Tester</button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Right Panel (Context) -->
+        <aside class="context-panel">
+            <div class="panel-content" id="panel-step-1">
+                <h3>Pro Tips</h3>
+                <ul class="tips-list">
+                    <li>Use a plain background if possible.</li>
+                    <li>Ensure your face is well-lit.</li>
+                    <li>Exaggerate your expressions slightly.</li>
+                </ul>
+                <div class="example-faces">
+                    <h4>Examples</h4>
+                    <div class="example-face-grid">
+                        <div class="ex-face"></div>
+                        <div class="ex-face"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-content hidden" id="panel-step-2">
+                <h3>Video Details</h3>
+                <p class="text-muted">Once selected, we'll use the title and tags to inform the AI.</p>
+            </div>
+
+            <div class="panel-content hidden" id="panel-step-3">
+                <h3>Current Style</h3>
+                <div class="style-summary-card">
+                    <div class="summary-row">
+                        <span>Niche</span>
+                        <strong>Reaction</strong>
+                    </div>
+                    <div class="summary-row">
+                        <span>Vibe</span>
+                        <strong>Bold & High Contrast</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-content hidden" id="panel-step-4">
+                <h3>We'll Focus On</h3>
+                <div class="brief-summary">
+                    <div class="summary-item">
+                        <label>Emotion</label>
+                        <span>Shocked</span>
+                    </div>
+                    <div class="summary-item">
+                        <label>Subject</label>
+                        <span>Me + Text</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-content hidden" id="panel-step-5">
+                <h3>Selected Variant</h3>
+                <div class="selected-preview">
+                    <div class="preview-box">V2</div>
+                </div>
+                <div class="variant-controls">
+                    <button class="btn-xs">More Emotion</button>
+                    <button class="btn-xs">Less Text</button>
+                    <button class="btn-xs">Color Remix</button>
+                </div>
+            </div>
+
+            <div class="panel-content hidden" id="panel-step-6">
+                <h3>Export History</h3>
+                <ul class="export-list">
+                    <li>
+                        <span>Variant 2</span>
+                        <span class="status-chip completed">Downloaded</span>
+                    </li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Bottom Sticky Bar -->
+        <footer class="bottom-bar">
+            <button class="btn btn-secondary" id="btn-back" disabled>Back</button>
+            <button class="btn btn-primary" id="btn-next">Save Face & Continue</button>
+        </footer>
+
+    </div>
+
+    <script src="mock-backend.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>

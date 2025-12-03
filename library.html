@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thumbnail Builder - Library</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-left">
+            <div class="logo">
+                <div class="logo-icon">
+                    <div class="play-shape"></div>
+                </div>
+                <span class="logo-text">Thumbnail Builder</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">Dashboard</a></li>
+                <li><a href="create.html">Create</a></li>
+                <li><a href="library.html" class="active">Library</a></li>
+                <li><a href="presets.html">Presets</a></li>
+            </ul>
+        </div>
+        <div class="nav-right">
+            <div class="powered-by">
+                <span>Powered by Title Tester Pro v8</span>
+                <i class="fas fa-rocket"></i>
+            </div>
+            <div class="user-profile">
+                <img src="https://via.placeholder.com/32" alt="User">
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="dashboard-container">
+        
+        <div class="section-header">
+            <h2>Your Library</h2>
+            <div class="filters">
+                <input type="text" placeholder="Search thumbnails..." class="search-input">
+                <select class="filter-select">
+                    <option>All Videos</option>
+                    <option>Drafts</option>
+                    <option>Published</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="thumbnails-grid">
+            <!-- Reuse thumb-card styles -->
+            <div class="thumb-card">
+                <div class="thumb-img-placeholder" style="background: #222;">IMG 1</div>
+                <div class="thumb-actions">
+                    <span>"I Quit..." V1</span>
+                    <span class="status-chip completed">Exported</span>
+                </div>
+            </div>
+            <div class="thumb-card">
+                <div class="thumb-img-placeholder" style="background: #252525;">IMG 2</div>
+                <div class="thumb-actions">
+                    <span>"I Quit..." V2</span>
+                    <span class="status-chip draft">Draft</span>
+                </div>
+            </div>
+            <div class="thumb-card">
+                <div class="thumb-img-placeholder" style="background: #1a1a1a;">IMG 3</div>
+                <div class="thumb-actions">
+                    <span>iPhone 16 Review</span>
+                    <span class="status-chip testing">Testing</span>
+                </div>
+            </div>
+             <div class="thumb-card">
+                <div class="thumb-img-placeholder" style="background: #222;">IMG 4</div>
+                <div class="thumb-actions">
+                    <span>Reacting to...</span>
+                    <span class="status-chip draft">Draft</span>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+</body>
+</html>
