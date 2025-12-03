@@ -1,17 +1,21 @@
 require('dotenv').config();
 
-const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require('cors');
-const path = require('path');
+var express = require('express');
+var bodyParser = require('body-parser');
+var cors = require('cors');
+var path = require('path');
 
-const nanoConfig = require('./src/config/nano');
-const thumbnailRoutes = require('./src/routes/thumbnail');
-const facesRoutes = require('./src/routes/faces');
-const db = require('./src/db/connection');
+var nanoConfig = require('./src/config/nano');
+var thumbnailRoutes = require('./src/routes/thumbnail');
+var facesRoutes = require('./src/routes/faces');
+var authRoutes = require('./src/routes/auth');
+var db = require('./src/db/connection');
+var redis = require('./src/config/redis');
+var storageService = require('./src/services/storageService');
+var thumbnailQueue = require('./src/queues/thumbnailQueue');
 
-const app = express();
-const PORT = process.env.PORT || 3000;
+var app = express();
+var PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors({
@@ -23,13 +27,13 @@ app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 
 // Serve uploaded files statically
-const uploadsDir = process.env.UPLOAD_DIR || path.join(__dirname, 'uploads');
+var uploadsDir = process.env.UPLOAD_DIR || path.join(__dirname, 'uploads');
 app.use('/uploads', express.static(uploadsDir));
 
 // Request logging in development
 if (process.env.NODE_ENV === 'development') {
-    app.use((req, res, next) => {
-        console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
+    app.use(function(req, res, next) {
+        console.log('[' + new Date().toISOString() + '] ' + req.method + ' ' + req.path);
         next();
     });
 }
@@ -37,87 +41,118 @@ if (process.env.NODE_ENV === 'development') {
 // API Routes
 app.use('/api', thumbnailRoutes);
 app.use('/api/faces', facesRoutes);
+app.use('/api/auth', authRoutes);
 
 // Health Check - comprehensive
-app.get('/health', async (req, res) => {
-    const health = {
+app.get('/health', async function(req, res) {
+    var health = {
         status: 'ok',
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
+        version: '2.0.0',
         services: {
             nano_config: !!nanoConfig.nanoBanana.apiKey,
-            database: false
+            database: false,
+            redis: false,
+            storage: false
         }
     };
 
     // Check database connection
     try {
-        const dbHealthy = await db.healthCheck();
+        var dbHealthy = await db.healthCheck();
         health.services.database = dbHealthy;
     } catch (error) {
         health.services.database = false;
         health.services.database_error = error.message;
     }
 
+    // Check Redis connection
+    try {
+        var redisHealthy = await redis.healthCheck();
+        health.services.redis = redisHealthy;
+    } catch (error) {
+        health.services.redis = false;
+        health.services.redis_error = error.message;
+    }
+
+    // Check Supabase storage
+    try {
+        var storageHealth = await storageService.healthCheck();
+        health.services.storage = storageHealth.connected || false;
+        health.services.storage_configured = storageHealth.configured;
+    } catch (error) {
+        health.services.storage = false;
+        health.services.storage_error = error.message;
+    }
+
+    // Get queue stats
+    try {
+        var queueStats = await thumbnailQueue.getStats();
+        health.queue = queueStats;
+    } catch (error) {
+        health.queue = { error: error.message };
+    }
+
     // Set overall status
-    if (!health.services.database) {
+    if (!health.services.database || !health.services.redis) {
         health.status = 'degraded';
     }
 
-    const statusCode = health.status === 'ok' ? 200 : 503;
+    var statusCode = health.status === 'ok' ? 200 : 503;
     res.status(statusCode).json(health);
 });
 
 // Simple health check for load balancers
-app.get('/ping', (req, res) => {
+app.get('/ping', function(req, res) {
     res.send('pong');
 });
 
 // 404 handler
-app.use((req, res) => {
+app.use(function(req, res) {
     res.status(404).json({ error: 'Not found', path: req.path });
 });
 
 // Global error handler
-app.use((err, req, res, next) => {
+app.use(function(err, req, res, next) {
     console.error('[Error]', err);
 
     // Don't leak error details in production
-    const message = process.env.NODE_ENV === 'production'
+    var message = process.env.NODE_ENV === 'production'
         ? 'Internal server error'
         : err.message;
 
     res.status(err.status || 500).json({
-        error: message,
-        ...(process.env.NODE_ENV !== 'production' && { stack: err.stack })
+        error: message
     });
 });
 
 // Graceful shutdown
-process.on('SIGTERM', async () => {
-    console.log('[Server] SIGTERM received, shutting down gracefully...');
+async function shutdown() {
+    console.log('[Server] Shutting down gracefully...');
+    await thumbnailQueue.close();
+    await redis.close();
     await db.close();
     process.exit(0);
-});
+}
 
-process.on('SIGINT', async () => {
-    console.log('[Server] SIGINT received, shutting down gracefully...');
-    await db.close();
-    process.exit(0);
-});
+process.on('SIGTERM', shutdown);
+process.on('SIGINT', shutdown);
 
 // Start Server
 if (require.main === module) {
-    app.listen(PORT, () => {
-        console.log(`\n========================================`);
-        console.log(`  Thumbnail Builder Server`);
-        console.log(`========================================`);
-        console.log(`  Port:        ${PORT}`);
-        console.log(`  Environment: ${process.env.NODE_ENV || 'development'}`);
-        console.log(`  Nano API:    ${nanoConfig.nanoBanana.baseUrl}`);
-        console.log(`  API Key:     ${nanoConfig.nanoBanana.apiKey ? '✓ Configured' : '✗ Missing'}`);
-        console.log(`  Uploads:     ${uploadsDir}`);
-        console.log(`========================================\n`);
+    app.listen(PORT, function() {
+        console.log('\n========================================');
+        console.log('  Thumbnail Builder Server v2.0');
+        console.log('========================================');
+        console.log('  Port:        ' + PORT);
+        console.log('  Environment: ' + (process.env.NODE_ENV || 'development'));
+        console.log('  Nano API:    ' + nanoConfig.nanoBanana.baseUrl);
+        console.log('  API Key:     ' + (nanoConfig.nanoBanana.apiKey ? 'Configured' : 'Missing'));
+        console.log('  Redis:       ' + (process.env.REDIS_HOST || 'localhost') + ':' + (process.env.REDIS_PORT || 6379));
+        console.log('  Supabase:    ' + (storageService.isConfigured() ? 'Configured' : 'Not configured'));
+        console.log('  Uploads:     ' + uploadsDir);
+        console.log('========================================\n');
     });
 }
 
