@@ -7,11 +7,9 @@ const requiredVars = [
 ];
 
 // Validate Env Vars
-requiredVars.forEach(key => {
+requiredVars.forEach(function(key) {
     if (!process.env[key]) {
-        console.warn(\`WARNING: Missing required environment variable: \${key}\`);
-        // In production, we might want to throw error, but for dev/prototype we warn
-        // throw new Error(\`Missing required environment variable: \${key}\`);
+        console.warn('WARNING: Missing required environment variable: ' + key);
     }
 });
 

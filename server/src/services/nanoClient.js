@@ -7,7 +7,7 @@ class NanoBananaClient {
             baseURL: config.nanoBanana.baseUrl,
             timeout: config.nanoBanana.timeout,
             headers: {
-                'Authorization': \`Bearer \${config.nanoBanana.apiKey}\`,
+                'Authorization': 'Bearer ' + config.nanoBanana.apiKey,
                 'Content-Type': 'application/json'
             }
         });
@@ -46,7 +46,7 @@ class NanoBananaClient {
 
         for (let i = 0; i < maxAttempts; i++) {
             try {
-                const response = await this.client.get(\`/jobs/\${jobId}\`);
+                const response = await this.client.get('/jobs/' + jobId);
                 const status = response.data.status;
 
                 if (status === 'completed') {
@@ -56,9 +56,9 @@ class NanoBananaClient {
                 }
 
                 // Wait before next poll
-                await new Promise(resolve => setTimeout(resolve, interval));
+                await new Promise(function(resolve) { setTimeout(resolve, interval); });
             } catch (error) {
-                // If it's a 5xx error, we might want to retry polling. 
+                // If it's a 5xx error, we might want to retry polling.
                 // If it's 4xx (not found), we throw.
                 if (error.response && error.response.status >= 500) {
                     console.warn('[NanoBanana] Transient error polling job, retrying...');
@@ -73,19 +73,19 @@ class NanoBananaClient {
     handleError(error) {
         if (error.response) {
             // Server responded with a status code outside 2xx
-            const status = error.response.status;
-            const message = error.response.data?.message || error.message;
-            
+            var status = error.response.status;
+            var message = error.response.data?.message || error.message;
+
             if (status === 401) throw new Error('Nano Banana API Key invalid');
             if (status === 429) throw new Error('Nano Banana Rate Limit Exceeded');
             if (status >= 500) throw new Error('Nano Banana Service Unavailable');
-            
-            throw new Error(\`Nano Banana API Error (\${status}): \${message}\`);
+
+            throw new Error('Nano Banana API Error (' + status + '): ' + message);
         } else if (error.request) {
             // Request was made but no response received
             throw new Error('Nano Banana Network Error: No response received');
         } else {
-            throw new Error(\`Nano Banana Client Error: \${error.message}\`);
+            throw new Error('Nano Banana Client Error: ' + error.message);
         }
     }
 }
