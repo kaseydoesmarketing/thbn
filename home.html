@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thumbnail Builder - AI-Powered YouTube Thumbnails</title>
+    <link rel="stylesheet" href="styles.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Inter:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        .hero-home {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0f0f1a 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-home::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 80%;
+            height: 150%;
+            background: radial-gradient(ellipse, rgba(255,107,53,0.15) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .nav-home {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 48px;
+            position: relative;
+            z-index: 10;
+        }
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+        .nav-logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #ff6b35, #f7931e);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .nav-logo-icon::after {
+            content: '';
+            border: 8px solid transparent;
+            border-left: 12px solid white;
+            margin-left: 4px;
+        }
+        .nav-logo-text {
+            font-family: 'Outfit', sans-serif;
+            font-size: 22px;
+            font-weight: 600;
+            color: #fff;
+        }
+        .nav-actions {
+            display: flex;
+            gap: 16px;
+        }
+        .btn-nav {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .btn-nav-ghost {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+        }
+        .btn-nav-ghost:hover {
+            border-color: rgba(255,255,255,0.4);
+            background: rgba(255,255,255,0.05);
+        }
+        .btn-nav-primary {
+            background: linear-gradient(90deg, #ff6b35, #f7931e);
+            border: none;
+            color: #fff;
+        }
+        .btn-nav-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(255,107,53,0.3);
+        }
+        .hero-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0 24px;
+            position: relative;
+            z-index: 10;
+        }
+        .hero-badge {
+            background: rgba(255,107,53,0.1);
+            border: 1px solid rgba(255,107,53,0.3);
+            color: #ff6b35;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+        .hero-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 64px;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.1;
+            margin: 0 0 24px 0;
+            max-width: 800px;
+        }
+        .hero-title .gradient {
+            background: linear-gradient(90deg, #ff6b35, #f7c531);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero-subtitle {
+            font-size: 20px;
+            color: #888;
+            max-width: 600px;
+            line-height: 1.6;
+            margin: 0 0 40px 0;
+        }
+        .hero-cta {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 60px;
+        }
+        .btn-hero {
+            padding: 16px 32px;
+            border-radius: 10px;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .btn-hero-primary {
+            background: linear-gradient(90deg, #ff6b35, #f7931e);
+            border: none;
+            color: #fff;
+        }
+        .btn-hero-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 32px rgba(255,107,53,0.4);
+        }
+        .btn-hero-secondary {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+        }
+        .btn-hero-secondary:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        .hero-preview {
+            max-width: 900px;
+            width: 100%;
+            position: relative;
+        }
+        .preview-mockup {
+            background: rgba(30,30,40,0.8);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+        }
+        .preview-header {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .preview-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #333;
+        }
+        .preview-dot.red { background: #ff5f56; }
+        .preview-dot.yellow { background: #ffbd2e; }
+        .preview-dot.green { background: #27ca40; }
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        .preview-thumb {
+            aspect-ratio: 16/9;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #222 0%, #333 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #444;
+            overflow: hidden;
+        }
+        .preview-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .features-strip {
+            display: flex;
+            justify-content: center;
+            gap: 48px;
+            padding: 40px 24px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #666;
+            font-size: 15px;
+        }
+        .feature-icon {
+            width: 24px;
+            height: 24px;
+            background: rgba(255,107,53,0.2);
+            border-radius: 6px;
+        }
+        @media (max-width: 768px) {
+            .hero-title { font-size: 36px; }
+            .nav-home { padding: 16px 24px; }
+            .preview-grid { grid-template-columns: 1fr; }
+            .features-strip { flex-direction: column; gap: 16px; align-items: center; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="hero-home">
+        <nav class="nav-home">
+            <a href="/" class="nav-logo">
+                <div class="nav-logo-icon"></div>
+                <span class="nav-logo-text">Thumbnail Builder</span>
+            </a>
+            <div class="nav-actions">
+                <a href="/login.html" class="btn-nav btn-nav-ghost">Sign In</a>
+                <a href="/login.html#register" class="btn-nav btn-nav-primary">Get Started Free</a>
+            </div>
+        </nav>
+
+        <div class="hero-content">
+            <div class="hero-badge">Powered by Google Gemini AI</div>
+            <h1 class="hero-title">
+                Create Viral YouTube Thumbnails <span class="gradient">in Seconds</span>
+            </h1>
+            <p class="hero-subtitle">
+                Upload your face, describe your video, and let AI generate scroll-stopping thumbnails that get clicks. No design skills needed.
+            </p>
+            <div class="hero-cta">
+                <a href="/login.html#register" class="btn-hero btn-hero-primary">Start Creating Free</a>
+                <a href="#demo" class="btn-hero btn-hero-secondary">See Examples</a>
+            </div>
+
+            <div class="hero-preview" id="demo">
+                <div class="preview-mockup">
+                    <div class="preview-header">
+                        <div class="preview-dot red"></div>
+                        <div class="preview-dot yellow"></div>
+                        <div class="preview-dot green"></div>
+                    </div>
+                    <div class="preview-grid">
+                        <div class="preview-thumb">
+                            <img src="https://oonnxsvficzxpvevcjmk.supabase.co/storage/v1/object/public/thumbnails/00000000-0000-0000-0000-000000000001/3d6393f9-fc80-46e3-86ce-aa73fe3ed85d/A.png" alt="AI Generated Thumbnail">
+                        </div>
+                        <div class="preview-thumb">
+                            <img src="https://oonnxsvficzxpvevcjmk.supabase.co/storage/v1/object/public/thumbnails/00000000-0000-0000-0000-000000000001/3d6393f9-fc80-46e3-86ce-aa73fe3ed85d/B.png" alt="AI Generated Thumbnail">
+                        </div>
+                        <div class="preview-thumb">
+                            <img src="https://oonnxsvficzxpvevcjmk.supabase.co/storage/v1/object/public/thumbnails/00000000-0000-0000-0000-000000000001/e023d115-bb90-4221-b133-f358d7da264e/A.png" alt="AI Generated Thumbnail">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="features-strip">
+            <div class="feature-item">
+                <div class="feature-icon"></div>
+                <span>AI-Powered Generation</span>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon"></div>
+                <span>Multiple Variants</span>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon"></div>
+                <span>YouTube Optimized (1280x720)</span>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon"></div>
+                <span>Instant Download</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Handle #register hash
+        if (window.location.hash === '#register') {
+            window.location.href = '/login.html';
+            setTimeout(() => {
+                if (typeof toggleForm === 'function') toggleForm('register');
+            }, 100);
+        }
+
+        // If already logged in, go to dashboard
+        if (localStorage.getItem('tb_token')) {
+            document.querySelector('.nav-actions').innerHTML = `
+                <a href="/index.html" class="btn-nav btn-nav-primary">Go to Dashboard</a>
+            `;
+        }
+    </script>
+</body>
+
+</html>
