@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Update Content
         contents.forEach(content => {
             content.classList.remove('active');
-            if (content.id === \`step-\${currentStep}\`) {
+            if (content.id === `step-${currentStep}`) {
                 content.classList.add('active');
             }
         });
@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Update Right Panel
         panels.forEach(panel => {
             panel.classList.add('hidden');
-            if (panel.id === \`panel-step-\${currentStep}\`) {
+            if (panel.id === `panel-step-${currentStep}`) {
                 panel.classList.remove('hidden');
             }
         });
@@ -142,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function pollJob(jobId) {
         const interval = setInterval(async () => {
-            const res = await fetch(\`/api/jobs/\${jobId}\`);
+            const res = await fetch(`/api/jobs/${jobId}`);
             const job = await res.json();
 
             if (job.status === 'completed') {
@@ -162,15 +162,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderThumbnails(variants) {
         const grid = document.querySelector('.thumbnails-grid');
-        grid.innerHTML = variants.map(v => \`
+        grid.innerHTML = variants.map(v => `
             <div class="thumb-card">
-                <img src="\${v.url}" style="width:100%; height:180px; object-fit:cover;">
+                <img src="${v.url}" style="width:100%; height:180px; object-fit:cover;">
                 <div class="thumb-actions">
-                    <span>\${v.label}</span>
+                    <span>${v.label}</span>
                     <i class="far fa-star"></i>
                 </div>
             </div>
-        \`).join('');
+        `).join('');
     }
 
     // --- EVENT LISTENERS ---
