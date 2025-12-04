@@ -53,6 +53,62 @@ const upload = multer({
     }
 });
 
+// POST /api/faces/upload
+// Upload a single face image (used by frontend)
+router.post('/upload', upload.single('face'), async (req, res) => {
+    try {
+        const userId = req.userId;
+
+        if (!req.file) {
+            return res.status(400).json({ error: 'No image uploaded' });
+        }
+
+        console.log(`[Faces] Single upload for user ${userId}: ${req.file.filename}`);
+
+        // Find or create a default face profile for this user
+        let profileResult = await db.query(
+            `SELECT id FROM face_profiles WHERE user_id = $1 AND status = 'active' ORDER BY created_at DESC LIMIT 1`,
+            [userId]
+        );
+
+        let profileId;
+        if (profileResult.rows.length === 0) {
+            // Create default profile
+            const newProfile = await db.query(
+                `INSERT INTO face_profiles (user_id, name, status)
+                 VALUES ($1, 'My Faces', 'active')
+                 RETURNING id`,
+                [userId]
+            );
+            profileId = newProfile.rows[0].id;
+        } else {
+            profileId = profileResult.rows[0].id;
+        }
+
+        // Save the uploaded image
+        const storageKey = req.file.filename;
+        const imageResult = await db.query(
+            `INSERT INTO face_profile_images (face_profile_id, storage_key, quality_status)
+             VALUES ($1, $2, 'good')
+             RETURNING id`,
+            [profileId, storageKey]
+        );
+
+        res.json({
+            success: true,
+            face: {
+                id: imageResult.rows[0].id,
+                url: `/uploads/${storageKey}`,
+                filename: storageKey
+            }
+        });
+
+    } catch (error) {
+        console.error('[Faces] Single upload error:', error);
+        res.status(500).json({ error: 'Failed to upload face image' });
+    }
+});
+
 // POST /api/faces
 // Upload face reference images and create a face profile
 router.post('/', upload.array('images', 10), async (req, res) => {
