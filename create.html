@@ -441,11 +441,23 @@
             const card = document.createElement('div');
             card.className = 'face-card';
             card.id = id;
-            card.innerHTML = `
-                <img src="${src}" alt="Face">
-                <span class="status-badge ${status === 'Good' ? 'good' : status === 'Uploading...' ? 'warning' : 'error'}">${status}</span>
-                <button class="remove-face" onclick="removeFace('${id}')">&times;</button>
-            `;
+
+            const img = document.createElement('img');
+            img.src = src;
+            img.alt = 'Face';
+
+            const badge = document.createElement('span');
+            badge.className = 'status-badge ' + (status === 'Good' ? 'good' : status === 'Uploading...' ? 'warning' : 'error');
+            badge.textContent = status;
+
+            const btn = document.createElement('button');
+            btn.className = 'remove-face';
+            btn.textContent = '×';
+            btn.addEventListener('click', () => removeFace(id));
+
+            card.appendChild(img);
+            card.appendChild(badge);
+            card.appendChild(btn);
             faceGallery.appendChild(card);
         }
 

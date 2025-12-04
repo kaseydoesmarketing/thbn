@@ -17,11 +17,13 @@ var thumbnailQueue = require('./src/queues/thumbnailQueue');
 var app = express();
 var PORT = process.env.PORT || 3000;
 
-// Middleware
+// Middleware - CORS configuration
+var corsOrigin = process.env.CORS_ORIGIN || (process.env.NODE_ENV === 'production' ? 'https://thumbnailbuilder.app' : '*');
 app.use(cors({
-    origin: process.env.CORS_ORIGIN || '*',
+    origin: corsOrigin,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
 }));
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));

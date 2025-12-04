@@ -4,6 +4,10 @@ const path = require('path');
 const fs = require('fs');
 const router = express.Router();
 const db = require('../db/connection');
+const authMiddleware = require('../middleware/auth');
+
+// Require authentication for all face routes
+router.use(authMiddleware.requireAuth);
 
 // Configure upload directory
 const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(__dirname, '../../uploads');
@@ -53,7 +57,7 @@ const upload = multer({
 // Upload face reference images and create a face profile
 router.post('/', upload.array('images', 10), async (req, res) => {
     try {
-        const userId = req.userId || '00000000-0000-0000-0000-000000000001';
+        const userId = req.userId;
         const profileName = req.body.profileName || 'Default Profile';
 
         if (!req.files || req.files.length === 0) {
@@ -106,7 +110,7 @@ router.post('/', upload.array('images', 10), async (req, res) => {
 
     } catch (error) {
         console.error('[Faces] Upload error:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: 'Failed to upload face images' });
     }
 });
 
@@ -114,7 +118,7 @@ router.post('/', upload.array('images', 10), async (req, res) => {
 // Get all face profiles for user
 router.get('/', async (req, res) => {
     try {
-        const userId = req.userId || '00000000-0000-0000-0000-000000000001';
+        const userId = req.userId;
 
         const result = await db.query(
             `SELECT fp.id, fp.name, fp.status, fp.created_at,
@@ -141,7 +145,7 @@ router.get('/', async (req, res) => {
 
     } catch (error) {
         console.error('[Faces] List error:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: 'Failed to retrieve face profiles' });
     }
 });
 
@@ -149,7 +153,7 @@ router.get('/', async (req, res) => {
 // Get a specific face profile
 router.get('/:id', async (req, res) => {
     try {
-        const userId = req.userId || '00000000-0000-0000-0000-000000000001';
+        const userId = req.userId;
         const profileId = req.params.id;
 
         const result = await db.query(
@@ -178,7 +182,7 @@ router.get('/:id', async (req, res) => {
 
     } catch (error) {
         console.error('[Faces] Get profile error:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: 'Failed to retrieve face profile' });
     }
 });
 
@@ -186,7 +190,7 @@ router.get('/:id', async (req, res) => {
 // Archive a face profile (soft delete)
 router.delete('/:id', async (req, res) => {
     try {
-        const userId = req.userId || '00000000-0000-0000-0000-000000000001';
+        const userId = req.userId;
         const profileId = req.params.id;
 
         const result = await db.query(
@@ -205,7 +209,7 @@ router.delete('/:id', async (req, res) => {
 
     } catch (error) {
         console.error('[Faces] Delete profile error:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: 'Failed to archive face profile' });
     }
 });
 

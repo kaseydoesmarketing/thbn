@@ -18,8 +18,20 @@ router.post('/register', async function(req, res) {
             return res.status(400).json({ error: 'Email and password are required' });
         }
 
+        // Email validation
+        var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ error: 'Invalid email format' });
+        }
+
+        // Password validation - strength requirements
         if (password.length < 8) {
             return res.status(400).json({ error: 'Password must be at least 8 characters' });
+        }
+        if (!/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password)) {
+            return res.status(400).json({
+                error: 'Password must contain uppercase, lowercase, and numbers'
+            });
         }
 
         // Check if user exists
@@ -269,7 +281,12 @@ router.post('/admin/reject/:userId', authMiddleware.requireAuth, requireAdmin, a
             return res.status(403).json({ error: 'Cannot reject admin accounts' });
         }
 
-        // Delete pending user
+        // Only allow rejecting pending or suspended users
+        if (check.rows[0].status === 'approved') {
+            return res.status(400).json({ error: 'Cannot reject approved users. Use suspend first.' });
+        }
+
+        // Delete user
         await db.query('DELETE FROM users WHERE id = $1', [targetUserId]);
 
         console.log('[Admin] User rejected/deleted: ' + check.rows[0].email);
@@ -292,7 +309,7 @@ router.post('/admin/suspend/:userId', authMiddleware.requireAuth, requireAdmin, 
 
         // Check user exists
         var check = await db.query(
-            'SELECT id, email, role FROM users WHERE id = $1',
+            'SELECT id, email, role, status FROM users WHERE id = $1',
             [targetUserId]
         );
 
@@ -303,6 +320,11 @@ router.post('/admin/suspend/:userId', authMiddleware.requireAuth, requireAdmin, 
         // Don't allow suspending admins
         if (check.rows[0].role === 'admin') {
             return res.status(403).json({ error: 'Cannot suspend admin accounts' });
+        }
+
+        // Only allow suspending approved users
+        if (check.rows[0].status !== 'approved') {
+            return res.status(400).json({ error: 'Can only suspend approved users' });
         }
 
         // Suspend user
@@ -330,14 +352,25 @@ router.post('/admin/reactivate/:userId', authMiddleware.requireAuth, requireAdmi
     try {
         var targetUserId = req.params.userId;
 
+        // Check user exists and is suspended
+        var check = await db.query(
+            'SELECT id, email, status FROM users WHERE id = $1',
+            [targetUserId]
+        );
+
+        if (check.rows.length === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Only allow reactivating suspended users
+        if (check.rows[0].status !== 'suspended') {
+            return res.status(400).json({ error: 'Can only reactivate suspended users' });
+        }
+
         var result = await db.query(
             'UPDATE users SET status = $1, updated_at = NOW() WHERE id = $2 RETURNING id, email, status',
             ['approved', targetUserId]
         );
-
-        if (result.rows.length === 0) {
-            return res.status(404).json({ error: 'User not found' });
-        }
 
         console.log('[Admin] User reactivated: ' + result.rows[0].email);
 

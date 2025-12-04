@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS users (
     name VARCHAR(255),
     role VARCHAR(50) DEFAULT 'user', -- 'admin', 'user'
     status VARCHAR(50) DEFAULT 'pending', -- 'pending', 'approved', 'suspended'
-    approved_by UUID,
+    approved_by UUID REFERENCES users(id) ON DELETE SET NULL,
     approved_at TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -18,7 +18,7 @@ CREATE INDEX IF NOT EXISTS idx_users_status ON users(status);
 -- Face Profiles
 CREATE TABLE IF NOT EXISTS face_profiles (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     name VARCHAR(255),
     status VARCHAR(50) DEFAULT 'active', -- active, archived
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS face_profile_images (
 -- Thumbnail Jobs
 CREATE TABLE IF NOT EXISTS thumbnail_jobs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     video_url TEXT,
     video_title TEXT,
     niche VARCHAR(100),
@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS thumbnail_jobs (
 CREATE TABLE IF NOT EXISTS thumbnail_variants (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     thumbnail_job_id UUID REFERENCES thumbnail_jobs(id) ON DELETE CASCADE,
-    user_id UUID NOT NULL,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     storage_key VARCHAR(512) NOT NULL,
     variant_label VARCHAR(50), -- v1, v2, v3
     is_favorite BOOLEAN DEFAULT FALSE,

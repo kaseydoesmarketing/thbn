@@ -4,8 +4,8 @@ var db = require('../db/connection');
 var thumbnailQueue = require('../queues/thumbnailQueue');
 var authMiddleware = require('../middleware/auth');
 
-// Apply optional auth to all routes (sets userId if token present)
-router.use(authMiddleware.optionalAuth);
+// Require authentication for all thumbnail routes
+router.use(authMiddleware.requireAuth);
 
 // POST /api/generate
 // Starts a thumbnail generation job
@@ -57,7 +57,7 @@ router.post('/generate', async function(req, res) {
 
     } catch (error) {
         console.error('[Thumbnail] Generate error:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: 'Failed to start thumbnail generation' });
     }
 });
 
@@ -66,11 +66,12 @@ router.post('/generate', async function(req, res) {
 router.get('/jobs/:id', async function(req, res) {
     try {
         var jobId = req.params.id;
+        var userId = req.userId;
 
-        // Get job with variants
+        // Get job with variants - MUST verify ownership
         var jobResult = await db.query(
-            'SELECT id, status, video_url, video_title, niche, style_preset, error_message, created_at, updated_at FROM thumbnail_jobs WHERE id = $1',
-            [jobId]
+            'SELECT id, status, video_url, video_title, niche, style_preset, error_message, created_at, updated_at FROM thumbnail_jobs WHERE id = $1 AND user_id = $2',
+            [jobId, userId]
         );
 
         if (jobResult.rows.length === 0) {
@@ -109,7 +110,7 @@ router.get('/jobs/:id', async function(req, res) {
 
     } catch (error) {
         console.error('[Thumbnail] Get job error:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: 'Failed to retrieve job status' });
     }
 });
 
@@ -133,7 +134,7 @@ router.get('/library', async function(req, res) {
 
     } catch (error) {
         console.error('[Thumbnail] Library error:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: 'Failed to retrieve library' });
     }
 });
 
@@ -157,7 +158,7 @@ router.post('/variants/:id/favorite', async function(req, res) {
 
     } catch (error) {
         console.error('[Thumbnail] Favorite error:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: 'Failed to update favorite status' });
     }
 });
 
@@ -169,7 +170,7 @@ router.get('/queue/stats', async function(req, res) {
         res.json(stats);
     } catch (error) {
         console.error('[Thumbnail] Queue stats error:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: 'Failed to retrieve queue stats' });
     }
 });
 

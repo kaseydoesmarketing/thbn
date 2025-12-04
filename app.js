@@ -142,7 +142,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function pollJob(jobId) {
         const interval = setInterval(async () => {
-            const res = await fetch(`/api/jobs/${jobId}`);
+            const res = await fetch(`/api/jobs/${jobId}`, {
+                headers: authHeaders()
+            });
             const job = await res.json();
 
             if (job.status === 'completed') {
@@ -160,17 +162,42 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1000);
     }
 
+    // XSS prevention: escape HTML
+    function escapeHtml(text) {
+        if (text === null || text === undefined) return '';
+        const div = document.createElement('div');
+        div.textContent = String(text);
+        return div.innerHTML;
+    }
+
     function renderThumbnails(variants) {
         const grid = document.querySelector('.thumbnails-grid');
-        grid.innerHTML = variants.map(v => `
-            <div class="thumb-card">
-                <img src="${v.url}" style="width:100%; height:180px; object-fit:cover;">
-                <div class="thumb-actions">
-                    <span>${v.label}</span>
-                    <i class="far fa-star"></i>
-                </div>
-            </div>
-        `).join('');
+        grid.innerHTML = ''; // Clear existing content
+
+        variants.forEach(v => {
+            const card = document.createElement('div');
+            card.className = 'thumb-card';
+
+            const img = document.createElement('img');
+            img.src = v.url;
+            img.style.cssText = 'width:100%; height:180px; object-fit:cover;';
+            img.alt = 'Generated thumbnail';
+
+            const actions = document.createElement('div');
+            actions.className = 'thumb-actions';
+
+            const label = document.createElement('span');
+            label.textContent = v.label || 'Variant';
+
+            const star = document.createElement('i');
+            star.className = 'far fa-star';
+
+            actions.appendChild(label);
+            actions.appendChild(star);
+            card.appendChild(img);
+            card.appendChild(actions);
+            grid.appendChild(card);
+        });
     }
 
     // --- EVENT LISTENERS ---
