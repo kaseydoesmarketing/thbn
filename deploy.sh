@@ -67,8 +67,9 @@ if [ ! -f ".env" ]; then
     log_warn "Please edit /opt/thumbnailbuilder/server/.env with your actual credentials!"
 fi
 
-# Create uploads directory
+# Create uploads directory with correct permissions for nodejs user (uid 1001)
 mkdir -p uploads
+chown -R 1001:1001 uploads
 chmod 755 uploads
 
 # Build and start containers
