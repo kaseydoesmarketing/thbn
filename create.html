@@ -358,8 +358,41 @@
 
     </div>
 
-    <script src="mock-backend.js"></script>
     <script src="app.js"></script>
+    <script>
+        // Niche card selection
+        document.querySelectorAll('.niche-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.niche-card').forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+            });
+        });
+
+        // Style card selection
+        document.querySelectorAll('.style-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.style-card').forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+            });
+        });
+
+        // Chip buttons for brief
+        document.querySelectorAll('.chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                const textarea = document.querySelector('.brief-input');
+                if (textarea) {
+                    textarea.value += (textarea.value ? ', ' : '') + chip.textContent;
+                }
+            });
+        });
+
+        // Logout function
+        function logout() {
+            localStorage.removeItem('tb_token');
+            localStorage.removeItem('tb_user');
+            window.location.href = '/login.html';
+        }
+    </script>
 </body>
 
 </html>

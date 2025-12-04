@@ -144,6 +144,24 @@
 
     </main>
 
+    <script>
+        // Auth check
+        if (!localStorage.getItem('tb_token')) {
+            window.location.href = '/login.html';
+        }
+
+        // Start New Session button
+        document.querySelector('.btn-primary')?.addEventListener('click', () => {
+            window.location.href = '/create.html';
+        });
+
+        // Logout
+        function logout() {
+            localStorage.removeItem('tb_token');
+            localStorage.removeItem('tb_user');
+            window.location.href = '/login.html';
+        }
+    </script>
 </body>
 
 </html>

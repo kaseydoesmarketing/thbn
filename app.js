@@ -1,4 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Auth check - redirect to login if no token
+    const token = localStorage.getItem('tb_token');
+    if (!token) {
+        window.location.href = '/login.html';
+        return;
+    }
+
     const steps = document.querySelectorAll('.step-item');
     const contents = document.querySelectorAll('.step-content');
     const panels = document.querySelectorAll('.panel-content');
@@ -9,12 +16,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const totalSteps = steps.length;
     let currentJobId = null;
 
+    // Auth helper
+    function authHeaders() {
+        return {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + localStorage.getItem('tb_token')
+        };
+    }
+
     // State
     const state = {
         faceImages: [],
         videoUrl: '',
         style: '',
         brief: '',
+        niche: '',
         variants: []
     };
 
@@ -69,14 +85,49 @@ document.addEventListener('DOMContentLoaded', () => {
         btnNext.textContent = 'Generating...';
         btnNext.disabled = true;
 
+        // Get brief from textarea
+        const briefInput = document.querySelector('.brief-input');
+        if (briefInput) {
+            state.brief = briefInput.value;
+        }
+
+        // Get selected niche
+        const activeNiche = document.querySelector('.niche-card.active');
+        if (activeNiche) {
+            state.niche = activeNiche.textContent.trim();
+        }
+
+        // Get selected style
+        const activeStyle = document.querySelector('.style-card.active h4');
+        if (activeStyle) {
+            state.style = activeStyle.textContent.trim().toLowerCase().replace(' ', '-');
+        }
+
         try {
             // 1. Start Job
             const res = await fetch('/api/generate', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(state)
+                headers: authHeaders(),
+                body: JSON.stringify({
+                    brief: state.brief || 'Professional YouTube thumbnail',
+                    niche: state.niche,
+                    style: state.style || 'photorealistic',
+                    videoUrl: state.videoUrl
+                })
             });
+
+            if (res.status === 401) {
+                localStorage.removeItem('tb_token');
+                window.location.href = '/login.html';
+                return;
+            }
+
             const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.error || 'Generation failed');
+            }
+
             currentJobId = data.jobId;
 
             // 2. Poll
