@@ -41,9 +41,11 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // API Routes
-app.use('/api', thumbnailRoutes);
-app.use('/api/faces', facesRoutes);
+// IMPORTANT: Order matters! More specific routes must come before less specific ones.
+// Auth routes handle their own per-route auth middleware
 app.use('/api/auth', authRoutes);
+app.use('/api/faces', facesRoutes);
+app.use('/api', thumbnailRoutes);  // Keep at /api for /api/generate, /api/jobs, etc.
 
 // Health Check - comprehensive
 app.get('/health', async function(req, res) {
