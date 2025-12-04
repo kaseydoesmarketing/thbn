@@ -14,10 +14,16 @@ class GeminiImageClient {
     constructor() {
         this.apiKey = config.nanoBanana.apiKey;
         this.baseUrl = 'https://generativelanguage.googleapis.com/v1beta';
-        // Use stable image model - "Nano Banana" = gemini-2.0-flash-exp-image-generation
-        // Options: gemini-2.0-flash-exp, imagen-3.0-generate-002
+        // Image generation models:
+        // - gemini-2.0-flash-exp: Experimental, may have shared limits
+        // - imagen-3.0-generate-002: Dedicated image model (try if 2.0 fails)
+        // Set GEMINI_MODEL env var to override
         this.model = process.env.GEMINI_MODEL || 'gemini-2.0-flash-exp';
         this.timeout = config.nanoBanana.timeout || 120000; // 2 min timeout for image gen
+
+        // Track if we should try fallback model
+        this.useFallback = false;
+        this.fallbackModel = 'imagen-3.0-generate-002';
 
         // Rate limiting for image models:
         // Free tier: ~10-20 RPM, ~100 RPD
