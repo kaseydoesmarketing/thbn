@@ -4,11 +4,16 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     name VARCHAR(255),
+    role VARCHAR(50) DEFAULT 'user', -- 'admin', 'user'
+    status VARCHAR(50) DEFAULT 'pending', -- 'pending', 'approved', 'suspended'
+    approved_by UUID,
+    approved_at TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+CREATE INDEX IF NOT EXISTS idx_users_status ON users(status);
 
 -- Face Profiles
 CREATE TABLE IF NOT EXISTS face_profiles (

@@ -234,7 +234,13 @@
 
                 localStorage.setItem('tb_token', data.token);
                 localStorage.setItem('tb_user', JSON.stringify(data.user));
-                window.location.href = '/index.html';
+
+                // Redirect admin to admin dashboard
+                if (data.user.role === 'admin') {
+                    window.location.href = '/admin.html';
+                } else {
+                    window.location.href = '/index.html';
+                }
 
             } catch (err) {
                 showError(err.message);
@@ -268,9 +274,10 @@
                     throw new Error(data.error || 'Registration failed');
                 }
 
-                showSuccess('Account created! Please sign in.');
+                showSuccess('Account created! Your registration is pending admin approval. You will be notified when approved.');
                 toggleForm('login');
                 document.getElementById('login-email').value = document.getElementById('register-email').value;
+                document.getElementById('register-form').reset();
 
             } catch (err) {
                 showError(err.message);

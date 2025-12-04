@@ -35,25 +35,25 @@ router.post('/register', async function(req, res) {
         // Hash password
         var passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
 
-        // Create user
+        // Create user with pending status (requires admin approval)
         var result = await db.query(
-            'INSERT INTO users (email, password_hash, name) VALUES ($1, $2, $3) RETURNING id, email, name, created_at',
-            [email.toLowerCase(), passwordHash, name || null]
+            'INSERT INTO users (email, password_hash, name, role, status) VALUES ($1, $2, $3, $4, $5) RETURNING id, email, name, status, created_at',
+            [email.toLowerCase(), passwordHash, name || null, 'user', 'pending']
         );
 
         var user = result.rows[0];
-        var token = authMiddleware.generateToken(user);
 
-        console.log('[Auth] New user registered: ' + user.email);
+        console.log('[Auth] New user registered (pending approval): ' + user.email);
 
         res.status(201).json({
             success: true,
+            message: 'Registration submitted. Please wait for admin approval.',
             user: {
                 id: user.id,
                 email: user.email,
-                name: user.name
-            },
-            token: token
+                name: user.name,
+                status: user.status
+            }
         });
 
     } catch (error) {
@@ -74,7 +74,7 @@ router.post('/login', async function(req, res) {
 
         // Find user
         var result = await db.query(
-            'SELECT id, email, name, password_hash FROM users WHERE email = $1',
+            'SELECT id, email, name, password_hash, role, status FROM users WHERE email = $1',
             [email.toLowerCase()]
         );
 
@@ -91,16 +91,33 @@ router.post('/login', async function(req, res) {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
 
+        // Check account status
+        if (user.status === 'pending') {
+            return res.status(403).json({
+                error: 'Account pending approval',
+                message: 'Your account is awaiting admin approval. Please check back later.'
+            });
+        }
+
+        if (user.status === 'suspended') {
+            return res.status(403).json({
+                error: 'Account suspended',
+                message: 'Your account has been suspended. Contact admin for assistance.'
+            });
+        }
+
         var token = authMiddleware.generateToken(user);
 
-        console.log('[Auth] User logged in: ' + user.email);
+        console.log('[Auth] User logged in: ' + user.email + ' (role: ' + user.role + ')');
 
         res.json({
             success: true,
             user: {
                 id: user.id,
                 email: user.email,
-                name: user.name
+                name: user.name,
+                role: user.role,
+                status: user.status
             },
             token: token
         });
@@ -115,7 +132,7 @@ router.post('/login', async function(req, res) {
 router.get('/me', authMiddleware.requireAuth, async function(req, res) {
     try {
         var result = await db.query(
-            'SELECT id, email, name, created_at FROM users WHERE id = $1',
+            'SELECT id, email, name, role, status, created_at FROM users WHERE id = $1',
             [req.userId]
         );
 
@@ -128,6 +145,211 @@ router.get('/me', authMiddleware.requireAuth, async function(req, res) {
     } catch (error) {
         console.error('[Auth] Get user error:', error);
         res.status(500).json({ error: 'Failed to get user' });
+    }
+});
+
+// ============== ADMIN ROUTES ==============
+
+// Middleware to check admin role
+async function requireAdmin(req, res, next) {
+    try {
+        var result = await db.query(
+            'SELECT role FROM users WHERE id = $1',
+            [req.userId]
+        );
+
+        if (result.rows.length === 0 || result.rows[0].role !== 'admin') {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+
+        next();
+    } catch (error) {
+        res.status(500).json({ error: 'Authorization check failed' });
+    }
+}
+
+// GET /api/auth/admin/users - List all users (admin only)
+router.get('/admin/users', authMiddleware.requireAuth, requireAdmin, async function(req, res) {
+    try {
+        var status = req.query.status; // Filter by status: pending, approved, suspended
+
+        var query = 'SELECT id, email, name, role, status, approved_at, created_at FROM users ORDER BY created_at DESC';
+        var params = [];
+
+        if (status) {
+            query = 'SELECT id, email, name, role, status, approved_at, created_at FROM users WHERE status = $1 ORDER BY created_at DESC';
+            params = [status];
+        }
+
+        var result = await db.query(query, params);
+
+        res.json({ users: result.rows });
+
+    } catch (error) {
+        console.error('[Admin] List users error:', error);
+        res.status(500).json({ error: 'Failed to list users' });
+    }
+});
+
+// GET /api/auth/admin/pending - List pending users (admin only)
+router.get('/admin/pending', authMiddleware.requireAuth, requireAdmin, async function(req, res) {
+    try {
+        var result = await db.query(
+            'SELECT id, email, name, created_at FROM users WHERE status = $1 ORDER BY created_at ASC',
+            ['pending']
+        );
+
+        res.json({
+            pending: result.rows,
+            count: result.rows.length
+        });
+
+    } catch (error) {
+        console.error('[Admin] List pending error:', error);
+        res.status(500).json({ error: 'Failed to list pending users' });
+    }
+});
+
+// POST /api/auth/admin/approve/:userId - Approve user (admin only)
+router.post('/admin/approve/:userId', authMiddleware.requireAuth, requireAdmin, async function(req, res) {
+    try {
+        var targetUserId = req.params.userId;
+
+        // Check user exists and is pending
+        var check = await db.query(
+            'SELECT id, email, status FROM users WHERE id = $1',
+            [targetUserId]
+        );
+
+        if (check.rows.length === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        if (check.rows[0].status === 'approved') {
+            return res.status(400).json({ error: 'User already approved' });
+        }
+
+        // Approve user
+        var result = await db.query(
+            'UPDATE users SET status = $1, approved_by = $2, approved_at = NOW(), updated_at = NOW() WHERE id = $3 RETURNING id, email, name, status',
+            ['approved', req.userId, targetUserId]
+        );
+
+        console.log('[Admin] User approved: ' + result.rows[0].email + ' by admin ' + req.userId);
+
+        res.json({
+            success: true,
+            message: 'User approved successfully',
+            user: result.rows[0]
+        });
+
+    } catch (error) {
+        console.error('[Admin] Approve user error:', error);
+        res.status(500).json({ error: 'Failed to approve user' });
+    }
+});
+
+// POST /api/auth/admin/reject/:userId - Reject/delete pending user (admin only)
+router.post('/admin/reject/:userId', authMiddleware.requireAuth, requireAdmin, async function(req, res) {
+    try {
+        var targetUserId = req.params.userId;
+
+        // Check user exists
+        var check = await db.query(
+            'SELECT id, email, status FROM users WHERE id = $1',
+            [targetUserId]
+        );
+
+        if (check.rows.length === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Don't allow rejecting admins
+        if (check.rows[0].role === 'admin') {
+            return res.status(403).json({ error: 'Cannot reject admin accounts' });
+        }
+
+        // Delete pending user
+        await db.query('DELETE FROM users WHERE id = $1', [targetUserId]);
+
+        console.log('[Admin] User rejected/deleted: ' + check.rows[0].email);
+
+        res.json({
+            success: true,
+            message: 'User rejected and removed'
+        });
+
+    } catch (error) {
+        console.error('[Admin] Reject user error:', error);
+        res.status(500).json({ error: 'Failed to reject user' });
+    }
+});
+
+// POST /api/auth/admin/suspend/:userId - Suspend user (admin only)
+router.post('/admin/suspend/:userId', authMiddleware.requireAuth, requireAdmin, async function(req, res) {
+    try {
+        var targetUserId = req.params.userId;
+
+        // Check user exists
+        var check = await db.query(
+            'SELECT id, email, role FROM users WHERE id = $1',
+            [targetUserId]
+        );
+
+        if (check.rows.length === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Don't allow suspending admins
+        if (check.rows[0].role === 'admin') {
+            return res.status(403).json({ error: 'Cannot suspend admin accounts' });
+        }
+
+        // Suspend user
+        var result = await db.query(
+            'UPDATE users SET status = $1, updated_at = NOW() WHERE id = $2 RETURNING id, email, status',
+            ['suspended', targetUserId]
+        );
+
+        console.log('[Admin] User suspended: ' + result.rows[0].email);
+
+        res.json({
+            success: true,
+            message: 'User suspended',
+            user: result.rows[0]
+        });
+
+    } catch (error) {
+        console.error('[Admin] Suspend user error:', error);
+        res.status(500).json({ error: 'Failed to suspend user' });
+    }
+});
+
+// POST /api/auth/admin/reactivate/:userId - Reactivate suspended user (admin only)
+router.post('/admin/reactivate/:userId', authMiddleware.requireAuth, requireAdmin, async function(req, res) {
+    try {
+        var targetUserId = req.params.userId;
+
+        var result = await db.query(
+            'UPDATE users SET status = $1, updated_at = NOW() WHERE id = $2 RETURNING id, email, status',
+            ['approved', targetUserId]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        console.log('[Admin] User reactivated: ' + result.rows[0].email);
+
+        res.json({
+            success: true,
+            message: 'User reactivated',
+            user: result.rows[0]
+        });
+
+    } catch (error) {
+        console.error('[Admin] Reactivate user error:', error);
+        res.status(500).json({ error: 'Failed to reactivate user' });
     }
 });
 
