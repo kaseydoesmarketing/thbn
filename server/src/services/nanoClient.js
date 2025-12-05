@@ -4,27 +4,30 @@ var config = require('../config/nano');
 /**
  * Google Gemini Image Generation Client
  * "Nano Banana" is the community nickname for Gemini's image generation models
- * Uses gemini-2.0-flash-exp for image generation
  *
- * Rate Limits (Free Tier):
- * - Gemini 1.5 Flash: ~15 RPM
- * - Gemini 1.5 Pro: ~2 RPM
+ * Available Image Generation Models (Dec 2025):
+ * - gemini-2.5-flash-image: Latest stable image gen model (RECOMMENDED)
+ * - gemini-2.0-flash-preview-image-generation: Previous stable
+ * - gemini-2.0-flash-exp: Experimental (confirmed working)
+ * - gemini-3-pro-image-preview: Newest preview model
+ *
+ * Rate Limits (Free Tier): ~10-20 RPM, ~100 RPD
+ * Rate Limits (Paid Tier): ~500 RPM, ~2000 RPD
  */
 class GeminiImageClient {
     constructor() {
         this.apiKey = config.nanoBanana.apiKey;
         this.baseUrl = 'https://generativelanguage.googleapis.com/v1beta';
-        // Image generation models (must support image OUTPUT):
-        // - gemini-2.0-flash-exp: CONFIRMED WORKING - use this one
-        // - imagen-3.0-generate-002: Dedicated Imagen 3 model
-        // Note: gemini-2.5-flash does NOT exist in Google's API
+
+        // Primary model: gemini-2.5-flash-image (latest stable for image generation)
+        // Fallback: gemini-2.0-flash-exp (confirmed working)
         // Set GEMINI_MODEL env var to override
-        this.model = process.env.GEMINI_MODEL || 'gemini-2.0-flash-exp';
+        this.model = process.env.GEMINI_MODEL || 'gemini-2.5-flash-image';
         this.timeout = config.nanoBanana.timeout || 120000; // 2 min timeout for image gen
 
-        // Track if we should try fallback model
+        // Fallback model if primary fails
         this.useFallback = false;
-        this.fallbackModel = 'imagen-3.0-generate-002';
+        this.fallbackModel = 'gemini-2.0-flash-exp';
 
         // Rate limiting for image models:
         // Free tier: ~10-20 RPM, ~100 RPD
@@ -140,15 +143,37 @@ class GeminiImageClient {
 
     /**
      * Generate a single image using Gemini with rate limiting and retry
+     * Automatically falls back to secondary model if primary fails with 400
      */
     async generateSingleImage(prompt, variantIndex) {
+        var self = this;
+        var currentModel = this.useFallback ? this.fallbackModel : this.model;
+
+        try {
+            return await this._generateWithModel(currentModel, prompt, variantIndex);
+        } catch (error) {
+            // If primary model fails with 400 (model not found), try fallback
+            if (!this.useFallback && error.response && error.response.status === 400) {
+                console.log('[Gemini] Primary model failed, switching to fallback: ' + this.fallbackModel);
+                this.useFallback = true;
+                return await this._generateWithModel(this.fallbackModel, prompt, variantIndex);
+            }
+            throw error;
+        }
+    }
+
+    /**
+     * Internal: Generate image with specific model
+     */
+    async _generateWithModel(modelName, prompt, variantIndex) {
         var self = this;
 
         return await this.withRetry(async function() {
             // Wait for rate limit
             await self.waitForRateLimit();
 
-            var url = self.baseUrl + '/models/' + self.model + ':generateContent?key=' + self.apiKey;
+            var url = self.baseUrl + '/models/' + modelName + ':generateContent?key=' + self.apiKey;
+            console.log('[Gemini] Using model: ' + modelName);
 
             // Add slight variation to prompt for different results
             var variations = [
