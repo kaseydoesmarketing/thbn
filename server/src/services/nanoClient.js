@@ -15,11 +15,11 @@ class GeminiImageClient {
         this.apiKey = config.nanoBanana.apiKey;
         this.baseUrl = 'https://generativelanguage.googleapis.com/v1beta';
         // Image generation models (must support image OUTPUT):
-        // - gemini-2.5-flash: Latest flash model with image generation
-        // - gemini-2.0-flash-exp: Experimental with native image generation
+        // - gemini-2.0-flash-exp: CONFIRMED WORKING - use this one
         // - imagen-3.0-generate-002: Dedicated Imagen 3 model
+        // Note: gemini-2.5-flash does NOT exist in Google's API
         // Set GEMINI_MODEL env var to override
-        this.model = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+        this.model = process.env.GEMINI_MODEL || 'gemini-2.0-flash-exp';
         this.timeout = config.nanoBanana.timeout || 120000; // 2 min timeout for image gen
 
         // Track if we should try fallback model
