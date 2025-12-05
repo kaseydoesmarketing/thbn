@@ -944,6 +944,12 @@ function getCreatorStyleForNiche(niche) {
 /**
  * Build the ULTIMATE prompt combining creator style + niche specifics
  * This is the MASTER function for production use
+ *
+ * BASED ON GOOGLE'S OFFICIAL GEMINI PROMPTING GUIDANCE:
+ * 1. Describe the scene narratively, don't just list keywords
+ * 2. Use photographic language (lens specs, camera angles, lighting)
+ * 3. Be hyper-specific for more control
+ * 4. Provide context about the image's purpose
  */
 function buildUltimatePrompt(options) {
     const {
@@ -964,65 +970,103 @@ function buildUltimatePrompt(options) {
     const creator = CREATOR_STYLES[effectiveCreatorStyle];
     const nicheTemplate = NICHE_TEMPLATES[niche] || NICHE_TEMPLATES.reaction;
 
-    // Build comprehensive prompt
-    let prompt = `GENERATE A VIRAL YOUTUBE THUMBNAIL - ${creator.name} meets ${nicheTemplate.name}
-
-MASTER STYLE: ${creator.promptKeywords}
-
-NICHE CONTEXT: ${nicheTemplate.promptBase}
-
-CONTENT: ${brief}`;
-
-    // Add expression
+    // Get expression data
     const expressionData = expression
         ? (EXPRESSIONS[expression] || EXPRESSIONS.excited)
         : EXPRESSIONS.excited;
-    prompt += `
 
-FACIAL EXPRESSION: ${expressionData.keywords}`;
+    // Get niche-specific visual elements
+    const glowColor = getGlowColorForNiche(niche);
 
-    // Face compositing
+    // PROFESSIONAL PHOTOGRAPHY SPECS (based on Google's guidance)
+    const photographySpecs = {
+        gaming: 'shot with wide-angle lens, dramatic low angle, neon-lit environment, volumetric fog',
+        tech: 'shot with 50mm lens, eye-level angle, clean studio environment, softbox lighting',
+        finance: 'shot with 85mm portrait lens, slight low angle for authority, professional studio',
+        beauty: 'shot with 85mm portrait lens, soft beauty dish lighting, high-key environment',
+        fitness: 'shot with 35mm lens, dynamic angle, dramatic side lighting, gym environment',
+        cooking: 'shot with 50mm lens, overhead angle option, warm golden lighting, kitchen environment',
+        travel: 'shot with wide-angle lens, cinematic composition, golden hour lighting',
+        reaction: 'shot with 50mm lens, eye-level engaging angle, dramatic rim lighting, dark studio',
+        podcast: 'shot with 85mm lens, professional interview angle, three-point lighting setup',
+        tutorial: 'shot with 50mm lens, friendly angle, bright even lighting, clean background'
+    };
+    const photoSpec = photographySpecs[niche] || photographySpecs.reaction;
+
+    // BUILD NARRATIVE PROMPT (Google recommends descriptive paragraphs, not keyword lists)
+    let prompt = `Create a professional YouTube thumbnail image in the style of ${creator.name}.
+
+SCENE DESCRIPTION:
+Imagine a high-impact YouTube thumbnail designed to maximize click-through rate. The scene shows ${brief}. The overall mood is ${nicheTemplate.styleNotes || 'dramatic and attention-grabbing'}. This thumbnail must look like it was designed by a professional graphic designer, not AI-generated.
+
+PHOTOGRAPHY & CAMERA:
+This image is ${photoSpec}. The composition follows the rule of thirds with the main subject positioned on the left third of the frame. There is intentional negative space on the right side for text overlay. The depth of field creates separation between the subject and background.
+
+LIGHTING & ATMOSPHERE:
+${nicheTemplate.lightingKeywords}. The lighting creates dramatic shadows and highlights that give the image depth and dimension. There are visible rim lights in ${glowColor} color creating edge separation. The overall contrast is high - this thumbnail must pop on YouTube's white interface.
+
+COLOR PALETTE:
+Primary colors: ${creator.colors.primary}, ${creator.colors.secondary}. Background: ${creator.colors.background}. The colors are saturated and vibrant, designed to catch attention in a crowded YouTube feed.`;
+
+    // Face compositing with DETAILED narrative instructions
     if (hasFace) {
-        const glowColor = getGlowColorForNiche(niche);
         prompt += `
 
-PROFESSIONAL FACE COMPOSITING:
-- USE the EXACT face from the reference photo - preserve all features, skin tone, expression
-- CUTOUT EFFECT: ${creator.face.cutoutStroke} clean stroke around entire person
-- OUTER GLOW: Soft ${glowColor} halo behind person (${creator.face.outerGlow})
-- PLACEMENT: Person on LEFT side, ${creator.face.size}
-- RIM LIGHTING: Add edge glow matching the ${glowColor} color scheme
-- TEXT ZONE: Keep right 40-50% clear for text overlay
-- COMPOSITING QUALITY: Photoshop professional level, seamless blend`;
+PERSON IN THE IMAGE:
+The person from the reference photo is prominently featured, taking up 40-45% of the left side of the frame. Their face shows a ${expressionData.keywords} expression.
+
+CRITICAL COMPOSITING REQUIREMENTS:
+The person appears as a professional Photoshop cutout with these specific effects:
+1. A clean, crisp edge around the entire person - like a professional photo composite
+2. A visible ${glowColor} colored stroke/outline (4-6 pixels) around the person creating a "sticker effect"
+3. A soft ${glowColor} outer glow/halo emanating from behind the person, making them pop dramatically off the background
+4. Rim lighting on the edges of the person matching the ${glowColor} glow color
+5. The face, skin tone, and all features must be EXACTLY preserved from the reference photo - do not regenerate or modify the face
+
+The person's lighting matches the scene - there are no harsh mismatches between the subject and background lighting.`;
+    } else {
+        prompt += `
+
+The scene should feature ${expressionData.keywords} mood and energy. The composition has clear visual hierarchy with the main subject prominently featured.`;
     }
 
-    // Text space indicator (text will be added by textOverlayService)
+    // Visual effects and depth layers
+    prompt += `
+
+VISUAL EFFECTS & DEPTH:
+This thumbnail has multiple visual layers creating depth:
+- Background layer: ${nicheTemplate.compositionHint || 'relevant themed background with subtle motion blur or bokeh'}
+- Midground layer: Supporting visual elements, icons, or graphics related to ${brief}
+- Foreground layer: Main subject with dramatic lighting and glow effects
+Add subtle visual effects like: lens flares, light leaks, particle effects, or atmospheric haze where appropriate for the ${niche} style.`;
+
+    // Text space (text will be added by textOverlayService)
     if (thumbnailText) {
         prompt += `
 
-TEXT OVERLAY ZONE: Reserve space on RIGHT side for bold text: "${thumbnailText}"
-Text will be: ${creator.font.family}, ${creator.colors.text} with ${creator.colors.stroke} stroke`;
+TEXT SPACE:
+The right 40-50% of the image has clean negative space suitable for bold text overlay. The background in this area should be darker or simpler to ensure text readability. Do not place important visual elements in this zone.`;
     }
 
-    // Anti-AI techniques
+    // Anti-AI quality requirements
     prompt += `
 
-CRITICAL - ANTI-AI DETECTION (Must look HUMAN-DESIGNED):
-- ${ANTI_AI_TECHNIQUES.composition[0]}
-- ${ANTI_AI_TECHNIQUES.lighting[0]}
-- ${ANTI_AI_TECHNIQUES.texture[1]}
-- ${ANTI_AI_TECHNIQUES.human[0]}
-- Professional designer aesthetic, NOT generic AI output`;
+PROFESSIONAL QUALITY REQUIREMENTS:
+- This must look like a thumbnail created by a professional designer using Photoshop, NOT AI-generated
+- Intentional asymmetric composition (60/40 balance, not centered)
+- Natural imperfections in lighting and shadows (not too smooth or perfect)
+- High contrast that works at small thumbnail size (168x94 pixels on mobile)
+- Sharp details in the subject, with appropriate depth of field blur elsewhere
+- 16:9 aspect ratio (1280x720 pixels)
+- 8K quality fine details, professional photo retouching quality
+- The image should have the polished look of a thumbnail that would get millions of views`;
 
-    // Final specs
-    prompt += `
+    // Additional context
+    if (additionalContext) {
+        prompt += `
 
-TECHNICAL SPECS:
-- 16:9 (1280x720)
-- Ultra sharp, 8K quality details
-- HIGH CONTRAST for YouTube white interface
-- Mobile-legible at 168x94 pixels
-- Viral click-through aesthetic`;
+ADDITIONAL CONTEXT: ${additionalContext}`;
+    }
 
     return prompt;
 }

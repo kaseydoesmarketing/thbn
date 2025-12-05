@@ -91,19 +91,32 @@ class GeminiImageClient {
     /**
      * Creates a thumbnail generation job using Gemini API
      * Generates fewer variants to stay within rate limits
-     * @param {Object} payload - { prompt, style_preset, faceImages }
+     * @param {Object} payload - { prompt, style_preset, faceImages, useRawPrompt }
      * @param {Array} payload.faceImages - Optional array of {data: base64, mimeType: string}
+     * @param {boolean} payload.useRawPrompt - If true, use prompt directly without wrapping (for promptEngine prompts)
      */
     async createThumbnailJob(payload) {
         try {
             var prompt = payload.prompt;
             var style = payload.style_preset || 'photorealistic';
             var faceImages = payload.faceImages || [];
+            var useRawPrompt = payload.useRawPrompt !== false; // Default to TRUE - trust promptEngine
 
-            // Build enhanced prompt for YouTube thumbnail
-            var enhancedPrompt = this.buildThumbnailPrompt(prompt, style, faceImages.length > 0);
+            // Use prompt directly if it's already professionally crafted (from promptEngine)
+            // Only wrap if explicitly requested (legacy/simple prompts)
+            var enhancedPrompt;
+            if (useRawPrompt && prompt.length > 200) {
+                // Prompt is already detailed from promptEngine - use it directly
+                enhancedPrompt = prompt;
+                console.log('[Gemini] Using RAW prompt from promptEngine (no wrapping)');
+            } else {
+                // Simple prompt - wrap it for better results
+                enhancedPrompt = this.buildThumbnailPrompt(prompt, style, faceImages.length > 0);
+                console.log('[Gemini] Wrapped simple prompt with quality modifiers');
+            }
 
-            console.log('[Gemini] Generating thumbnails with prompt:', enhancedPrompt.substring(0, 100) + '...');
+            console.log('[Gemini] Generating thumbnails with prompt:', enhancedPrompt.substring(0, 150) + '...');
+            console.log('[Gemini] Prompt length:', enhancedPrompt.length, 'chars');
             if (faceImages.length > 0) {
                 console.log('[Gemini] Including ' + faceImages.length + ' face reference images');
             }
