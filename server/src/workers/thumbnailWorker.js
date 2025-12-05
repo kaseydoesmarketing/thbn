@@ -192,9 +192,10 @@ thumbnailQueue.queue.process('generate', async function(job) {
         hasFaceImages: !!(data.faceImages && data.faceImages.length > 0)
     }));
 
-    // Determine pipeline: Flux (preferred) or Gemini (fallback)
-    var useFlux = fluxClient.isAvailable() && data.faceImages && data.faceImages.length > 0;
-    var pipelineName = useFlux ? 'Flux PuLID + Text' : 'Gemini + Text';
+    // Determine pipeline: Gemini (preferred for face compositing) or Flux (fallback)
+    // Gemini preserves actual face photos, Flux generates new faces
+    var useGemini = data.faceImages && data.faceImages.length > 0;
+    var pipelineName = useGemini ? 'Gemini + Face + Text' : 'Gemini + Text';
 
     console.log('[Worker] Using pipeline: ' + pipelineName);
 
@@ -243,44 +244,26 @@ thumbnailQueue.queue.process('generate', async function(job) {
         job.progress(15);
 
         // =====================================================================
-        // STEP 3: Generate Images
+        // STEP 3: Generate Images - Gemini PRIMARY (preserves actual face photos)
         // =====================================================================
         var result;
 
-        if (useFlux && faceImageUrl) {
-            // PRIMARY: Flux PuLID - face likeness baked in
-            console.log('[Worker] Step 3: Generating with Flux PuLID (face preserved)...');
-
-            result = await fluxClient.generateWithFace({
-                faceImageUrl: faceImageUrl,
-                prompt: prompt,
-                numVariants: 2
-            });
-
-        } else if (fluxClient.isAvailable() && !faceImageUrl) {
-            // Flux without face
-            console.log('[Worker] Step 3: Generating with Flux (no face)...');
-
-            result = await fluxClient.generateWithoutFace({
-                prompt: prompt,
-                numVariants: 2
-            });
-
-        } else {
-            // FALLBACK: Gemini (legacy)
-            console.log('[Worker] Step 3: Generating with Gemini (fallback)...');
-
-            var faceImagesForGemini = [];
-            if (data.faceImages && data.faceImages.length > 0) {
-                faceImagesForGemini = await loadFaceImages(userId, data.faceImages);
-            }
-
-            result = await nanoClient.createThumbnailJob({
-                prompt: prompt,
-                style_preset: data.niche || 'photorealistic',
-                faceImages: faceImagesForGemini
-            });
+        // Load face images for Gemini multimodal
+        var faceImagesForGemini = [];
+        if (data.faceImages && data.faceImages.length > 0) {
+            console.log('[Worker] Step 3: Loading face images for Gemini...');
+            faceImagesForGemini = await loadFaceImages(userId, data.faceImages);
+            console.log('[Worker] Loaded ' + faceImagesForGemini.length + ' face images');
         }
+
+        // PRIMARY: Gemini with face compositing (keeps actual photo)
+        console.log('[Worker] Step 3: Generating with Gemini (face compositing)...');
+
+        result = await nanoClient.createThumbnailJob({
+            prompt: prompt,
+            style_preset: data.niche || 'photorealistic',
+            faceImages: faceImagesForGemini
+        });
 
         console.log('[Worker] Generated ' + (result.variants ? result.variants.length : 0) + ' variants');
         job.progress(50);

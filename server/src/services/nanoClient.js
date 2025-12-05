@@ -282,11 +282,14 @@ class GeminiImageClient {
             'Content: ' + userPrompt + '. ' +
             'Style: ' + styleText + '. ';
 
-        // Add face reference instructions if face images are provided
+        // Add face compositing instructions if face images are provided
         if (hasFaceImages) {
-            prompt += 'IMPORTANT: Use the provided face reference images to include the person in the thumbnail. ' +
-                'The person should be prominently featured, expressive, and match the energy of the content. ' +
-                'Preserve the person\'s likeness, facial features, and skin tone accurately. ';
+            prompt += 'CRITICAL: Composite the person from the provided face photo into this thumbnail. ' +
+                'Use their ACTUAL photo - do NOT regenerate or modify their face. ' +
+                'Place the person on the left side of the frame, taking up 35-45% of the image. ' +
+                'The face must be the EXACT photo provided, seamlessly blended into the generated background. ' +
+                'Match the lighting on the person to the scene. ' +
+                'Keep the expression from their photo. ';
         }
 
         prompt += 'Requirements: 16:9 aspect ratio (1280x720), attention-grabbing, ' +

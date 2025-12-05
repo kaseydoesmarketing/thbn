@@ -323,9 +323,9 @@ function buildProfessionalPrompt(options) {
         prompt += `. ${additionalContext}`;
     }
 
-    // Add face preservation instructions
+    // Add face compositing instructions for Gemini
     if (hasFace) {
-        prompt += `. CRITICAL: Generate the person with the EXACT face, skin tone, facial features, and likeness from the provided reference image. The person must be immediately recognizable as the same individual. Preserve all unique facial characteristics.`;
+        prompt += `. CRITICAL INSTRUCTION: Composite the person from the provided reference photo into this scene. Use their ACTUAL face photo - do NOT generate a new face. Place them on the left third of the frame. The person's face, skin tone, and features must be the EXACT photo provided, seamlessly composited onto the generated background. Match the lighting on the person to the scene lighting. The person should appear naturally placed in the environment, with their real photo preserved.`;
     }
 
     // Add quality boosters
