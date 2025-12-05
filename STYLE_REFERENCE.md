@@ -5,6 +5,89 @@
 
 ---
 
+## ACTIONABLE IMPLEMENTATION RULES (Priority Checklist)
+
+These are the MANDATORY rules that MUST be enforced programmatically.
+Based on quality audit comparing our outputs to professional thumbnails.
+
+### CRITICAL: Face Preservation
+| Rule | Implementation | Status |
+|------|----------------|--------|
+| Use EXACT face from reference | Face-swap API or IP-Adapter | Required |
+| Never regenerate faces | Composite real photo, don't generate | Required |
+| Skin tone accuracy | Match reference exactly | Required |
+
+### CRITICAL: Cutout Stroke Effect (The "Sticker Look")
+| Rule | Value | Implementation |
+|------|-------|----------------|
+| Stroke width | 4-8px (niche-dependent) | Programmatic post-process |
+| Stroke color | Match niche glow color | textOverlayService |
+| Outer glow | 15-30px blur, 50% opacity | SVG filter |
+| Edge crispness | Sharp pen-tool quality | ML segmentation |
+
+### CRITICAL: Text Impact
+| Rule | MrBeast | Hormozi | Gadzhi | Magnates |
+|------|---------|---------|--------|----------|
+| Font size | 180pt | 140pt | 100pt | 130pt |
+| Stroke width | 18px | 12px | 4px | 10px |
+| Shadow offset | 12px hard | 8px hard | 4px soft | 8px hard |
+| Text case | UPPER | UPPER | lower | UPPER |
+| Glow | Yellow | None | None | Red |
+
+### MANDATORY: Composition
+| Element | Rule | Enforcement |
+|---------|------|-------------|
+| Face position | Left 1/3 of frame | Prompt + validation |
+| Face size | 35-50% of frame | Prompt + validation |
+| Text space | Right 40-50% clear | Prompt guidance |
+| Asymmetry | 60/40 visual weight | Anti-AI prompts |
+
+### Text Overlay Specifications (Exact Values)
+```
+MrBeast:
+  font: Impact/Obelix Pro
+  size: 180px
+  fill: #FFFF00 (bright yellow)
+  stroke: #000000, 18px, outside
+  shadow: dx=12, dy=12, blur=0 (HARD)
+  glow: yellow, 15px blur
+
+Hormozi:
+  font: Montserrat Black (900)
+  size: 140px
+  fill: #F7C204 (exact yellow)
+  stroke: #000000, 12px
+  shadow: dx=8, dy=8, blur=0 (HARD)
+  case: ALL CAPS
+
+Gadzhi:
+  font: Montserrat Light (300)
+  size: 100px
+  fill: #FFFFFF (white only)
+  stroke: #000000, 4px
+  shadow: dx=4, dy=4, blur=0
+  case: lowercase (CRITICAL)
+
+Magnates:
+  font: Impact/Bebas Neue
+  size: 130px
+  fill: #FFFFFF or #CC0000
+  stroke: #000000, 10px
+  shadow: dx=8, dy=8, blur=0
+  glow: red, 20px blur
+```
+
+### Quality Gates (Pre-Export Checklist)
+- [ ] Face matches reference photo exactly
+- [ ] Cutout stroke visible around person
+- [ ] Text readable at 168x94px (mobile thumbnail)
+- [ ] Composition is asymmetric (not centered)
+- [ ] High contrast against YouTube's white interface
+- [ ] No AI smoothness on skin
+- [ ] Proper depth layers (BG, midground, FG)
+
+---
+
 ## Table of Contents
 
 1. [Executive Summary](#executive-summary)

@@ -24,95 +24,127 @@ const sharp = require('sharp');
 
 const CREATOR_TEXT_PRESETS = {
     // MrBeast: MASSIVE text, bright yellow, thick black stroke, hard shadow
+    // ENHANCED: Double-stroke + slight rotation for maximum viral impact
     mrbeast: {
         fontFamily: 'Impact, Arial Black, sans-serif',
         fontWeight: 900,
-        fontSize: 180, // MASSIVE
+        fontSize: 200, // INCREASED for maximum impact
         fill: '#FFFF00', // Bright yellow (signature)
         stroke: '#000000',
-        strokeWidth: 18, // THICK
-        shadow: { dx: 12, dy: 12, blur: 0, color: 'rgba(0,0,0,1)' }, // HARD shadow
-        glow: { blur: 15, color: '#FFFF00' } // Subtle yellow glow
+        strokeWidth: 20, // THICKER
+        doubleStroke: true, // NEW: Double-stroke effect
+        innerStroke: '#FFFFFF', // White inner stroke
+        innerStrokeWidth: 4,
+        shadow: { dx: 14, dy: 14, blur: 0, color: 'rgba(0,0,0,1)' }, // HARD shadow
+        glow: { blur: 18, color: '#FFFF00' }, // Yellow glow
+        rotation: -2, // Slight tilt for energy
+        textCase: 'uppercase'
     },
 
     // Alex Hormozi: Montserrat Black 900, yellow #F7C204, ALL CAPS (research-backed)
+    // ENHANCED: Larger size, double-stroke for authority
     hormozi: {
         fontFamily: 'Impact, Arial Black, sans-serif', // Montserrat Black fallback
         fontWeight: 900,          // BLACK weight (research: Montserrat 900)
-        fontSize: 140,
+        fontSize: 160, // INCREASED
         fill: '#F7C204',          // EXACT Hormozi yellow (research-verified)
         fillAlt: '#02FB23',       // EXACT Hormozi green for emphasis
         stroke: '#000000',
-        strokeWidth: 12,
-        shadow: { dx: 8, dy: 8, blur: 0, color: 'rgba(0,0,0,1)' },
+        strokeWidth: 14,
+        doubleStroke: true, // NEW: Double-stroke effect
+        innerStroke: '#FFFFFF',
+        innerStrokeWidth: 3,
+        shadow: { dx: 10, dy: 10, blur: 0, color: 'rgba(0,0,0,1)' },
         glow: null,
         textCase: 'uppercase'     // ALL CAPS (research-backed)
     },
 
     // Iman Gadzhi: MINIMALIST - WHITE ONLY, lowercase, NO glow (research-backed)
+    // KEEP SUBTLE - This style is intentionally understated for luxury feel
     gadzhi: {
         fontFamily: 'Helvetica Neue, Arial, sans-serif', // Montserrat Light fallback
         fontWeight: 300,          // LIGHT weight (research: Montserrat Light)
         fontWeightBold: 700,      // Bold for emphasis words
-        fontSize: 100,            // Smaller, elegant sizing
+        fontSize: 110,            // Slightly larger but still elegant
         fill: '#FFFFFF',          // WHITE ONLY - no colors
         stroke: '#000000',
-        strokeWidth: 4,           // Subtle stroke (not thick)
-        shadow: { dx: 4, dy: 4, blur: 0, color: 'rgba(0,0,0,0.8)' },
+        strokeWidth: 5,           // Subtle stroke (not thick)
+        doubleStroke: false,      // NO double-stroke for minimalist feel
+        shadow: { dx: 5, dy: 5, blur: 0, color: 'rgba(0,0,0,0.8)' },
         glow: null,               // NO GLOW - clean minimalist
         textCase: 'lowercase'     // CRITICAL: lowercase for premium feel
     },
 
     // Magnates Media: Documentary cinematic - Impact/Bebas Neue, red/black (research-backed)
+    // ENHANCED: Double-stroke with red accents for drama
     magnates: {
         fontFamily: 'Impact, Arial Black, sans-serif', // Bebas Neue fallback (tall narrow)
         fontWeight: 900,
-        fontSize: 130,
+        fontSize: 150, // INCREASED
         fill: '#FFFFFF',          // White text primary
         fillAlt: '#CC0000',       // Red text for emphasis
         stroke: '#000000',        // Black stroke (red/black palette)
-        strokeWidth: 10,
-        shadow: { dx: 8, dy: 8, blur: 0, color: 'rgba(0,0,0,1)' },
-        glow: { blur: 20, color: '#CC0000' }, // Red dramatic glow
+        strokeWidth: 12,
+        doubleStroke: true, // NEW: Double-stroke effect
+        innerStroke: '#CC0000', // Red inner stroke for drama
+        innerStrokeWidth: 3,
+        shadow: { dx: 10, dy: 10, blur: 0, color: 'rgba(0,0,0,1)' },
+        glow: { blur: 22, color: '#CC0000' }, // Red dramatic glow
+        rotation: -1, // Slight tilt
         textCase: 'uppercase'     // ALL CAPS documentary style
     }
 };
 
 const TEXT_PRESETS = {
     // PRO PRESET: Maximum impact - MrBeast style (default)
+    // ENHANCED: Double-stroke for viral impact
     bold: {
         fontFamily: 'Impact, Arial Black, sans-serif',
         fontWeight: 900,
-        fontSize: 160, // LARGER for mobile visibility
+        fontSize: 180, // EVEN LARGER for mobile visibility
         fill: '#FFFFFF',
         stroke: '#000000',
-        strokeWidth: 16, // THICKER stroke
-        shadow: { dx: 10, dy: 10, blur: 0, color: 'rgba(0,0,0,1)' }, // HARD shadow
-        glow: null
+        strokeWidth: 18, // THICKER stroke
+        doubleStroke: true, // NEW
+        innerStroke: '#FFFFFF',
+        innerStrokeWidth: 4,
+        shadow: { dx: 12, dy: 12, blur: 0, color: 'rgba(0,0,0,1)' }, // HARD shadow
+        glow: null,
+        textCase: 'uppercase'
     },
 
     // Gaming: Neon cyberpunk style (MrBeast meets gaming)
+    // ENHANCED: Brighter glow, double-stroke
     gaming: {
         fontFamily: 'Impact, Arial Black, sans-serif',
         fontWeight: 900,
-        fontSize: 150,
+        fontSize: 170,
         fill: '#00FFFF',
         stroke: '#000000',
-        strokeWidth: 14,
-        shadow: { dx: 8, dy: 8, blur: 0, color: 'rgba(0,0,0,1)' },
-        glow: { blur: 25, color: '#00D4FF' }
+        strokeWidth: 16,
+        doubleStroke: true, // NEW
+        innerStroke: '#00FFFF',
+        innerStrokeWidth: 3,
+        shadow: { dx: 10, dy: 10, blur: 0, color: 'rgba(0,0,0,1)' },
+        glow: { blur: 30, color: '#00D4FF' }, // BIGGER glow
+        textCase: 'uppercase'
     },
 
     // Finance: Gold on black - Hormozi wealth aesthetic
+    // ENHANCED: Richer gold, double-stroke
     finance: {
         fontFamily: 'Impact, Arial Black, sans-serif',
         fontWeight: 900,
-        fontSize: 150,
+        fontSize: 170,
         fill: '#FFD700',
         stroke: '#000000',
-        strokeWidth: 14,
-        shadow: { dx: 8, dy: 8, blur: 0, color: 'rgba(0,0,0,1)' },
-        glow: { blur: 12, color: '#FFD700' }
+        strokeWidth: 16,
+        doubleStroke: true, // NEW
+        innerStroke: '#FFFFFF',
+        innerStrokeWidth: 3,
+        shadow: { dx: 10, dy: 10, blur: 0, color: 'rgba(0,0,0,1)' },
+        glow: { blur: 15, color: '#FFD700' },
+        textCase: 'uppercase'
     },
 
     // Tech: Clean but bold - Hormozi/MKBHD hybrid
@@ -140,15 +172,21 @@ const TEXT_PRESETS = {
     },
 
     // Reaction: MAXIMUM ATTENTION - MrBeast signature
+    // ENHANCED: Double-stroke + rotation for viral energy
     reaction: {
         fontFamily: 'Impact, Arial Black, sans-serif',
         fontWeight: 900,
-        fontSize: 180, // BIGGEST for reaction thumbnails
+        fontSize: 200, // BIGGEST for reaction thumbnails
         fill: '#FFFF00',
         stroke: '#000000',
-        strokeWidth: 18, // THICCEST stroke
-        shadow: { dx: 12, dy: 12, blur: 0, color: 'rgba(0,0,0,1)' }, // Hard shadow
-        glow: null
+        strokeWidth: 22, // THICCEST stroke
+        doubleStroke: true, // NEW
+        innerStroke: '#FFFFFF',
+        innerStrokeWidth: 5,
+        shadow: { dx: 14, dy: 14, blur: 0, color: 'rgba(0,0,0,1)' }, // Hard shadow
+        glow: { blur: 20, color: '#FFFF00' }, // Yellow glow for attention
+        rotation: -2, // Slight tilt
+        textCase: 'uppercase'
     },
 
     // Fitness: Red energy - Hormozi intensity
@@ -278,6 +316,7 @@ const POSITIONS = {
 
 /**
  * Generate SVG text with styling
+ * ENHANCED: Double-stroke effect for maximum impact (inner stroke + outer stroke)
  * @param {string} text - The text to render
  * @param {Object} style - Style configuration
  * @param {Object} position - Position configuration
@@ -294,14 +333,18 @@ function generateTextSVG(text, style, position, width = 1280, height = 720) {
         strokeWidth = 10,
         shadow = null,
         glow = null,
-        rotation = 0
+        rotation = 0,
+        doubleStroke = false,           // NEW: Enable double-stroke effect
+        innerStroke = '#FFFFFF',         // NEW: Inner stroke color
+        innerStrokeWidth = 4             // NEW: Inner stroke width
     } = style;
 
     const { x, y, anchor = 'start' } = position;
 
-    // Scale font size based on canvas dimensions
-    const scaledFontSize = Math.round(fontSize * (width / 1280));
+    // Scale font size based on canvas dimensions (20% boost for impact)
+    const scaledFontSize = Math.round(fontSize * 1.15 * (width / 1280));
     const scaledStrokeWidth = Math.round(strokeWidth * (width / 1280));
+    const scaledInnerStrokeWidth = Math.round(innerStrokeWidth * (width / 1280));
 
     // Build filter definitions for effects
     let filterDefs = '';
@@ -363,9 +406,58 @@ function generateTextSVG(text, style, position, width = 1280, height = 720) {
     let textElements = '';
     lines.forEach((line, index) => {
         const lineY = startY + (index * lineHeight);
+        const rotationAttr = rotation ? `transform="rotate(${rotation} ${x} ${lineY})"` : '';
 
-        // Text with stroke (paint-order makes stroke render behind fill)
-        textElements += `
+        if (doubleStroke) {
+            // DOUBLE-STROKE TECHNIQUE: Outer black stroke + Inner white stroke + Fill
+            // Layer 1: Large outer stroke (black) - for separation from background
+            textElements += `
+            <text
+                x="${x}"
+                y="${lineY}"
+                font-family="${fontFamily}"
+                font-weight="${fontWeight}"
+                font-size="${scaledFontSize}"
+                text-anchor="${anchor}"
+                fill="none"
+                stroke="${stroke}"
+                stroke-width="${scaledStrokeWidth + scaledInnerStrokeWidth}"
+                stroke-linejoin="round"
+                ${filterRef}
+                ${rotationAttr}
+            >${escapeXML(line)}</text>`;
+
+            // Layer 2: Inner stroke (white or accent) - for polish
+            textElements += `
+            <text
+                x="${x}"
+                y="${lineY}"
+                font-family="${fontFamily}"
+                font-weight="${fontWeight}"
+                font-size="${scaledFontSize}"
+                text-anchor="${anchor}"
+                fill="none"
+                stroke="${innerStroke}"
+                stroke-width="${scaledInnerStrokeWidth}"
+                stroke-linejoin="round"
+                ${rotationAttr}
+            >${escapeXML(line)}</text>`;
+
+            // Layer 3: Fill on top
+            textElements += `
+            <text
+                x="${x}"
+                y="${lineY}"
+                font-family="${fontFamily}"
+                font-weight="${fontWeight}"
+                font-size="${scaledFontSize}"
+                text-anchor="${anchor}"
+                fill="${fill}"
+                ${rotationAttr}
+            >${escapeXML(line)}</text>`;
+        } else {
+            // Single stroke with paint-order (original behavior)
+            textElements += `
             <text
                 x="${x}"
                 y="${lineY}"
@@ -379,8 +471,9 @@ function generateTextSVG(text, style, position, width = 1280, height = 720) {
                 stroke-linejoin="round"
                 paint-order="stroke fill"
                 ${filterRef}
-                ${rotation ? `transform="rotate(${rotation} ${x} ${lineY})"` : ''}
+                ${rotationAttr}
             >${escapeXML(line)}</text>`;
+        }
     });
 
     return `<?xml version="1.0" encoding="UTF-8"?>
