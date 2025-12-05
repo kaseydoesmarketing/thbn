@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            width: 1200px;
+            height: 630px;
+            background: linear-gradient(135deg, #050508 0%, #0A0A12 50%, #12121A 100%);
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+            display: flex;
+            overflow: hidden;
+            position: relative;
+        }
+        /* Grid overlay */
+        .grid-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+        }
+        /* Glow effect */
+        .glow {
+            position: absolute;
+            top: -200px;
+            right: -100px;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(255, 85, 0, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .glow-2 {
+            position: absolute;
+            bottom: -200px;
+            left: -100px;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(157, 0, 255, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        /* Content */
+        .content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 60px 80px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+        .left {
+            flex: 1;
+            max-width: 600px;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 85, 0, 0.1);
+            border: 1px solid rgba(255, 85, 0, 0.3);
+            border-radius: 100px;
+            padding: 8px 16px;
+            font-size: 14px;
+            color: #FF5500;
+            margin-bottom: 24px;
+        }
+        .badge svg {
+            width: 16px;
+            height: 16px;
+        }
+        h1 {
+            font-size: 56px;
+            font-weight: 800;
+            color: #FFFFFF;
+            line-height: 1.1;
+            margin-bottom: 20px;
+        }
+        h1 span {
+            background: linear-gradient(90deg, #FF5500, #9D00FF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        p {
+            font-size: 22px;
+            color: #9494A8;
+            line-height: 1.5;
+            margin-bottom: 32px;
+        }
+        .features {
+            display: flex;
+            gap: 24px;
+        }
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #FFFFFF;
+            font-size: 16px;
+        }
+        .feature svg {
+            color: #00FF94;
+        }
+        /* Right side - mockup */
+        .right {
+            flex: 0 0 450px;
+            position: relative;
+        }
+        .mockup {
+            background: #12121A;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            transform: perspective(1000px) rotateY(-5deg) rotateX(2deg);
+        }
+        .mockup-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .dot.red { background: #FF5F57; }
+        .dot.yellow { background: #FFBD2E; }
+        .dot.green { background: #28CA41; }
+        .mockup-title {
+            color: #9494A8;
+            font-size: 13px;
+            margin-left: 8px;
+        }
+        .thumbs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .thumb {
+            background: linear-gradient(135deg, #1A1A24, #2A2A34);
+            border-radius: 8px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .thumb::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 85, 0, 0.2), rgba(157, 0, 255, 0.2));
+            opacity: 0.5;
+        }
+        .thumb-label {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background: rgba(255, 85, 0, 0.9);
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 4px;
+            z-index: 1;
+        }
+        /* Logo */
+        .logo {
+            position: absolute;
+            bottom: 40px;
+            left: 80px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #FF5500, #FF2200);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .logo-text {
+            color: #FFFFFF;
+            font-size: 20px;
+            font-weight: 600;
+        }
+        .url {
+            position: absolute;
+            bottom: 40px;
+            right: 80px;
+            color: #9494A8;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-overlay"></div>
+    <div class="glow"></div>
+    <div class="glow-2"></div>
+
+    <div class="content">
+        <div class="left">
+            <div class="badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+                AI-Powered
+            </div>
+            <h1>Online Thumbnail<br><span>Designer</span></h1>
+            <p>Create viral YouTube thumbnails in 60 seconds. Upload your face, describe your video, get 4 pro designs.</p>
+            <div class="features">
+                <div class="feature">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Free to Start
+                </div>
+                <div class="feature">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    No Design Skills
+                </div>
+                <div class="feature">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Face Preservation
+                </div>
+            </div>
+        </div>
+
+        <div class="right">
+            <div class="mockup">
+                <div class="mockup-header">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                    <span class="mockup-title">Generated Thumbnails</span>
+                </div>
+                <div class="thumbs">
+                    <div class="thumb"><span class="thumb-label">A</span></div>
+                    <div class="thumb"><span class="thumb-label">B</span></div>
+                    <div class="thumb"><span class="thumb-label">C</span></div>
+                    <div class="thumb"><span class="thumb-label">D</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="logo">
+        <div class="logo-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+                <path d="M8 5.14v14l11-7-11-7z"/>
+            </svg>
+        </div>
+        <span class="logo-text">ThumbnailBuilder</span>
+    </div>
+
+    <span class="url">thumbnailbuilder.app</span>
+</body>
+</html>
