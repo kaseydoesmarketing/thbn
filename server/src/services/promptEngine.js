@@ -13,7 +13,17 @@
  * - Human-like imperfections in composition
  * - Professional Photoshop techniques (not AI smoothness)
  * - Real photography lighting patterns
+ *
+ * COMPOSITING (Updated V2):
+ * - Default: Natural blending (NO hard strokes by default)
+ * - Optional: Sticker/cutout effect when explicitly requested
+ * - See: ../config/compositingRules.js for full specifications
  */
+
+const {
+    getCompositingInstructions,
+    getDefaultCompositingMode
+} = require('../config/compositingRules');
 
 // ============================================================================
 // CREATOR STYLE TEMPLATES - Locked-in exact specifications
@@ -571,20 +581,24 @@ function buildProfessionalPrompt(options) {
         prompt += `. ${additionalContext}`;
     }
 
-    // Add face compositing instructions with PRO DESIGN ELEMENTS
+    // Add face compositing instructions using new COMPOSITING RULES
     if (hasFace) {
-        // Get niche-specific glow color for the stroke/glow effect
+        // Get appropriate compositing mode based on niche
+        const compositingMode = getDefaultCompositingMode({ niche });
         const glowColor = getGlowColorForNiche(niche);
+        const compositingInstructions = getCompositingInstructions(compositingMode, {
+            glowColor,
+            hasFace: true
+        });
 
-        prompt += `. CRITICAL DESIGN INSTRUCTIONS FOR FACE:
-1. COMPOSITE the person from the provided reference photo - use their ACTUAL face, do NOT regenerate it.
-2. CUT OUT EFFECT: The person should appear cleanly cut out from any original background with a crisp edge.
-3. COLORED STROKE/BORDER: Add a visible ${glowColor} colored stroke/outline (3-5 pixel equivalent) around the entire person creating a "sticker effect" that separates them from the background.
-4. OUTER GLOW: Add a soft ${glowColor} outer glow/halo effect behind the person to make them pop off the background dramatically.
-5. PLACEMENT: Position the person on the LEFT side of the frame, taking up 35-45% of the image width. Face should be at eye-level, not too high or low.
-6. LIGHTING MATCH: The lighting on the person must match the scene - add rim lighting on the edges that matches the ${glowColor} glow.
-7. LEAVE TEXT SPACE: Keep the right 40-50% of the frame relatively clean for text overlay - avoid putting important elements there.
-8. The face must be the EXACT photo provided, seamlessly blended with professional compositing.`;
+        prompt += `.
+
+${compositingInstructions}
+
+PLACEMENT:
+- Position the person on the LEFT side of the frame, taking up 35-45% of the image width
+- Face should be at eye-level, not too high or low
+- Keep the right 40-50% of the frame relatively clean for text overlay`;
     }
 
     // Add PRO THUMBNAIL quality boosters
@@ -827,18 +841,23 @@ CONTENT BRIEF: ${brief}`;
 
 EXPRESSION: ${expressionText}`;
 
-    // Add face compositing with CREATOR-SPECIFIC cutout styling
+    // Add face compositing with CREATOR-SPECIFIC styling (using compositing rules)
     if (hasFace) {
+        // Get compositing mode for this creator style
+        const compositingMode = getDefaultCompositingMode({ creatorStyle });
+        const glowColor = getGlowColorForNiche(niche);
+        const compositingInstructions = getCompositingInstructions(compositingMode, {
+            glowColor,
+            hasFace: true
+        });
+
         prompt += `
 
-CRITICAL FACE COMPOSITING (${creator.name} Style):
-1. USE the EXACT face from the provided photo - do NOT regenerate or modify the face
-2. CUTOUT STROKE: ${creator.face.cutoutStroke} stroke around the ENTIRE person (sticker/cutout effect)
-3. OUTER GLOW: ${creator.face.outerGlow} glow behind the person for separation
-4. PLACEMENT: ${creator.face.placement} of frame
-5. SIZE: Person should fill ${creator.face.size}
-6. The face must be EXACTLY from the photo - skin tone, features, expression all preserved
-7. Seamless professional Photoshop-quality compositing`;
+FACE COMPOSITING (${creator.name} Style):
+${compositingInstructions}
+
+PLACEMENT: ${creator.face.placement} of frame
+SIZE: Person should fill ${creator.face.size}`;
     }
 
     // Add ANTI-AI TECHNIQUES to make it look human-designed
@@ -951,15 +970,17 @@ VISUAL STYLE & QUALITY:
             brief.toLowerCase().includes('left') ||
             brief.toLowerCase().includes('right');
 
+        // Use natural compositing by default (no hard strokes)
+        const compositingMode = getDefaultCompositingMode({ niche });
+        const compositingInstructions = getCompositingInstructions(compositingMode, {
+            glowColor,
+            hasFace: true
+        });
+
         prompt += `
 
 PERSON/FACE COMPOSITING:
-- Use the EXACT face from the reference photo provided
-- Professional cutout with crisp edges (Photoshop pen tool quality)
-- Add ${glowColor} colored stroke/outline around the person (3-5px)
-- Add soft ${glowColor} outer glow for dramatic background separation
-- Rim lighting on edges matching the glow color
-- Face features, skin tone, expression must be PRESERVED exactly from the photo`;
+${compositingInstructions}`;
 
         // Only add position guidance if user didn't specify
         if (!hasPositionInBrief) {
@@ -1094,20 +1115,21 @@ ${nicheTemplate.lightingKeywords}. The lighting creates dramatic shadows and hig
 COLOR PALETTE:
 Primary colors: ${creator.colors.primary}, ${creator.colors.secondary}. Background: ${creator.colors.background}. The colors are saturated and vibrant, designed to catch attention in a crowded YouTube feed.`;
 
-    // Face compositing with DETAILED narrative instructions
+    // Face compositing with DETAILED narrative instructions (using V2 compositing rules)
     if (hasFace) {
+        // Get compositing mode based on context
+        const compositingMode = getDefaultCompositingMode({ creatorStyle: effectiveCreatorStyle, niche });
+        const compositingInstructions = getCompositingInstructions(compositingMode, {
+            glowColor,
+            hasFace: true
+        });
+
         prompt += `
 
 PERSON IN THE IMAGE:
 The person from the reference photo is prominently featured, taking up 40-45% of the left side of the frame. Their face shows a ${expressionData.keywords} expression.
 
-CRITICAL COMPOSITING REQUIREMENTS:
-The person appears as a professional Photoshop cutout with these specific effects:
-1. A clean, crisp edge around the entire person - like a professional photo composite
-2. A visible ${glowColor} colored stroke/outline (4-6 pixels) around the person creating a "sticker effect"
-3. A soft ${glowColor} outer glow/halo emanating from behind the person, making them pop dramatically off the background
-4. Rim lighting on the edges of the person matching the ${glowColor} glow color
-5. The face, skin tone, and all features must be EXACTLY preserved from the reference photo - do not regenerate or modify the face
+${compositingInstructions}
 
 The person's lighting matches the scene - there are no harsh mismatches between the subject and background lighting.`;
     } else {
