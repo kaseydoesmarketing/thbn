@@ -1,13 +1,253 @@
 /**
  * Prompt Engine for YouTube Thumbnails
- * Implements the comprehensive STYLE_REFERENCE.md system
+ * MASTER SYSTEM - Emulates top creator styles perfectly
  *
- * This engine generates professional-quality prompts based on:
- * - Niche-specific templates (Gaming, Tech, Finance, Beauty, Fitness, Cooking, Travel)
- * - Expression library (Shocked, Excited, Curious, Angry, Fear, Disgusted)
- * - Lighting techniques (Rim light, High key, Low key, Neon)
- * - Composition rules (Rule of thirds, 60/40 split, Visual hierarchy)
+ * CREATOR STYLES MASTERED:
+ * - MrBeast: Bold colors, Obelix Pro font, exaggerated emotions, $$ imagery
+ * - Alex Hormozi: Montserrat Black, yellow/white/black, confident authority
+ * - Iman Gadzhi: Minimalist luxury, clean gradients, sophisticated
+ * - Magnates Media: Documentary dramatic, red/black, cinematic moody
+ *
+ * ANTI-AI DETECTION:
+ * - Intentional asymmetry (60/40 not 50/50)
+ * - Human-like imperfections in composition
+ * - Professional Photoshop techniques (not AI smoothness)
+ * - Real photography lighting patterns
  */
+
+// ============================================================================
+// CREATOR STYLE TEMPLATES - Locked-in exact specifications
+// ============================================================================
+
+const CREATOR_STYLES = {
+    mrbeast: {
+        name: 'MrBeast Style',
+        description: 'Maximum viral impact - bold, exaggerated, high-energy',
+        colors: {
+            primary: '#FFFF00',      // Bright yellow (signature)
+            secondary: '#FF0000',    // Intense red
+            accent: '#00BFFF',       // Electric blue
+            text: '#FFFFFF',         // White text
+            stroke: '#000000',       // Black stroke
+            background: '#1A1A1A'    // Dark background
+        },
+        font: {
+            family: 'Obelix Pro, Impact, Arial Black',
+            weight: 900,
+            size: 180,               // MASSIVE text
+            strokeWidth: 18,         // THICK black stroke
+            shadow: { dx: 12, dy: 12, blur: 0, color: 'rgba(0,0,0,1)' }
+        },
+        face: {
+            expression: 'EXTREME shock or excitement - wide eyes, open mouth, raised eyebrows',
+            placement: 'left 40%',
+            size: '45% of frame',
+            cutoutStroke: 'white 6px',
+            outerGlow: 'yellow/cyan 30px blur'
+        },
+        composition: {
+            textPosition: 'right center',
+            textWords: '1-3 words MAX',
+            background: 'solid dark or dramatic scene',
+            props: 'money, cars, challenges, extreme items'
+        },
+        promptKeywords: 'MrBeast YouTube thumbnail style, EXTREME expression, jaw-dropped shocked face, bold saturated colors, massive money pile, dramatic lighting, viral thumbnail aesthetic, professional photography quality, high contrast, attention-grabbing, white stroke cutout around person'
+    },
+
+    hormozi: {
+        name: 'Alex Hormozi Style',
+        description: 'Business authority - confident, clean, high-value aesthetic',
+        colors: {
+            primary: '#F7C204',      // Hormozi yellow
+            secondary: '#02FB23',    // Hormozi green
+            accent: '#FF0000',       // Red accent
+            text: '#FFFFFF',         // White text
+            stroke: '#000000',       // Black stroke
+            background: '#0A0A0A'    // Pure dark
+        },
+        font: {
+            family: 'Montserrat Black, Impact, Anton',
+            weight: 900,
+            size: 140,
+            strokeWidth: 12,
+            shadow: { dx: 8, dy: 8, blur: 0, color: 'rgba(0,0,0,1)' }
+        },
+        face: {
+            expression: 'confident knowing look, slight smirk, intense direct eye contact',
+            placement: 'left 35%',
+            size: '40% of frame',
+            cutoutStroke: 'white or yellow 4px',
+            outerGlow: 'subtle warm 15px'
+        },
+        composition: {
+            textPosition: 'right side',
+            textWords: '2-4 words, creates intrigue',
+            background: 'dark gradient, gym equipment, office, wealth indicators',
+            props: 'business elements, charts going up, dollar signs'
+        },
+        promptKeywords: 'Alex Hormozi YouTube thumbnail style, confident business leader pose, dark moody background, professional studio lighting, high contrast, yellow and white accents on black, authoritative presence, gym owner entrepreneur aesthetic, clean composition, wealth and success imagery'
+    },
+
+    gadzhi: {
+        name: 'Iman Gadzhi Style',
+        description: 'Luxury minimalist - sophisticated, clean, aspirational',
+        colors: {
+            primary: '#FFFFFF',      // Clean white
+            secondary: '#C9A227',    // Gold
+            accent: '#1A1A1A',       // Deep black
+            text: '#FFFFFF',         // White text
+            stroke: '#000000',       // Black or gold stroke
+            background: '#0D0D0D'    // Rich dark
+        },
+        font: {
+            family: 'Montserrat, Helvetica Neue, SF Pro',
+            weight: 800,
+            size: 120,
+            strokeWidth: 8,
+            shadow: { dx: 6, dy: 6, blur: 2, color: 'rgba(0,0,0,0.9)' }
+        },
+        face: {
+            expression: 'calm confident, successful, slight knowing smile',
+            placement: 'center-left 35%',
+            size: '35-40% of frame',
+            cutoutStroke: 'subtle white 3px or gold',
+            outerGlow: 'soft warm gold 12px'
+        },
+        composition: {
+            textPosition: 'right or bottom',
+            textWords: '2-5 words, provocative',
+            background: 'luxury gradient, Dubai skyline, private jets, yachts',
+            props: 'luxury lifestyle, travel, success symbols'
+        },
+        promptKeywords: 'Iman Gadzhi YouTube thumbnail style, young entrepreneur luxury aesthetic, minimalist clean design, dark sophisticated background, gold accents, Dubai lifestyle, private jet yacht imagery, aspirational wealth, clean typography, professional photography, subtle gradient background'
+    },
+
+    magnates: {
+        name: 'Magnates Media Style',
+        description: 'Documentary dramatic - cinematic, story-driven, moody',
+        colors: {
+            primary: '#CC0000',      // Documentary red
+            secondary: '#FFFFFF',    // White
+            accent: '#FFD700',       // Gold accent
+            text: '#FFFFFF',         // White text
+            stroke: '#000000',       // Black stroke
+            background: '#0A0A0A'    // Cinematic dark
+        },
+        font: {
+            family: 'Impact, Bebas Neue, Oswald',
+            weight: 900,
+            size: 130,
+            strokeWidth: 10,
+            shadow: { dx: 8, dy: 8, blur: 0, color: 'rgba(0,0,0,1)' }
+        },
+        face: {
+            expression: 'dramatic portrait, intense gaze, story subject',
+            placement: 'center or rule of thirds',
+            size: '50-60% of frame (dramatic close-up)',
+            cutoutStroke: 'red or white 4px',
+            outerGlow: 'red dramatic 20px'
+        },
+        composition: {
+            textPosition: 'top or bottom dramatic',
+            textWords: '3-6 words, story hook',
+            background: 'dramatic lighting, shadows, corporate imagery, scandal aesthetic',
+            props: 'documents, money, corporate logos, dramatic scenes'
+        },
+        promptKeywords: 'Magnates Media documentary thumbnail style, dramatic cinematic lighting, moody dark atmosphere, red and black color scheme, investigative journalism aesthetic, corporate scandal imagery, dramatic portrait lighting, Netflix documentary style, high contrast shadows, story-driven composition, mysterious intriguing mood'
+    }
+};
+
+// ============================================================================
+// ANTI-AI DETECTION TECHNIQUES - Make thumbnails look human-designed
+// ============================================================================
+
+// ============================================================================
+// PRO DESIGN SPECIFICATIONS - Based on research of thousands of viral thumbnails
+// ============================================================================
+
+const PRO_DESIGN_SPECS = {
+    // Pixel dimensions
+    dimensions: {
+        width: 1280,
+        height: 720,
+        aspectRatio: '16:9'
+    },
+
+    // Face placement rules (backed by research)
+    face: {
+        coverageMin: 0.40,           // Face should cover 40%+ of thumbnail
+        coverageOptimal: 0.45,       // 45% is optimal for viral
+        positionHorizontal: 'left',  // Face on LEFT (MrBeast, Hormozi pattern)
+        positionVertical: 0.33,      // Eyes on top third line (rule of thirds)
+        eyeContact: true,            // Direct eye contact = +25% CTR
+        expressionIntensity: 'high'  // Strong emotions outperform neutral
+    },
+
+    // Text rules
+    text: {
+        maxWords: 4,                 // 3-5 words MAX (shorter is better)
+        position: 'right',           // Text on RIGHT (opposite of face)
+        readableAtSize: 168,         // Must be readable at 168x94 thumbnail size
+        strokeWidthMin: 8,           // Minimum stroke for visibility
+        strokeWidthOptimal: 12,      // Optimal stroke width
+        strokePosition: 'outside'    // Photoshop stroke position = outside
+    },
+
+    // Color psychology (high-performing colors)
+    colors: {
+        highCTR: ['#FF0000', '#FFFF00', '#00BFFF', '#FF00FF'],
+        attention: ['#FFD700', '#00FF00', '#FF4500', '#00FFFF'],
+        contrast: 'high',            // High contrast outperforms monotone
+        background: 'dark'           // Dark backgrounds make subjects pop
+    },
+
+    // Timing
+    viewerAttention: 1.8,            // 1.8 seconds to make impression
+    scanPattern: 'Z-pattern'         // Eyes scan thumbnails in Z pattern
+};
+
+const ANTI_AI_TECHNIQUES = {
+    composition: [
+        'intentional 60/40 asymmetric balance (NOT centered)',
+        'slight rotation on text elements (-2 to 3 degrees)',
+        'organic placement that feels hand-designed',
+        'rule of thirds with subject on intersection points',
+        'visual weight distributed naturally',
+        'Z-pattern eye flow guiding to call-to-action'
+    ],
+    lighting: [
+        'real photography rim light patterns',
+        'natural shadow falloff (not AI-smooth)',
+        'visible light source direction',
+        'slight color temperature variation',
+        'professional studio three-point lighting feel',
+        'edge separation glow on subject'
+    ],
+    texture: [
+        'subtle grain or noise in shadows',
+        'sharp crisp edges on cutouts (Photoshop quality)',
+        'natural skin texture preserved',
+        'no AI smoothing or plastic look',
+        'realistic cloth/hair detail',
+        'professional photo retouching quality'
+    ],
+    human: [
+        'authentic facial expression (not AI-generated face)',
+        'real photograph composited professionally',
+        'natural body language and pose',
+        'genuine emotion that connects with viewer',
+        'direct eye contact with camera',
+        'expression matches video emotion'
+    ],
+    photoshop: [
+        'clean pen tool cutout edges',
+        'stroke applied OUTSIDE (not inside)',
+        'layer style outer glow for separation',
+        'drop shadow with realistic angle',
+        'color grade matches background mood',
+        'professional masking around hair'
+    ]
+};
 
 // ============================================================================
 // NICHE TEMPLATES - From STYLE_REFERENCE.md Section "Niche-Specific Templates"
@@ -510,13 +750,287 @@ function getTextStyleForNiche(niche) {
     return textStyles[niche] || textStyles.reaction;
 }
 
+// ============================================================================
+// CREATOR STYLE PROMPT BUILDER - Master level thumbnail generation
+// ============================================================================
+
+/**
+ * Build a CREATOR-STYLE thumbnail prompt
+ * Uses locked-in specifications from top YouTubers: MrBeast, Hormozi, Gadzhi, Magnates
+ *
+ * @param {Object} options
+ * @param {string} options.brief - User's content description
+ * @param {string} options.creatorStyle - Creator style key (mrbeast, hormozi, gadzhi, magnates)
+ * @param {string} options.niche - Fallback niche if no creator style specified
+ * @param {string} options.expression - Expression override (otherwise uses creator default)
+ * @param {boolean} options.hasFace - Whether face reference is provided
+ * @param {string} options.additionalContext - Extra context from user
+ */
+function buildCreatorStylePrompt(options) {
+    const {
+        brief,
+        creatorStyle,
+        niche = 'reaction',
+        expression,
+        hasFace = false,
+        additionalContext
+    } = options;
+
+    // Get creator style template (fall back to niche-based if not specified)
+    const creator = CREATOR_STYLES[creatorStyle];
+
+    if (!creator) {
+        // No creator style specified, use enhanced niche-based prompt
+        return buildProfessionalPrompt(options);
+    }
+
+    // Build the master-level prompt using creator specifications
+    let prompt = `Generate a PROFESSIONAL YouTube thumbnail in the exact style of ${creator.name}.
+
+CREATOR STYLE SPECIFICATIONS:
+${creator.promptKeywords}
+
+COLOR PALETTE (EXACT):
+- Primary: ${creator.colors.primary}
+- Secondary: ${creator.colors.secondary}
+- Text: ${creator.colors.text} with ${creator.colors.stroke} stroke
+- Background: ${creator.colors.background}
+
+FONT STYLE:
+- Family: ${creator.font.family}
+- Weight: ${creator.font.weight}
+- Size: MASSIVE ${creator.font.size}pt equivalent
+- Stroke: ${creator.font.strokeWidth}px black outline
+- Shadow: ${creator.font.shadow.dx}px ${creator.font.shadow.dy}px hard drop shadow (NO BLUR)
+
+COMPOSITION:
+- Text position: ${creator.composition.textPosition}
+- Text length: ${creator.composition.textWords}
+- Background style: ${creator.composition.background}
+- Props/elements: ${creator.composition.props}
+
+CONTENT BRIEF: ${brief}`;
+
+    // Add expression - use creator default or override
+    const expressionText = expression
+        ? (EXPRESSIONS[expression]?.keywords || creator.face.expression)
+        : creator.face.expression;
+    prompt += `
+
+EXPRESSION: ${expressionText}`;
+
+    // Add face compositing with CREATOR-SPECIFIC cutout styling
+    if (hasFace) {
+        prompt += `
+
+CRITICAL FACE COMPOSITING (${creator.name} Style):
+1. USE the EXACT face from the provided photo - do NOT regenerate or modify the face
+2. CUTOUT STROKE: ${creator.face.cutoutStroke} stroke around the ENTIRE person (sticker/cutout effect)
+3. OUTER GLOW: ${creator.face.outerGlow} glow behind the person for separation
+4. PLACEMENT: ${creator.face.placement} of frame
+5. SIZE: Person should fill ${creator.face.size}
+6. The face must be EXACTLY from the photo - skin tone, features, expression all preserved
+7. Seamless professional Photoshop-quality compositing`;
+    }
+
+    // Add ANTI-AI TECHNIQUES to make it look human-designed
+    prompt += `
+
+ANTI-AI DETECTION (CRITICAL - Make it look HUMAN-DESIGNED, not AI):
+COMPOSITION: ${ANTI_AI_TECHNIQUES.composition.join(', ')}
+LIGHTING: ${ANTI_AI_TECHNIQUES.lighting.join(', ')}
+TEXTURE: ${ANTI_AI_TECHNIQUES.texture.join(', ')}
+HUMAN ELEMENTS: ${ANTI_AI_TECHNIQUES.human.join(', ')}`;
+
+    // Add additional context
+    if (additionalContext) {
+        prompt += `
+
+ADDITIONAL CONTEXT: ${additionalContext}`;
+    }
+
+    // Final quality requirements
+    prompt += `
+
+PROFESSIONAL REQUIREMENTS:
+- 16:9 aspect ratio (1280x720)
+- Ultra high quality, sharp focus
+- HIGH CONTRAST that pops on YouTube's white interface
+- Works at small mobile thumbnail size (168x94 pixels)
+- Looks like it was designed by a professional designer, NOT AI
+- Viral thumbnail aesthetic with proven click-through patterns`;
+
+    return prompt;
+}
+
+/**
+ * Get creator style text configuration for textOverlayService
+ * Returns the EXACT font/color settings for each creator style
+ */
+function getCreatorTextStyle(creatorStyle) {
+    const creator = CREATOR_STYLES[creatorStyle];
+
+    if (!creator) {
+        // Return default viral style
+        return {
+            fontFamily: 'Impact, Arial Black, sans-serif',
+            fontWeight: 900,
+            fontSize: 160,
+            fill: '#FFFF00',
+            stroke: '#000000',
+            strokeWidth: 14,
+            shadow: { dx: 10, dy: 10, blur: 0, color: 'rgba(0,0,0,1)' },
+            glow: null
+        };
+    }
+
+    return {
+        fontFamily: creator.font.family,
+        fontWeight: creator.font.weight,
+        fontSize: creator.font.size,
+        fill: creator.colors.text,
+        stroke: creator.colors.stroke,
+        strokeWidth: creator.font.strokeWidth,
+        shadow: creator.font.shadow,
+        glow: creatorStyle === 'mrbeast' ? { blur: 15, color: creator.colors.primary } : null
+    };
+}
+
+/**
+ * Get all available creator styles
+ */
+function getCreatorStyles() {
+    return Object.entries(CREATOR_STYLES).map(([key, data]) => ({
+        key,
+        name: data.name,
+        description: data.description,
+        colors: data.colors
+    }));
+}
+
+/**
+ * Auto-select the best creator style for a given niche
+ * Maps niches to the creator style that fits best
+ */
+function getCreatorStyleForNiche(niche) {
+    const nicheToCreator = {
+        gaming: 'mrbeast',        // High energy, viral
+        tech: 'hormozi',          // Clean, professional
+        finance: 'hormozi',       // Business authority
+        beauty: 'gadzhi',         // Luxury aesthetic
+        fitness: 'hormozi',       // Confidence, results
+        cooking: 'mrbeast',       // Vibrant, exciting
+        travel: 'gadzhi',         // Aspirational luxury
+        reaction: 'mrbeast',      // Maximum attention
+        podcast: 'magnates',      // Documentary feel
+        tutorial: 'hormozi',      // Professional trust
+        business: 'hormozi',      // Authority
+        luxury: 'gadzhi',         // Sophisticated
+        documentary: 'magnates',  // Cinematic
+        entertainment: 'mrbeast'  // Viral energy
+    };
+
+    return nicheToCreator[niche] || 'mrbeast';
+}
+
+/**
+ * Build the ULTIMATE prompt combining creator style + niche specifics
+ * This is the MASTER function for production use
+ */
+function buildUltimatePrompt(options) {
+    const {
+        brief,
+        creatorStyle,
+        niche = 'reaction',
+        expression,
+        hasFace = false,
+        thumbnailText,
+        additionalContext
+    } = options;
+
+    // Determine creator style: use specified or auto-select based on niche
+    const effectiveCreatorStyle = creatorStyle || getCreatorStyleForNiche(niche);
+    const creator = CREATOR_STYLES[effectiveCreatorStyle];
+    const nicheTemplate = NICHE_TEMPLATES[niche] || NICHE_TEMPLATES.reaction;
+
+    // Build comprehensive prompt
+    let prompt = `GENERATE A VIRAL YOUTUBE THUMBNAIL - ${creator.name} meets ${nicheTemplate.name}
+
+MASTER STYLE: ${creator.promptKeywords}
+
+NICHE CONTEXT: ${nicheTemplate.promptBase}
+
+CONTENT: ${brief}`;
+
+    // Add expression
+    const expressionData = expression
+        ? (EXPRESSIONS[expression] || EXPRESSIONS.excited)
+        : EXPRESSIONS.excited;
+    prompt += `
+
+FACIAL EXPRESSION: ${expressionData.keywords}`;
+
+    // Face compositing
+    if (hasFace) {
+        const glowColor = getGlowColorForNiche(niche);
+        prompt += `
+
+PROFESSIONAL FACE COMPOSITING:
+- USE the EXACT face from the reference photo - preserve all features, skin tone, expression
+- CUTOUT EFFECT: ${creator.face.cutoutStroke} clean stroke around entire person
+- OUTER GLOW: Soft ${glowColor} halo behind person (${creator.face.outerGlow})
+- PLACEMENT: Person on LEFT side, ${creator.face.size}
+- RIM LIGHTING: Add edge glow matching the ${glowColor} color scheme
+- TEXT ZONE: Keep right 40-50% clear for text overlay
+- COMPOSITING QUALITY: Photoshop professional level, seamless blend`;
+    }
+
+    // Text space indicator (text will be added by textOverlayService)
+    if (thumbnailText) {
+        prompt += `
+
+TEXT OVERLAY ZONE: Reserve space on RIGHT side for bold text: "${thumbnailText}"
+Text will be: ${creator.font.family}, ${creator.colors.text} with ${creator.colors.stroke} stroke`;
+    }
+
+    // Anti-AI techniques
+    prompt += `
+
+CRITICAL - ANTI-AI DETECTION (Must look HUMAN-DESIGNED):
+- ${ANTI_AI_TECHNIQUES.composition[0]}
+- ${ANTI_AI_TECHNIQUES.lighting[0]}
+- ${ANTI_AI_TECHNIQUES.texture[1]}
+- ${ANTI_AI_TECHNIQUES.human[0]}
+- Professional designer aesthetic, NOT generic AI output`;
+
+    // Final specs
+    prompt += `
+
+TECHNICAL SPECS:
+- 16:9 (1280x720)
+- Ultra sharp, 8K quality details
+- HIGH CONTRAST for YouTube white interface
+- Mobile-legible at 168x94 pixels
+- Viral click-through aesthetic`;
+
+    return prompt;
+}
+
 module.exports = {
     buildProfessionalPrompt,
+    buildCreatorStylePrompt,
+    buildUltimatePrompt,
     getNiches,
     getExpressions,
     getTextStyleForNiche,
+    getCreatorTextStyle,
+    getCreatorStyles,
+    getCreatorStyleForNiche,
     NICHE_TEMPLATES,
     EXPRESSIONS,
     LIGHTING_PRESETS,
-    COMPOSITION_RULES
+    COMPOSITION_RULES,
+    CREATOR_STYLES,
+    ANTI_AI_TECHNIQUES,
+    PRO_DESIGN_SPECS
 };

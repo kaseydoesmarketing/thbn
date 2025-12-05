@@ -195,9 +195,10 @@ thumbnailQueue.queue.process('generate', async function(job) {
     // Determine pipeline: Gemini (preferred for face compositing) or Flux (fallback)
     // Gemini preserves actual face photos, Flux generates new faces
     var useGemini = data.faceImages && data.faceImages.length > 0;
-    var pipelineName = useGemini ? 'Gemini + Face + Text' : 'Gemini + Text';
+    var effectiveCreatorStyle = data.creatorStyle || 'auto';
+    var pipelineName = 'ULTIMATE (' + effectiveCreatorStyle + ') + ' + (useGemini ? 'Face' : 'No Face') + ' + Text';
 
-    console.log('[Worker] Using pipeline: ' + pipelineName);
+    console.log('[Worker] Using MASTER pipeline: ' + pipelineName);
 
     try {
         // Update status to processing
@@ -228,19 +229,25 @@ thumbnailQueue.queue.process('generate', async function(job) {
         job.progress(10);
 
         // =====================================================================
-        // STEP 2: Build Professional Prompt
+        // STEP 2: Build ULTIMATE Professional Prompt (Creator Style + Niche)
         // =====================================================================
-        console.log('[Worker] Step 2: Building professional prompt...');
+        console.log('[Worker] Step 2: Building ULTIMATE professional prompt...');
 
-        var prompt = promptEngine.buildProfessionalPrompt({
+        // Determine creator style: use explicit or auto-select based on niche
+        var effectiveCreatorStyle = data.creatorStyle || promptEngine.getCreatorStyleForNiche(data.niche || 'reaction');
+        console.log('[Worker] Using creator style: ' + effectiveCreatorStyle);
+
+        var prompt = promptEngine.buildUltimatePrompt({
             brief: data.brief,
+            creatorStyle: effectiveCreatorStyle,
             niche: data.niche || 'reaction',
             expression: data.expression || 'excited',
             hasFace: !!faceImageUrl,
+            thumbnailText: data.thumbnailText,
             additionalContext: data.additionalContext
         });
 
-        console.log('[Worker] Professional prompt built (' + prompt.length + ' chars)');
+        console.log('[Worker] ULTIMATE prompt built (' + prompt.length + ' chars)');
         job.progress(15);
 
         // =====================================================================
@@ -282,7 +289,7 @@ thumbnailQueue.queue.process('generate', async function(job) {
 
             // Apply text overlay if text provided
             if (data.thumbnailText && data.thumbnailText.trim()) {
-                console.log('[Worker] Step 4: Adding text overlay to variant ' + variantLabel + '...');
+                console.log('[Worker] Step 4: Adding CREATOR-STYLE text overlay to variant ' + variantLabel + '...');
 
                 try {
                     // Determine if thumbnail has a face (affects text positioning)
@@ -295,16 +302,19 @@ thumbnailQueue.queue.process('generate', async function(job) {
                         hasFace
                     );
 
-                    console.log('[Worker] Text position: ' + position + ' (hasFace: ' + hasFace + ')');
+                    // Get creator-specific text style (MrBeast, Hormozi, Gadzhi, Magnates)
+                    var creatorTextStyle = textOverlayService.getCreatorTextStyle(effectiveCreatorStyle);
+                    console.log('[Worker] Text position: ' + position + ' | Creator style: ' + effectiveCreatorStyle);
 
                     imageBuffer = await textOverlayService.addTextOverlay(imageBuffer, {
                         text: data.thumbnailText,
                         niche: data.niche || 'reaction',
                         position: position,
-                        preset: data.niche || 'reaction' // Use niche-specific text preset
+                        preset: data.niche || 'reaction',
+                        customStyle: creatorTextStyle // Apply creator-specific text styling
                     });
 
-                    console.log('[Worker] Text overlay applied to variant ' + variantLabel);
+                    console.log('[Worker] CREATOR-STYLE text overlay applied to variant ' + variantLabel);
                 } catch (textErr) {
                     console.error('[Worker] Text overlay failed:', textErr.message);
                     // Continue with image without text

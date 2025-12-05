@@ -18,32 +18,86 @@ const sharp = require('sharp');
 // TEXT STYLE PRESETS
 // ============================================================================
 
-const TEXT_PRESETS = {
-    // PRO PRESET: Maximum impact - MrBeast style
-    bold: {
+// ============================================================================
+// CREATOR-STYLE TEXT PRESETS - Locked-in exact specifications
+// ============================================================================
+
+const CREATOR_TEXT_PRESETS = {
+    // MrBeast: MASSIVE text, bright yellow, thick black stroke, hard shadow
+    mrbeast: {
         fontFamily: 'Impact, Arial Black, sans-serif',
         fontWeight: 900,
-        fontSize: 140, // LARGER for mobile visibility
-        fill: '#FFFFFF',
+        fontSize: 180, // MASSIVE
+        fill: '#FFFF00', // Bright yellow (signature)
         stroke: '#000000',
-        strokeWidth: 14, // THICKER stroke
-        shadow: { dx: 8, dy: 8, blur: 0, color: 'rgba(0,0,0,1)' }, // HARD shadow
+        strokeWidth: 18, // THICK
+        shadow: { dx: 12, dy: 12, blur: 0, color: 'rgba(0,0,0,1)' }, // HARD shadow
+        glow: { blur: 15, color: '#FFFF00' } // Subtle yellow glow
+    },
+
+    // Alex Hormozi: Montserrat Black, yellow/white, confident authority
+    hormozi: {
+        fontFamily: 'Impact, Arial Black, sans-serif', // Montserrat Black fallback
+        fontWeight: 900,
+        fontSize: 140,
+        fill: '#F7C204', // Hormozi yellow
+        stroke: '#000000',
+        strokeWidth: 12,
+        shadow: { dx: 8, dy: 8, blur: 0, color: 'rgba(0,0,0,1)' },
         glow: null
     },
 
-    // Gaming: Neon cyberpunk style
+    // Iman Gadzhi: Clean minimalist, white/gold, sophisticated
+    gadzhi: {
+        fontFamily: 'Helvetica Neue, Arial, sans-serif', // Montserrat fallback
+        fontWeight: 800,
+        fontSize: 120,
+        fill: '#FFFFFF',
+        stroke: '#000000',
+        strokeWidth: 8,
+        shadow: { dx: 6, dy: 6, blur: 2, color: 'rgba(0,0,0,0.9)' },
+        glow: { blur: 12, color: '#C9A227' } // Subtle gold glow
+    },
+
+    // Magnates Media: Documentary dramatic, red/white, cinematic
+    magnates: {
+        fontFamily: 'Impact, Arial Black, sans-serif', // Bebas Neue fallback
+        fontWeight: 900,
+        fontSize: 130,
+        fill: '#FFFFFF',
+        stroke: '#CC0000', // Documentary red stroke
+        strokeWidth: 10,
+        shadow: { dx: 8, dy: 8, blur: 0, color: 'rgba(0,0,0,1)' },
+        glow: { blur: 20, color: '#CC0000' } // Red dramatic glow
+    }
+};
+
+const TEXT_PRESETS = {
+    // PRO PRESET: Maximum impact - MrBeast style (default)
+    bold: {
+        fontFamily: 'Impact, Arial Black, sans-serif',
+        fontWeight: 900,
+        fontSize: 160, // LARGER for mobile visibility
+        fill: '#FFFFFF',
+        stroke: '#000000',
+        strokeWidth: 16, // THICKER stroke
+        shadow: { dx: 10, dy: 10, blur: 0, color: 'rgba(0,0,0,1)' }, // HARD shadow
+        glow: null
+    },
+
+    // Gaming: Neon cyberpunk style (MrBeast meets gaming)
     gaming: {
         fontFamily: 'Impact, Arial Black, sans-serif',
         fontWeight: 900,
-        fontSize: 130,
+        fontSize: 150,
         fill: '#00FFFF',
         stroke: '#000000',
-        strokeWidth: 12,
-        shadow: { dx: 6, dy: 6, blur: 0, color: 'rgba(0,0,0,1)' },
-        glow: { blur: 20, color: '#00D4FF' }
+        strokeWidth: 14,
+        shadow: { dx: 8, dy: 8, blur: 0, color: 'rgba(0,0,0,1)' },
+        glow: { blur: 25, color: '#00D4FF' }
     },
 
-    // Finance: Gold on black - wealth aesthetic
+    // Finance: Gold on black - Hormozi wealth aesthetic
     finance: {
         fontFamily: 'Impact, Arial Black, sans-serif',
         fontWeight: 900,
@@ -52,67 +106,127 @@ const TEXT_PRESETS = {
         stroke: '#000000',
         strokeWidth: 14,
         shadow: { dx: 8, dy: 8, blur: 0, color: 'rgba(0,0,0,1)' },
-        glow: { blur: 10, color: '#FFD700' }
+        glow: { blur: 12, color: '#FFD700' }
     },
 
-    // Tech: Clean but bold - MKBHD style
+    // Tech: Clean but bold - Hormozi/MKBHD hybrid
     tech: {
         fontFamily: 'Helvetica Neue, Arial, sans-serif',
         fontWeight: 800,
-        fontSize: 120,
+        fontSize: 130,
         fill: '#FFFFFF',
         stroke: '#FF0000',
-        strokeWidth: 8,
-        shadow: { dx: 4, dy: 4, blur: 2, color: 'rgba(0,0,0,0.9)' },
+        strokeWidth: 10,
+        shadow: { dx: 6, dy: 6, blur: 0, color: 'rgba(0,0,0,1)' },
         glow: null
     },
 
-    // Minimal: Clean but visible
+    // Minimal: Gadzhi-style clean
     minimal: {
         fontFamily: 'Helvetica Neue, Arial, sans-serif',
         fontWeight: 700,
-        fontSize: 110,
+        fontSize: 120,
         fill: '#FFFFFF',
         stroke: '#000000',
-        strokeWidth: 6,
-        shadow: { dx: 4, dy: 4, blur: 0, color: 'rgba(0,0,0,0.8)' },
+        strokeWidth: 8,
+        shadow: { dx: 5, dy: 5, blur: 0, color: 'rgba(0,0,0,0.9)' },
         glow: null
     },
 
-    // Reaction: MAXIMUM ATTENTION - Yellow on black
+    // Reaction: MAXIMUM ATTENTION - MrBeast signature
     reaction: {
         fontFamily: 'Impact, Arial Black, sans-serif',
         fontWeight: 900,
-        fontSize: 160, // BIGGEST for reaction thumbnails
+        fontSize: 180, // BIGGEST for reaction thumbnails
         fill: '#FFFF00',
         stroke: '#000000',
-        strokeWidth: 16, // THICCEST stroke
-        shadow: { dx: 10, dy: 10, blur: 0, color: 'rgba(0,0,0,1)' }, // Hard shadow
+        strokeWidth: 18, // THICCEST stroke
+        shadow: { dx: 12, dy: 12, blur: 0, color: 'rgba(0,0,0,1)' }, // Hard shadow
         glow: null
     },
 
-    // Fitness: Red energy
+    // Fitness: Red energy - Hormozi intensity
     fitness: {
         fontFamily: 'Impact, Arial Black, sans-serif',
         fontWeight: 900,
-        fontSize: 140,
+        fontSize: 150,
         fill: '#FFFFFF',
         stroke: '#FF0000',
         strokeWidth: 14,
         shadow: { dx: 8, dy: 8, blur: 0, color: 'rgba(0,0,0,1)' },
-        glow: { blur: 12, color: '#FF0000' }
+        glow: { blur: 15, color: '#FF0000' }
     },
 
-    // Beauty: Soft pink glow
+    // Beauty: Soft pink glow - Gadzhi luxury
     beauty: {
         fontFamily: 'Georgia, serif',
         fontWeight: 700,
-        fontSize: 110,
+        fontSize: 120,
         fill: '#FFFFFF',
         stroke: '#FFB6C1',
-        strokeWidth: 6,
-        shadow: { dx: 4, dy: 4, blur: 4, color: 'rgba(0,0,0,0.6)' },
-        glow: { blur: 15, color: '#FFB6C1' }
+        strokeWidth: 8,
+        shadow: { dx: 5, dy: 5, blur: 2, color: 'rgba(0,0,0,0.7)' },
+        glow: { blur: 18, color: '#FFB6C1' }
+    },
+
+    // Documentary: Magnates Media cinematic
+    documentary: {
+        fontFamily: 'Impact, Arial Black, sans-serif',
+        fontWeight: 900,
+        fontSize: 140,
+        fill: '#FFFFFF',
+        stroke: '#CC0000',
+        strokeWidth: 12,
+        shadow: { dx: 8, dy: 8, blur: 0, color: 'rgba(0,0,0,1)' },
+        glow: { blur: 20, color: '#CC0000' }
+    },
+
+    // Podcast: Magnates clean documentary
+    podcast: {
+        fontFamily: 'Helvetica Neue, Arial, sans-serif',
+        fontWeight: 800,
+        fontSize: 130,
+        fill: '#FFFFFF',
+        stroke: '#000000',
+        strokeWidth: 10,
+        shadow: { dx: 6, dy: 6, blur: 0, color: 'rgba(0,0,0,1)' },
+        glow: null
+    },
+
+    // Travel: Gadzhi luxury aspirational
+    travel: {
+        fontFamily: 'Impact, Arial Black, sans-serif',
+        fontWeight: 900,
+        fontSize: 140,
+        fill: '#FFD700',
+        stroke: '#000000',
+        strokeWidth: 12,
+        shadow: { dx: 8, dy: 8, blur: 0, color: 'rgba(0,0,0,1)' },
+        glow: { blur: 12, color: '#C9A227' }
+    },
+
+    // Cooking: MrBeast vibrant energy
+    cooking: {
+        fontFamily: 'Impact, Arial Black, sans-serif',
+        fontWeight: 900,
+        fontSize: 150,
+        fill: '#FFFFFF',
+        stroke: '#8B4513',
+        strokeWidth: 12,
+        shadow: { dx: 8, dy: 8, blur: 0, color: 'rgba(0,0,0,1)' },
+        glow: null
+    },
+
+    // Tutorial: Hormozi professional trust
+    tutorial: {
+        fontFamily: 'Helvetica Neue, Arial, sans-serif',
+        fontWeight: 800,
+        fontSize: 130,
+        fill: '#FFFFFF',
+        stroke: '#4A90D9',
+        strokeWidth: 10,
+        shadow: { dx: 6, dy: 6, blur: 0, color: 'rgba(0,0,0,1)' },
+        glow: null
     }
 };
 
@@ -489,12 +603,52 @@ function getSmartPosition(niche, textLength, hasFace = true) {
     }
 }
 
+/**
+ * Get text style for a specific creator style (MrBeast, Hormozi, Gadzhi, Magnates)
+ * @param {string} creatorStyle - Creator style key
+ * @returns {Object} Text style configuration
+ */
+function getCreatorTextStyle(creatorStyle) {
+    return CREATOR_TEXT_PRESETS[creatorStyle] || CREATOR_TEXT_PRESETS.mrbeast;
+}
+
+/**
+ * Auto-select the best creator text style based on niche
+ * Maps niches to the most appropriate creator style
+ * @param {string} niche - Content niche
+ * @returns {Object} Text style configuration
+ */
+function getAutoCreatorStyle(niche) {
+    const nicheToCreator = {
+        gaming: 'mrbeast',        // High energy, viral
+        tech: 'hormozi',          // Clean, professional
+        finance: 'hormozi',       // Business authority
+        beauty: 'gadzhi',         // Luxury aesthetic
+        fitness: 'hormozi',       // Confidence, results
+        cooking: 'mrbeast',       // Vibrant, exciting
+        travel: 'gadzhi',         // Aspirational luxury
+        reaction: 'mrbeast',      // Maximum attention
+        podcast: 'magnates',      // Documentary feel
+        tutorial: 'hormozi',      // Professional trust
+        business: 'hormozi',      // Authority
+        luxury: 'gadzhi',         // Sophisticated
+        documentary: 'magnates',  // Cinematic
+        entertainment: 'mrbeast'  // Viral energy
+    };
+
+    const creatorKey = nicheToCreator[niche] || 'mrbeast';
+    return CREATOR_TEXT_PRESETS[creatorKey];
+}
+
 module.exports = {
     addTextOverlay,
     addMultipleTexts,
     generateTextSVG,
     getSmartPosition,
     getNicheTextStyle,
+    getCreatorTextStyle,
+    getAutoCreatorStyle,
     TEXT_PRESETS,
+    CREATOR_TEXT_PRESETS,
     POSITIONS
 };
