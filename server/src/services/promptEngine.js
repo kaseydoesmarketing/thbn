@@ -957,7 +957,10 @@ function buildUltimatePrompt(options) {
     } = options;
 
     // Determine creator style: use specified or auto-select based on niche
-    const effectiveCreatorStyle = creatorStyle || getCreatorStyleForNiche(niche);
+    // IMPORTANT: 'auto' means auto-select, not a literal style key
+    const effectiveCreatorStyle = (!creatorStyle || creatorStyle === 'auto')
+        ? getCreatorStyleForNiche(niche)
+        : creatorStyle;
     const creator = CREATOR_STYLES[effectiveCreatorStyle];
     const nicheTemplate = NICHE_TEMPLATES[niche] || NICHE_TEMPLATES.reaction;
 
