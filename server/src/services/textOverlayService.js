@@ -1,18 +1,45 @@
 const sharp = require('sharp');
+const { YOUTUBE_THUMBNAIL_SPECS } = require('../config/thumbnailSpecs');
 
 /**
  * Text Overlay Service for YouTube Thumbnails
  *
+ * VERSION 2: TBUILDER-QUALITY-UPGRADE-V2
+ *
  * Renders bold, professional text overlays on generated images.
  * Uses SVG for maximum flexibility with strokes, shadows, and effects.
  *
+ * V2 ENHANCEMENTS:
+ * - Stronger text hierarchy (headline + subtext)
+ * - Improved contrast with enforced minimum stroke widths
+ * - Mobile legibility guaranteed at 168x94px (smallest YouTube preview)
+ * - Safe zone awareness (avoids duration overlay)
+ * - Ultra-bold presets for maximum thumbnail impact
+ *
  * Features:
  * - Bold fonts with customizable stroke/outline
- * - Drop shadows for depth
+ * - Double-stroke effect for premium look
+ * - Drop shadows for depth (hard shadows preferred)
  * - Glow effects for gaming/neon styles
  * - Smart positioning (avoids bottom-right for duration)
- * - Mobile-legible sizing
+ * - Mobile-legible sizing enforced
  */
+
+// ============================================================================
+// MOBILE LEGIBILITY CONSTANTS
+// ============================================================================
+
+// Minimum font size that remains legible at smallest YouTube preview (168x94)
+// At 168px width, we need text that's at least 12px to be readable
+// 12px at 168px = ~91px at 1280px (12 * 1280/168 = 91.4)
+const MIN_FONT_SIZE_FOR_LEGIBILITY = 100;
+
+// Minimum stroke width for visibility against busy backgrounds
+const MIN_STROKE_WIDTH = 8;
+
+// Safe zone margins (from YouTube specs)
+const SAFE_MARGIN_X = YOUTUBE_THUMBNAIL_SPECS?.SAFE_ZONES?.desktop?.marginX || 90;
+const SAFE_MARGIN_Y = YOUTUBE_THUMBNAIL_SPECS?.SAFE_ZONES?.desktop?.marginY || 50;
 
 // ============================================================================
 // TEXT STYLE PRESETS
@@ -271,6 +298,187 @@ const TEXT_PRESETS = {
         strokeWidth: 10,
         shadow: { dx: 6, dy: 6, blur: 0, color: 'rgba(0,0,0,1)' },
         glow: null
+    },
+
+    // ============================================================================
+    // V2 ULTRA-BOLD PRESETS - Maximum mobile visibility
+    // ============================================================================
+
+    // ULTRA_IMPACT: Maximum visibility at any size
+    ultra_impact: {
+        fontFamily: 'Impact, Arial Black, sans-serif',
+        fontWeight: 900,
+        fontSize: 220, // BIGGEST possible
+        fill: '#FFFFFF',
+        stroke: '#000000',
+        strokeWidth: 24, // Extra thick stroke
+        doubleStroke: true,
+        innerStroke: '#FFFFFF',
+        innerStrokeWidth: 6,
+        shadow: { dx: 16, dy: 16, blur: 0, color: 'rgba(0,0,0,1)' },
+        glow: null,
+        textCase: 'uppercase'
+    },
+
+    // VIRAL: Yellow + black for maximum CTR
+    viral: {
+        fontFamily: 'Impact, Arial Black, sans-serif',
+        fontWeight: 900,
+        fontSize: 200,
+        fill: '#FFFF00',
+        stroke: '#000000',
+        strokeWidth: 22,
+        doubleStroke: true,
+        innerStroke: '#FFFFFF',
+        innerStrokeWidth: 5,
+        shadow: { dx: 14, dy: 14, blur: 0, color: 'rgba(0,0,0,1)' },
+        glow: { blur: 25, color: '#FFFF00' },
+        rotation: -2,
+        textCase: 'uppercase'
+    },
+
+    // MONEY: Gold wealth aesthetic
+    money: {
+        fontFamily: 'Impact, Arial Black, sans-serif',
+        fontWeight: 900,
+        fontSize: 180,
+        fill: '#FFD700',
+        stroke: '#000000',
+        strokeWidth: 20,
+        doubleStroke: true,
+        innerStroke: '#FFFFFF',
+        innerStrokeWidth: 4,
+        shadow: { dx: 12, dy: 12, blur: 0, color: 'rgba(0,0,0,1)' },
+        glow: { blur: 15, color: '#FFD700' },
+        textCase: 'uppercase'
+    },
+
+    // DANGER: Red alert style
+    danger: {
+        fontFamily: 'Impact, Arial Black, sans-serif',
+        fontWeight: 900,
+        fontSize: 180,
+        fill: '#FF0000',
+        stroke: '#000000',
+        strokeWidth: 20,
+        doubleStroke: true,
+        innerStroke: '#FFFFFF',
+        innerStrokeWidth: 4,
+        shadow: { dx: 12, dy: 12, blur: 0, color: 'rgba(0,0,0,1)' },
+        glow: { blur: 20, color: '#FF0000' },
+        textCase: 'uppercase'
+    }
+};
+
+// ============================================================================
+// HIERARCHY PRESETS - For headline + subtext combinations
+// ============================================================================
+
+const HIERARCHY_PRESETS = {
+    // Standard: Large headline, smaller subtext
+    standard: {
+        headline: {
+            fontFamily: 'Impact, Arial Black, sans-serif',
+            fontWeight: 900,
+            fontSize: 180,
+            fill: '#FFFFFF',
+            stroke: '#000000',
+            strokeWidth: 18,
+            doubleStroke: true,
+            innerStroke: '#FFFFFF',
+            innerStrokeWidth: 4,
+            shadow: { dx: 12, dy: 12, blur: 0, color: 'rgba(0,0,0,1)' },
+            textCase: 'uppercase'
+        },
+        subtext: {
+            fontFamily: 'Impact, Arial Black, sans-serif',
+            fontWeight: 900,
+            fontSize: 100,
+            fill: '#FFFF00',
+            stroke: '#000000',
+            strokeWidth: 10,
+            shadow: { dx: 6, dy: 6, blur: 0, color: 'rgba(0,0,0,1)' },
+            textCase: 'uppercase'
+        }
+    },
+
+    // Authority: Business/Finance style
+    authority: {
+        headline: {
+            fontFamily: 'Impact, Arial Black, sans-serif',
+            fontWeight: 900,
+            fontSize: 160,
+            fill: '#F7C204', // Hormozi yellow
+            stroke: '#000000',
+            strokeWidth: 16,
+            doubleStroke: true,
+            innerStroke: '#FFFFFF',
+            innerStrokeWidth: 3,
+            shadow: { dx: 10, dy: 10, blur: 0, color: 'rgba(0,0,0,1)' },
+            textCase: 'uppercase'
+        },
+        subtext: {
+            fontFamily: 'Helvetica Neue, Arial, sans-serif',
+            fontWeight: 700,
+            fontSize: 80,
+            fill: '#FFFFFF',
+            stroke: '#000000',
+            strokeWidth: 6,
+            shadow: { dx: 4, dy: 4, blur: 0, color: 'rgba(0,0,0,1)' },
+            textCase: 'uppercase'
+        }
+    },
+
+    // Luxury: Gadzhi-style elegant
+    luxury: {
+        headline: {
+            fontFamily: 'Helvetica Neue, Arial, sans-serif',
+            fontWeight: 300,
+            fontSize: 120,
+            fill: '#FFFFFF',
+            stroke: '#000000',
+            strokeWidth: 6,
+            shadow: { dx: 5, dy: 5, blur: 0, color: 'rgba(0,0,0,0.8)' },
+            textCase: 'lowercase'
+        },
+        subtext: {
+            fontFamily: 'Helvetica Neue, Arial, sans-serif',
+            fontWeight: 700,
+            fontSize: 70,
+            fill: '#FFFFFF',
+            stroke: '#000000',
+            strokeWidth: 4,
+            shadow: { dx: 3, dy: 3, blur: 0, color: 'rgba(0,0,0,0.7)' },
+            textCase: 'lowercase'
+        }
+    },
+
+    // Documentary: Magnates-style cinematic
+    documentary: {
+        headline: {
+            fontFamily: 'Impact, Arial Black, sans-serif',
+            fontWeight: 900,
+            fontSize: 150,
+            fill: '#FFFFFF',
+            stroke: '#CC0000',
+            strokeWidth: 14,
+            doubleStroke: true,
+            innerStroke: '#CC0000',
+            innerStrokeWidth: 3,
+            shadow: { dx: 10, dy: 10, blur: 0, color: 'rgba(0,0,0,1)' },
+            glow: { blur: 20, color: '#CC0000' },
+            textCase: 'uppercase'
+        },
+        subtext: {
+            fontFamily: 'Helvetica Neue, Arial, sans-serif',
+            fontWeight: 600,
+            fontSize: 70,
+            fill: '#FFFFFF',
+            stroke: '#000000',
+            strokeWidth: 5,
+            shadow: { dx: 4, dy: 4, blur: 0, color: 'rgba(0,0,0,1)' },
+            textCase: 'uppercase'
+        }
     }
 };
 
@@ -762,15 +970,199 @@ function getAutoCreatorStyle(niche) {
     };
 }
 
+// ============================================================================
+// V2: HIERARCHICAL TEXT OVERLAY
+// ============================================================================
+
+/**
+ * Add hierarchical text (headline + subtext) to an image
+ * Creates proper visual hierarchy with different sizes and styles
+ *
+ * @param {Buffer} imageBuffer - Source image buffer
+ * @param {Object} options - Hierarchical text options
+ * @param {string} options.headline - Main headline text
+ * @param {string} options.subtext - Secondary subtext (optional)
+ * @param {string} options.preset - Hierarchy preset (standard, authority, luxury, documentary)
+ * @param {string} options.position - Position preset for headline
+ * @param {number} options.spacing - Vertical spacing between headline and subtext (default: 20)
+ */
+async function addHierarchicalText(imageBuffer, options) {
+    const {
+        headline,
+        subtext,
+        preset = 'standard',
+        position = 'rightCenter',
+        spacing = 20
+    } = options;
+
+    if (!headline || headline.trim() === '') {
+        return imageBuffer;
+    }
+
+    // Get hierarchy preset
+    const hierarchyPreset = HIERARCHY_PRESETS[preset] || HIERARCHY_PRESETS.standard;
+
+    // Get image metadata
+    const metadata = await sharp(imageBuffer).metadata();
+    const width = metadata.width || 1280;
+    const height = metadata.height || 720;
+
+    // Get base position
+    let pos;
+    if (typeof position === 'string') {
+        pos = POSITIONS[position] || POSITIONS.rightCenter;
+        pos = {
+            x: Math.round(pos.x * (width / 1280)),
+            y: Math.round(pos.y * (height / 720)),
+            anchor: pos.anchor
+        };
+    } else {
+        pos = position;
+    }
+
+    // Add headline
+    let result = await addTextOverlay(imageBuffer, {
+        text: headline,
+        customStyle: enforceMinimumLegibility(hierarchyPreset.headline),
+        position: pos
+    });
+
+    // Add subtext if provided
+    if (subtext && subtext.trim() !== '') {
+        const subtextPos = {
+            ...pos,
+            y: pos.y + hierarchyPreset.headline.fontSize * 0.7 + spacing
+        };
+
+        result = await addTextOverlay(result, {
+            text: subtext,
+            customStyle: enforceMinimumLegibility(hierarchyPreset.subtext),
+            position: subtextPos
+        });
+    }
+
+    return result;
+}
+
+/**
+ * Enforce minimum legibility standards on text style
+ * Ensures text is readable at smallest YouTube thumbnail size (168x94)
+ *
+ * @param {Object} style - Text style configuration
+ * @returns {Object} Style with enforced minimums
+ */
+function enforceMinimumLegibility(style) {
+    return {
+        ...style,
+        fontSize: Math.max(style.fontSize || 100, MIN_FONT_SIZE_FOR_LEGIBILITY),
+        strokeWidth: Math.max(style.strokeWidth || 8, MIN_STROKE_WIDTH)
+    };
+}
+
+/**
+ * Check if a position is in the safe zone (avoids YouTube UI overlays)
+ * @param {number} x - X position
+ * @param {number} y - Y position
+ * @param {number} width - Canvas width
+ * @param {number} height - Canvas height
+ * @returns {boolean} Whether position is safe
+ */
+function isInSafeZone(x, y, width = 1280, height = 720) {
+    // Check if in duration overlay danger zone (bottom right)
+    const durationOverlay = YOUTUBE_THUMBNAIL_SPECS?.SAFE_ZONES?.durationOverlay;
+    if (durationOverlay) {
+        const scaledX = durationOverlay.x * (width / 1280);
+        const scaledY = durationOverlay.y * (height / 720);
+        if (x >= scaledX && y >= scaledY) {
+            return false;
+        }
+    }
+
+    // Check if within safe margins
+    const marginX = SAFE_MARGIN_X * (width / 1280);
+    const marginY = SAFE_MARGIN_Y * (height / 720);
+
+    return x >= marginX &&
+           x <= (width - marginX) &&
+           y >= marginY &&
+           y <= (height - marginY);
+}
+
+/**
+ * Get a safe position that avoids YouTube UI overlays
+ * Adjusts position if it would conflict with duration overlay
+ *
+ * @param {Object} desiredPos - Desired position {x, y, anchor}
+ * @param {number} width - Canvas width
+ * @param {number} height - Canvas height
+ * @returns {Object} Safe position
+ */
+function getSafePosition(desiredPos, width = 1280, height = 720) {
+    const { x, y, anchor } = desiredPos;
+
+    // If position is unsafe (in duration overlay), move it
+    if (!isInSafeZone(x, y, width, height)) {
+        // Move to safe zone - prefer left side if right side is blocked
+        const safeX = anchor === 'end' ? width - SAFE_MARGIN_X - 100 : SAFE_MARGIN_X + 100;
+        const safeY = Math.min(y, height - SAFE_MARGIN_Y - 100);
+
+        return { x: safeX, y: safeY, anchor };
+    }
+
+    return desiredPos;
+}
+
+/**
+ * Get hierarchy preset for a niche
+ * @param {string} niche - Content niche
+ * @returns {Object} Hierarchy preset configuration
+ */
+function getHierarchyPresetForNiche(niche) {
+    const nicheToHierarchy = {
+        gaming: 'standard',
+        tech: 'authority',
+        finance: 'authority',
+        beauty: 'luxury',
+        fitness: 'standard',
+        cooking: 'standard',
+        travel: 'luxury',
+        reaction: 'standard',
+        podcast: 'documentary',
+        tutorial: 'authority',
+        documentary: 'documentary',
+        business: 'authority',
+        luxury: 'luxury'
+    };
+
+    return HIERARCHY_PRESETS[nicheToHierarchy[niche]] || HIERARCHY_PRESETS.standard;
+}
+
 module.exports = {
+    // Main functions
     addTextOverlay,
     addMultipleTexts,
+    addHierarchicalText,  // V2: New hierarchical text
     generateTextSVG,
+
+    // Position helpers
     getSmartPosition,
+    getSafePosition,      // V2: Safe zone aware positioning
+    isInSafeZone,         // V2: Safe zone check
+
+    // Style helpers
     getNicheTextStyle,
     getCreatorTextStyle,
     getAutoCreatorStyle,
+    getHierarchyPresetForNiche, // V2: Hierarchy for niches
+    enforceMinimumLegibility,   // V2: Legibility enforcement
+
+    // Presets
     TEXT_PRESETS,
     CREATOR_TEXT_PRESETS,
-    POSITIONS
+    HIERARCHY_PRESETS,    // V2: New hierarchy presets
+    POSITIONS,
+
+    // Constants
+    MIN_FONT_SIZE_FOR_LEGIBILITY,
+    MIN_STROKE_WIDTH
 };
