@@ -1,8 +1,10 @@
 require('dotenv').config({ path: require('path').join(__dirname, '../../.env') });
 
 var thumbnailQueue = require('../queues/thumbnailQueue');
-var nanoClient = require('../services/nanoClient');
-var faceSwapClient = require('../services/faceSwapClient');
+var fluxClient = require('../services/fluxClient');
+var nanoClient = require('../services/nanoClient'); // Fallback
+var promptEngine = require('../services/promptEngine');
+var textOverlayService = require('../services/textOverlayService');
 var storageService = require('../services/storageService');
 var db = require('../db/connection');
 var fs = require('fs');
@@ -12,15 +14,17 @@ var path = require('path');
 var UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(__dirname, '../../uploads');
 
 /**
- * Two-Step Thumbnail Generation Pipeline:
+ * ThumbnailBuilder v2.0 - Professional Quality Pipeline
  *
- * Step 1: Gemini 2.5 Flash Image - Creative generation with placeholder person
- *         (Best for: composition, lighting, style, eye-catching design)
+ * NEW ARCHITECTURE:
+ * 1. Flux PuLID - Face likeness baked into generation (no separate swap)
+ * 2. PromptEngine - Professional prompts from STYLE_REFERENCE.md
+ * 3. TextOverlay - Bold text with strokes, shadows, glow
  *
- * Step 2: Easel Face Swap - Replace placeholder with user's actual face
- *         (Best for: photorealistic face likeness preservation)
+ * PIPELINE:
+ * User Input → Prompt Engine → Flux + Face ID → Text Overlay → Final Image
  *
- * This gives the best of both worlds: creative thumbnails + exact face likeness
+ * This produces professional-quality thumbnails matching inspiration examples.
  */
 
 /**
@@ -171,7 +175,7 @@ async function loadFaceImages(userId, faceImageIds) {
     return faceImages;
 }
 
-console.log('[Worker] Starting thumbnail worker...');
+console.log('[Worker] Starting thumbnail worker v2.0...');
 
 // Process jobs
 thumbnailQueue.queue.process('generate', async function(job) {
@@ -180,17 +184,19 @@ thumbnailQueue.queue.process('generate', async function(job) {
     var userId = data.userId;
 
     console.log('[Worker] Processing job ' + jobId);
+    console.log('[Worker] Input:', JSON.stringify({
+        brief: data.brief,
+        niche: data.niche,
+        expression: data.expression,
+        thumbnailText: data.thumbnailText,
+        hasFaceImages: !!(data.faceImages && data.faceImages.length > 0)
+    }));
 
-    // Check if face swap is available and needed
-    var useFaceSwap = faceSwapClient.isAvailable() &&
-                      data.faceImages &&
-                      data.faceImages.length > 0;
+    // Determine pipeline: Flux (preferred) or Gemini (fallback)
+    var useFlux = fluxClient.isAvailable() && data.faceImages && data.faceImages.length > 0;
+    var pipelineName = useFlux ? 'Flux PuLID + Text' : 'Gemini + Text';
 
-    if (useFaceSwap) {
-        console.log('[Worker] Two-step pipeline: Gemini + Face Swap');
-    } else {
-        console.log('[Worker] Single-step pipeline: Gemini only');
-    }
+    console.log('[Worker] Using pipeline: ' + pipelineName);
 
     try {
         // Update status to processing
@@ -201,91 +207,163 @@ thumbnailQueue.queue.process('generate', async function(job) {
 
         job.progress(5);
 
-        // STEP 1: Prepare face image URL (if using face swap)
+        // =====================================================================
+        // STEP 1: Prepare Face Image URL
+        // =====================================================================
         var faceImageUrl = null;
-        if (useFaceSwap) {
-            console.log('[Worker] Step 1a: Preparing face image for swap...');
+        if (data.faceImages && data.faceImages.length > 0) {
+            console.log('[Worker] Step 1: Preparing face image...');
             var faceData = await getFaceImageUrl(userId, data.faceImages[0]);
             if (faceData && faceData.publicUrl) {
                 faceImageUrl = faceData.publicUrl;
-                console.log('[Worker] Face image URL ready: ' + faceImageUrl.substring(0, 60) + '...');
+                console.log('[Worker] Face image ready: ' + faceImageUrl.substring(0, 60) + '...');
             } else {
-                console.log('[Worker] Could not get public URL for face image, falling back to Gemini multimodal');
-                useFaceSwap = false;
+                console.log('[Worker] WARNING: Could not get public URL for face image');
+                useFlux = false;
+                pipelineName = 'Gemini (no face URL)';
             }
         }
 
         job.progress(10);
 
-        // Build prompt - include person description for face swap pipeline
-        var prompt = data.brief;
-        if (data.niche) {
-            prompt = '[' + data.niche.toUpperCase() + ' NICHE] ' + prompt;
-        }
+        // =====================================================================
+        // STEP 2: Build Professional Prompt
+        // =====================================================================
+        console.log('[Worker] Step 2: Building professional prompt...');
 
-        // For face swap pipeline: ensure prompt describes a person
-        // Gemini will generate a placeholder person that we'll swap
-        if (useFaceSwap && !prompt.toLowerCase().includes('person') &&
-            !prompt.toLowerCase().includes('man') &&
-            !prompt.toLowerCase().includes('woman') &&
-            !prompt.toLowerCase().includes('creator') &&
-            !prompt.toLowerCase().includes('youtuber')) {
-            prompt += ' featuring an expressive person';
-        }
-
-        job.progress(15);
-
-        // STEP 2: Generate with Gemini 2.5 Flash Image
-        console.log('[Worker] Step 2: Generating with Gemini 2.5 Flash Image...');
-
-        // For two-step pipeline: don't pass face images to Gemini (we'll swap later)
-        // For single-step: pass face images for multimodal generation
-        var faceImagesForGemini = [];
-        if (!useFaceSwap && data.faceImages && data.faceImages.length > 0) {
-            faceImagesForGemini = await loadFaceImages(userId, data.faceImages);
-        }
-
-        var result = await nanoClient.createThumbnailJob({
-            prompt: prompt,
-            style_preset: data.style || 'photorealistic',
-            faceImages: faceImagesForGemini
+        var prompt = promptEngine.buildProfessionalPrompt({
+            brief: data.brief,
+            niche: data.niche || 'reaction',
+            expression: data.expression || 'excited',
+            hasFace: !!faceImageUrl,
+            additionalContext: data.additionalContext
         });
 
-        console.log('[Worker] Gemini returned ' + (result.variants ? result.variants.length : 0) + ' variants');
+        console.log('[Worker] Professional prompt built (' + prompt.length + ' chars)');
+        job.progress(15);
 
-        job.progress(40);
+        // =====================================================================
+        // STEP 3: Generate Images
+        // =====================================================================
+        var result;
 
-        // STEP 3: Upload generated thumbnails to get public URLs
+        if (useFlux && faceImageUrl) {
+            // PRIMARY: Flux PuLID - face likeness baked in
+            console.log('[Worker] Step 3: Generating with Flux PuLID (face preserved)...');
+
+            result = await fluxClient.generateWithFace({
+                faceImageUrl: faceImageUrl,
+                prompt: prompt,
+                numVariants: 2
+            });
+
+        } else if (fluxClient.isAvailable() && !faceImageUrl) {
+            // Flux without face
+            console.log('[Worker] Step 3: Generating with Flux (no face)...');
+
+            result = await fluxClient.generateWithoutFace({
+                prompt: prompt,
+                numVariants: 2
+            });
+
+        } else {
+            // FALLBACK: Gemini (legacy)
+            console.log('[Worker] Step 3: Generating with Gemini (fallback)...');
+
+            var faceImagesForGemini = [];
+            if (data.faceImages && data.faceImages.length > 0) {
+                faceImagesForGemini = await loadFaceImages(userId, data.faceImages);
+            }
+
+            result = await nanoClient.createThumbnailJob({
+                prompt: prompt,
+                style_preset: data.niche || 'photorealistic',
+                faceImages: faceImagesForGemini
+            });
+        }
+
+        console.log('[Worker] Generated ' + (result.variants ? result.variants.length : 0) + ' variants');
+        job.progress(50);
+
+        // =====================================================================
+        // STEP 4: Apply Text Overlay (if thumbnailText provided)
+        // =====================================================================
         var variants = result.variants || [];
-        var uploadedVariants = [];
+        var processedVariants = [];
 
         for (var i = 0; i < variants.length; i++) {
             var variant = variants[i];
-            var variantLabel = variant.variant_label || ('v' + (i + 1));
-            var storageUrl = null;
+            var variantLabel = variant.variant_label || String.fromCharCode(65 + i);
 
             var imageBuffer = Buffer.from(variant.image_data, 'base64');
-            var contentType = variant.mime_type || 'image/png';
+
+            // Apply text overlay if text provided
+            if (data.thumbnailText && data.thumbnailText.trim()) {
+                console.log('[Worker] Step 4: Adding text overlay to variant ' + variantLabel + '...');
+
+                try {
+                    var position = textOverlayService.getSmartPosition(
+                        data.niche || 'reaction',
+                        data.thumbnailText.length
+                    );
+
+                    imageBuffer = await textOverlayService.addTextOverlay(imageBuffer, {
+                        text: data.thumbnailText,
+                        niche: data.niche || 'reaction',
+                        position: position
+                    });
+
+                    console.log('[Worker] Text overlay applied to variant ' + variantLabel);
+                } catch (textErr) {
+                    console.error('[Worker] Text overlay failed:', textErr.message);
+                    // Continue with image without text
+                }
+            }
+
+            processedVariants.push({
+                variant_label: variantLabel,
+                image_buffer: imageBuffer,
+                mime_type: variant.mime_type || 'image/png'
+            });
+
+            job.progress(50 + Math.round((i + 1) / variants.length * 20));
+        }
+
+        // =====================================================================
+        // STEP 5: Upload Final Images
+        // =====================================================================
+        console.log('[Worker] Step 5: Uploading final images...');
+
+        var storedVariants = [];
+
+        for (var j = 0; j < processedVariants.length; j++) {
+            var processed = processedVariants[j];
+            var label = processed.variant_label;
+            var finalUrl = null;
+
+            var contentType = processed.mime_type;
+            var buffer = processed.image_buffer;
 
             if (storageService.isConfigured()) {
                 try {
                     var uploaded = await storageService.uploadThumbnail(
-                        imageBuffer,
+                        buffer,
                         userId,
                         jobId,
-                        variantLabel + (useFaceSwap ? '-pre-swap' : ''),
+                        label,
                         contentType
                     );
                     if (uploaded) {
-                        storageUrl = uploaded.url;
-                        console.log('[Worker] Uploaded variant ' + variantLabel + ' to Supabase');
+                        finalUrl = uploaded.url;
+                        console.log('[Worker] Uploaded variant ' + label + ' to Supabase');
                     }
                 } catch (uploadErr) {
                     console.error('[Worker] Supabase upload failed:', uploadErr.message);
                 }
             }
 
-            if (!storageUrl) {
+            // Fallback to local storage
+            if (!finalUrl) {
                 var ext = contentType.includes('jpeg') ? '.jpg' : '.png';
                 var localDir = path.join(__dirname, '../../uploads', jobId);
 
@@ -293,85 +371,10 @@ thumbnailQueue.queue.process('generate', async function(job) {
                     fs.mkdirSync(localDir, { recursive: true });
                 }
 
-                var localPath = path.join(localDir, variantLabel + ext);
-                fs.writeFileSync(localPath, imageBuffer);
-                storageUrl = '/uploads/' + jobId + '/' + variantLabel + ext;
-                console.log('[Worker] Saved variant ' + variantLabel + ' locally');
-            }
-
-            uploadedVariants.push({
-                variant_label: variantLabel,
-                image_data: variant.image_data,
-                mime_type: contentType,
-                publicUrl: storageUrl
-            });
-
-            job.progress(40 + Math.round((i + 1) / variants.length * 20));
-        }
-
-        // STEP 4: Face swap (if using two-step pipeline)
-        var finalVariants = uploadedVariants;
-        if (useFaceSwap && faceImageUrl) {
-            console.log('[Worker] Step 4: Applying face swap with Easel AI...');
-
-            try {
-                finalVariants = await faceSwapClient.swapFacesForVariants(
-                    uploadedVariants,
-                    faceImageUrl,
-                    data.gender || 'a man'
-                );
-                console.log('[Worker] Face swap completed for ' + finalVariants.length + ' variants');
-            } catch (swapErr) {
-                console.error('[Worker] Face swap failed:', swapErr.message);
-                console.log('[Worker] Continuing with original Gemini outputs');
-                // Keep original variants if face swap fails
-            }
-
-            job.progress(80);
-        }
-
-        // STEP 5: Store final variants
-        var storedVariants = [];
-        for (var j = 0; j < finalVariants.length; j++) {
-            var finalVariant = finalVariants[j];
-            var label = finalVariant.variant_label;
-            var finalUrl = null;
-
-            // If face was swapped, re-upload the swapped image
-            if (finalVariant.face_swapped && finalVariant.image_data) {
-                var swappedBuffer = Buffer.from(finalVariant.image_data, 'base64');
-                var swappedType = finalVariant.mime_type || 'image/png';
-
-                if (storageService.isConfigured()) {
-                    try {
-                        var swapUploaded = await storageService.uploadThumbnail(
-                            swappedBuffer,
-                            userId,
-                            jobId,
-                            label,
-                            swappedType
-                        );
-                        if (swapUploaded) {
-                            finalUrl = swapUploaded.url;
-                            console.log('[Worker] Uploaded face-swapped variant ' + label);
-                        }
-                    } catch (swapUploadErr) {
-                        console.error('[Worker] Failed to upload swapped variant:', swapUploadErr.message);
-                    }
-                }
-
-                if (!finalUrl) {
-                    var swapExt = swappedType.includes('jpeg') ? '.jpg' : '.png';
-                    var swapDir = path.join(__dirname, '../../uploads', jobId);
-                    if (!fs.existsSync(swapDir)) {
-                        fs.mkdirSync(swapDir, { recursive: true });
-                    }
-                    var swapPath = path.join(swapDir, label + swapExt);
-                    fs.writeFileSync(swapPath, swappedBuffer);
-                    finalUrl = '/uploads/' + jobId + '/' + label + swapExt;
-                }
-            } else {
-                finalUrl = finalVariant.publicUrl;
+                var localPath = path.join(localDir, label + ext);
+                fs.writeFileSync(localPath, buffer);
+                finalUrl = '/uploads/' + jobId + '/' + label + ext;
+                console.log('[Worker] Saved variant ' + label + ' locally');
             }
 
             // Store in database
@@ -382,14 +385,15 @@ thumbnailQueue.queue.process('generate', async function(job) {
 
             storedVariants.push({
                 label: label,
-                url: finalUrl,
-                face_swapped: finalVariant.face_swapped || false
+                url: finalUrl
             });
 
-            job.progress(80 + Math.round((j + 1) / finalVariants.length * 18));
+            job.progress(70 + Math.round((j + 1) / processedVariants.length * 28));
         }
 
-        // Mark job as completed
+        // =====================================================================
+        // COMPLETE
+        // =====================================================================
         await db.query(
             'UPDATE thumbnail_jobs SET status = $1, updated_at = NOW() WHERE id = $2',
             ['completed', jobId]
@@ -397,13 +401,12 @@ thumbnailQueue.queue.process('generate', async function(job) {
 
         job.progress(100);
 
-        var pipelineUsed = useFaceSwap ? 'Gemini + Face Swap' : 'Gemini';
-        console.log('[Worker] Job ' + jobId + ' completed with ' + storedVariants.length + ' variants (' + pipelineUsed + ')');
+        console.log('[Worker] Job ' + jobId + ' completed with ' + storedVariants.length + ' variants (' + pipelineName + ')');
 
         return {
             success: true,
             variants: storedVariants,
-            pipeline: pipelineUsed
+            pipeline: pipelineName
         };
 
     } catch (error) {

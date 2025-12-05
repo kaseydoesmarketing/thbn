@@ -10,14 +10,19 @@ router.use(authMiddleware.requireAuth);
 
 // POST /api/generate
 // Starts a thumbnail generation job - rate limited (20 req/hour per user)
+// v2.0: Added expression and thumbnailText fields for professional quality
 router.post('/generate', generationLimiter, async function(req, res) {
     try {
+        var niche = req.body.niche || 'reaction';
+        var expression = req.body.expression || 'excited';
+        var brief = req.body.brief;
+        var thumbnailText = req.body.thumbnailText || '';
+        var faceImages = req.body.faceImages;
+
+        // Legacy fields (kept for backward compatibility)
         var videoUrl = req.body.videoUrl;
         var videoTitle = req.body.videoTitle;
-        var niche = req.body.niche;
         var style = req.body.style;
-        var brief = req.body.brief;
-        var faceImages = req.body.faceImages;
 
         // Validate required fields
         if (!brief) {
@@ -26,34 +31,46 @@ router.post('/generate', generationLimiter, async function(req, res) {
 
         var userId = req.userId;
 
+        // Store brief with new fields
+        var briefJson = JSON.stringify({
+            text: brief,
+            expression: expression,
+            thumbnailText: thumbnailText
+        });
+
         // 1. Create job record in database
         var jobResult = await db.query(
             'INSERT INTO thumbnail_jobs (user_id, video_url, video_title, niche, style_preset, brief_json, status) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, status, created_at',
-            [userId, videoUrl, videoTitle || null, niche, style, JSON.stringify({ text: brief }), 'queued']
+            [userId, videoUrl || null, videoTitle || null, niche, style || niche, briefJson, 'queued']
         );
 
         var job = jobResult.rows[0];
         var jobId = job.id;
 
         console.log('[Thumbnail] Created job ' + jobId + ' for user ' + userId);
+        console.log('[Thumbnail] Niche: ' + niche + ', Expression: ' + expression + ', Text: ' + (thumbnailText || 'none'));
 
         // 2. Add to queue for async processing
         await thumbnailQueue.addJob({
             jobId: jobId,
             userId: userId,
+            niche: niche,
+            expression: expression,
+            brief: brief,
+            thumbnailText: thumbnailText,
+            faceImages: faceImages,
+            // Legacy fields
             videoUrl: videoUrl,
             videoTitle: videoTitle,
-            niche: niche,
-            style: style,
-            brief: brief,
-            faceImages: faceImages
+            style: style
         });
 
         res.json({
             success: true,
             jobId: jobId,
             status: 'queued',
-            message: 'Thumbnail generation queued'
+            message: 'Thumbnail generation queued',
+            pipeline: faceImages && faceImages.length > 0 ? 'Flux PuLID' : 'Standard'
         });
 
     } catch (error) {

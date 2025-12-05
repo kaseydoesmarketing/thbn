@@ -14,7 +14,7 @@
 
 <body class="create-mode">
 
-    <!-- Left Stepper -->
+    <!-- Left Stepper - v2.0 (Video step removed) -->
     <aside class="stepper-sidebar">
         <a href="index.html" class="logo-small">
             <div class="logo-icon-sm"></div>
@@ -26,22 +26,18 @@
             </li>
             <li class="step-item" data-step="2">
                 <div class="step-num">2</div>
-                <span class="step-label">Video</span>
+                <span class="step-label">Style</span>
             </li>
             <li class="step-item" data-step="3">
                 <div class="step-num">3</div>
-                <span class="step-label">Style</span>
+                <span class="step-label">Brief</span>
             </li>
             <li class="step-item" data-step="4">
                 <div class="step-num">4</div>
-                <span class="step-label">Brief</span>
+                <span class="step-label">Thumbnails</span>
             </li>
             <li class="step-item" data-step="5">
                 <div class="step-num">5</div>
-                <span class="step-label">Thumbnails</span>
-            </li>
-            <li class="step-item" data-step="6">
-                <div class="step-num">6</div>
                 <span class="step-label">Export</span>
             </li>
         </ul>
@@ -93,113 +89,140 @@
                 </div>
             </div>
 
-            <!-- Step 2: Video -->
+            <!-- Step 2: Style & Expression (v2.0) -->
             <div class="step-content" id="step-2">
                 <div class="step-header">
-                    <h2>Choose the Video</h2>
-                    <p>Link your YouTube video or paste a URL to fetch metadata.</p>
-                </div>
-                <div class="split-layout">
-                    <div class="left-panel-content">
-                        <div class="tabs">
-                            <button class="tab active">Paste URL</button>
-                            <button class="tab">From Channel</button>
-                        </div>
-                        <div class="input-card">
-                            <label>YouTube URL</label>
-                            <div class="input-group">
-                                <input type="text" placeholder="https://youtube.com/watch?v=..."
-                                    value="https://youtube.com/watch?v=dQw4w9WgXcQ">
-                                <button class="btn btn-primary">Fetch</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="right-panel-content">
-                        <div class="video-preview-card">
-                            <img src="https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg"
-                                class="video-thumb-large" alt="Video Thumb">
-                            <div class="video-meta">
-                                <h3>Rick Astley - Never Gonna Give You Up</h3>
-                                <p class="desc">The official video for “Never Gonna Give You Up” by Rick Astley...</p>
-                                <div class="tags">
-                                    <span class="tag">Music</span>
-                                    <span class="tag">80s</span>
-                                    <span class="tag">Pop</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Step 3: Style -->
-            <div class="step-content" id="step-3">
-                <div class="step-header">
-                    <h2>Pick Style & Niche</h2>
+                    <h2>Choose Your Style</h2>
+                    <p>Select a niche to match your content and an expression for your thumbnail.</p>
                 </div>
                 <div class="style-grid-layout">
+                    <!-- Niche Selector -->
                     <div class="niche-selector">
-                        <h3>Niche</h3>
-                        <div class="niche-grid">
-                            <div class="niche-card active"><i class="fas fa-fire"></i> Reaction</div>
-                            <div class="niche-card"><i class="fas fa-gamepad"></i> Gaming</div>
-                            <div class="niche-card"><i class="fas fa-chalkboard-teacher"></i> Tutorial</div>
-                            <div class="niche-card"><i class="fas fa-microphone"></i> Podcast</div>
-                            <div class="niche-card"><i class="fas fa-chart-line"></i> Finance</div>
-                            <div class="niche-card"><i class="fas fa-laptop-code"></i> Tech</div>
+                        <h3>Content Niche</h3>
+                        <div class="niche-grid" id="niche-grid">
+                            <div class="niche-card active" data-niche="reaction">
+                                <i class="fas fa-fire"></i>
+                                <span>Reaction</span>
+                            </div>
+                            <div class="niche-card" data-niche="gaming">
+                                <i class="fas fa-gamepad"></i>
+                                <span>Gaming</span>
+                            </div>
+                            <div class="niche-card" data-niche="tech">
+                                <i class="fas fa-laptop-code"></i>
+                                <span>Tech</span>
+                            </div>
+                            <div class="niche-card" data-niche="finance">
+                                <i class="fas fa-chart-line"></i>
+                                <span>Finance</span>
+                            </div>
+                            <div class="niche-card" data-niche="fitness">
+                                <i class="fas fa-dumbbell"></i>
+                                <span>Fitness</span>
+                            </div>
+                            <div class="niche-card" data-niche="beauty">
+                                <i class="fas fa-spa"></i>
+                                <span>Beauty</span>
+                            </div>
+                            <div class="niche-card" data-niche="cooking">
+                                <i class="fas fa-utensils"></i>
+                                <span>Cooking</span>
+                            </div>
+                            <div class="niche-card" data-niche="travel">
+                                <i class="fas fa-plane"></i>
+                                <span>Travel</span>
+                            </div>
+                            <div class="niche-card" data-niche="tutorial">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                                <span>Tutorial</span>
+                            </div>
+                            <div class="niche-card" data-niche="podcast">
+                                <i class="fas fa-microphone"></i>
+                                <span>Podcast</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="style-carousel-container">
-                        <h3>Style Presets</h3>
-                        <div class="style-carousel">
-                            <div class="style-card active">
-                                <div class="style-preview" style="background: linear-gradient(45deg, #ff0055, #000);">
-                                </div>
-                                <h4>Bold Reaction</h4>
+
+                    <!-- Expression Selector -->
+                    <div class="expression-selector">
+                        <h3>Your Expression</h3>
+                        <div class="expression-grid" id="expression-grid">
+                            <div class="expression-card active" data-expression="excited">
+                                <div class="expression-emoji">😄</div>
+                                <span>Excited</span>
                             </div>
-                            <div class="style-card">
-                                <div class="style-preview" style="background: #fff; color: #000;"></div>
-                                <h4>Clean Minimal</h4>
+                            <div class="expression-card" data-expression="shocked">
+                                <div class="expression-emoji">😱</div>
+                                <span>Shocked</span>
                             </div>
-                            <div class="style-card">
-                                <div class="style-preview" style="background: #1a1a1a; border-left: 5px solid #00ff94;">
-                                </div>
-                                <h4>Tech Review</h4>
+                            <div class="expression-card" data-expression="curious">
+                                <div class="expression-emoji">🤔</div>
+                                <span>Curious</span>
+                            </div>
+                            <div class="expression-card" data-expression="angry">
+                                <div class="expression-emoji">😠</div>
+                                <span>Angry</span>
+                            </div>
+                            <div class="expression-card" data-expression="confident">
+                                <div class="expression-emoji">😎</div>
+                                <span>Confident</span>
+                            </div>
+                            <div class="expression-card" data-expression="determined">
+                                <div class="expression-emoji">💪</div>
+                                <span>Determined</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Step 4: Brief -->
-            <div class="step-content" id="step-4">
+            <!-- Step 3: Brief & Text (v2.0) -->
+            <div class="step-content" id="step-3">
                 <div class="step-header">
-                    <h2>Tell Us What to Design</h2>
+                    <h2>Describe Your Thumbnail</h2>
+                    <p>Tell us what you want and add bold text for your thumbnail.</p>
                 </div>
                 <div class="brief-container">
-                    <div class="chat-interface">
-                        <div class="chat-bubble system">
-                            Example: "Close-up of me shocked on the left, big text 'HE LIED TO US' on the right, dark
-                            background with neon streaks."
+                    <div class="brief-form">
+                        <!-- Thumbnail Text Input -->
+                        <div class="input-card thumbnail-text-card">
+                            <label for="thumbnail-text">
+                                <i class="fas fa-font"></i>
+                                Thumbnail Text (1-4 words)
+                            </label>
+                            <input type="text" id="thumbnail-text" class="thumbnail-text-input"
+                                   placeholder="e.g., HOLY DROP, $50K, WHY??" maxlength="30">
+                            <p class="input-hint">This bold text will be overlaid on your thumbnail</p>
                         </div>
-                        <textarea class="brief-input" placeholder="Describe your thumbnail idea..."></textarea>
+
+                        <!-- Brief Textarea -->
+                        <div class="input-card">
+                            <label for="brief-input">
+                                <i class="fas fa-pen"></i>
+                                Describe Your Scene
+                            </label>
+                            <textarea id="brief-input" class="brief-input"
+                                      placeholder="Describe your thumbnail idea... e.g., 'Me looking shocked at a huge stack of money, dark dramatic background'"></textarea>
+                        </div>
+
+                        <!-- Quick Suggestions -->
                         <div class="quick-chips">
-                            <span class="chip-label">Emotions:</span>
-                            <button class="chip">Shocked</button>
-                            <button class="chip">Happy</button>
-                            <button class="chip">Angry</button>
-                            <span class="chip-label">Layout:</span>
-                            <button class="chip">Split Screen</button>
-                            <button class="chip">Face Left</button>
+                            <span class="chip-label">Scene Ideas:</span>
+                            <button class="chip" data-append="luxury penthouse background">Luxury</button>
+                            <button class="chip" data-append="jungle adventure setting">Jungle</button>
+                            <button class="chip" data-append="neon city skyline">City</button>
+                            <button class="chip" data-append="clean studio setup">Studio</button>
+                            <button class="chip" data-append="dramatic spotlight">Spotlight</button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Step 5: Thumbnails -->
-            <div class="step-content" id="step-5">
+            <!-- Step 4: Thumbnails (v2.0) -->
+            <div class="step-content" id="step-4">
                 <div class="step-header">
                     <h2>Review Your Thumbnails</h2>
+                    <p>Select your favorite variant to export.</p>
                 </div>
                 <div class="thumbnails-layout">
                     <div class="thumbnails-grid">
@@ -236,10 +259,11 @@
                 </div>
             </div>
 
-            <!-- Step 6: Export -->
-            <div class="step-content" id="step-6">
+            <!-- Step 5: Export (v2.0) -->
+            <div class="step-content" id="step-5">
                 <div class="step-header">
                     <h2>Export & Test</h2>
+                    <p>Download your thumbnail or send it to Title Tester Pro.</p>
                 </div>
                 <div class="export-options">
                     <div class="export-card">
@@ -278,57 +302,48 @@
             </div>
 
             <div class="panel-content hidden" id="panel-step-2">
-                <h3>Video Details</h3>
-                <p class="text-muted">Once selected, we'll use the title and tags to inform the AI.</p>
-            </div>
-
-            <div class="panel-content hidden" id="panel-step-3">
-                <h3>Current Style</h3>
+                <h3>Style Summary</h3>
                 <div class="style-summary-card">
                     <div class="summary-row">
                         <span>Niche</span>
-                        <strong>Reaction</strong>
+                        <strong id="selected-niche-display">Reaction</strong>
                     </div>
                     <div class="summary-row">
-                        <span>Vibe</span>
-                        <strong>Bold & High Contrast</strong>
+                        <span>Expression</span>
+                        <strong id="selected-expression-display">Excited</strong>
+                    </div>
+                </div>
+                <p class="tip-text">The AI will match colors and lighting to your selected niche.</p>
+            </div>
+
+            <div class="panel-content hidden" id="panel-step-3">
+                <h3>Brief Summary</h3>
+                <div class="brief-summary">
+                    <div class="summary-item">
+                        <label>Text Overlay</label>
+                        <span id="thumbnail-text-display">Not set</span>
+                    </div>
+                    <div class="summary-item">
+                        <label>Scene</label>
+                        <span id="brief-display">Not set</span>
                     </div>
                 </div>
             </div>
 
             <div class="panel-content hidden" id="panel-step-4">
-                <h3>We'll Focus On</h3>
-                <div class="brief-summary">
-                    <div class="summary-item">
-                        <label>Emotion</label>
-                        <span>Shocked</span>
-                    </div>
-                    <div class="summary-item">
-                        <label>Subject</label>
-                        <span>Me + Text</span>
-                    </div>
+                <h3>Selected Variant</h3>
+                <div class="selected-preview">
+                    <div class="preview-box" id="selected-variant-preview">--</div>
+                </div>
+                <div class="generation-info">
+                    <p class="text-muted">Variants generated with your settings.</p>
                 </div>
             </div>
 
             <div class="panel-content hidden" id="panel-step-5">
-                <h3>Selected Variant</h3>
-                <div class="selected-preview">
-                    <div class="preview-box">V2</div>
-                </div>
-                <div class="variant-controls">
-                    <button class="btn-xs">More Emotion</button>
-                    <button class="btn-xs">Less Text</button>
-                    <button class="btn-xs">Color Remix</button>
-                </div>
-            </div>
-
-            <div class="panel-content hidden" id="panel-step-6">
                 <h3>Export History</h3>
-                <ul class="export-list">
-                    <li>
-                        <span>Variant 2</span>
-                        <span class="status-chip completed">Downloaded</span>
-                    </li>
+                <ul class="export-list" id="export-history">
+                    <li class="empty-state">No exports yet</li>
                 </ul>
             </div>
         </aside>
@@ -343,28 +358,80 @@
 
     <script src="app.js"></script>
     <script>
+        // ============================================================
+        // ThumbnailBuilder v2.0 - UI State Management
+        // ============================================================
+
+        const tbState = {
+            niche: 'reaction',
+            expression: 'excited',
+            thumbnailText: '',
+            brief: ''
+        };
+
         // Niche card selection
         document.querySelectorAll('.niche-card').forEach(card => {
             card.addEventListener('click', () => {
                 document.querySelectorAll('.niche-card').forEach(c => c.classList.remove('active'));
                 card.classList.add('active');
+                tbState.niche = card.dataset.niche;
+                // Update display
+                const nicheDisplay = document.getElementById('selected-niche-display');
+                if (nicheDisplay) {
+                    nicheDisplay.textContent = card.querySelector('span').textContent;
+                }
             });
         });
 
-        // Style card selection
-        document.querySelectorAll('.style-card').forEach(card => {
+        // Expression card selection
+        document.querySelectorAll('.expression-card').forEach(card => {
             card.addEventListener('click', () => {
-                document.querySelectorAll('.style-card').forEach(c => c.classList.remove('active'));
+                document.querySelectorAll('.expression-card').forEach(c => c.classList.remove('active'));
                 card.classList.add('active');
+                tbState.expression = card.dataset.expression;
+                // Update display
+                const expressionDisplay = document.getElementById('selected-expression-display');
+                if (expressionDisplay) {
+                    expressionDisplay.textContent = card.querySelector('span').textContent;
+                }
             });
         });
 
-        // Chip buttons for brief
-        document.querySelectorAll('.chip').forEach(chip => {
+        // Thumbnail text input
+        const thumbnailTextInput = document.getElementById('thumbnail-text');
+        if (thumbnailTextInput) {
+            thumbnailTextInput.addEventListener('input', (e) => {
+                tbState.thumbnailText = e.target.value;
+                const display = document.getElementById('thumbnail-text-display');
+                if (display) {
+                    display.textContent = e.target.value || 'Not set';
+                }
+            });
+        }
+
+        // Brief textarea
+        const briefInput = document.getElementById('brief-input');
+        if (briefInput) {
+            briefInput.addEventListener('input', (e) => {
+                tbState.brief = e.target.value;
+                const display = document.getElementById('brief-display');
+                if (display) {
+                    const shortened = e.target.value.length > 40
+                        ? e.target.value.substring(0, 40) + '...'
+                        : e.target.value || 'Not set';
+                    display.textContent = shortened;
+                }
+            });
+        }
+
+        // Chip buttons for brief (with data-append attribute)
+        document.querySelectorAll('.chip[data-append]').forEach(chip => {
             chip.addEventListener('click', () => {
-                const textarea = document.querySelector('.brief-input');
+                const textarea = document.getElementById('brief-input');
                 if (textarea) {
-                    textarea.value += (textarea.value ? ', ' : '') + chip.textContent;
+                    const appendText = chip.dataset.append;
+                    textarea.value += (textarea.value ? ', ' : '') + appendText;
+                    textarea.dispatchEvent(new Event('input'));
                 }
             });
         });
@@ -381,7 +448,8 @@
         const browseBtn = document.getElementById('browse-btn');
         const uploadBox = document.getElementById('upload-box');
         const faceGallery = document.getElementById('face-gallery');
-        const uploadedFaces = [];
+        // v2.0: Expose to window for app.js access
+        window.uploadedFaces = [];
 
         // Click to browse
         browseBtn.addEventListener('click', (e) => {
@@ -493,7 +561,7 @@
 
                 if (res.ok) {
                     updateFaceCard(previewId, 'Good');
-                    uploadedFaces.push(data.face);
+                    window.uploadedFaces.push(data.face);
                 } else {
                     updateFaceCard(previewId, 'Failed');
                     console.error('Upload failed:', data.error);
@@ -527,7 +595,7 @@
                         data.profile.images.forEach(img => {
                             const id = 'existing-' + img.id;
                             addFaceCard(img.url, 'Good', id);
-                            uploadedFaces.push(img);
+                            window.uploadedFaces.push(img);
                         });
                     }
                 }

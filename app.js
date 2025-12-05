@@ -24,13 +24,13 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // State
+    // State - v2.0: Added expression and thumbnailText
     const state = {
         faceImages: [],
-        videoUrl: '',
-        style: '',
         brief: '',
-        niche: '',
+        niche: 'reaction',
+        expression: 'excited',
+        thumbnailText: '',
         variants: []
     };
 
@@ -61,19 +61,19 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Update Buttons
+        // Update Buttons - v2.0: 5 steps (Face → Style → Brief → Thumbnails → Export)
         btnBack.disabled = currentStep === 1;
-        
+
         if (currentStep === totalSteps) {
             btnNext.textContent = 'Finish & Export';
         } else if (currentStep === 1) {
             btnNext.textContent = 'Save Face & Continue';
         } else if (currentStep === 2) {
-            btnNext.textContent = 'Use This Video & Continue';
+            btnNext.textContent = 'Confirm Style & Continue';
         } else if (currentStep === 3) {
-            btnNext.textContent = 'Lock in Style & Continue';
-        } else if (currentStep === 4) {
             btnNext.textContent = 'Generate Thumbnails';
+        } else if (currentStep === 4) {
+            btnNext.textContent = 'Export Selected';
         } else {
             btnNext.textContent = 'Continue';
         }
@@ -85,34 +85,56 @@ document.addEventListener('DOMContentLoaded', () => {
         btnNext.textContent = 'Generating...';
         btnNext.disabled = true;
 
+        // v2.0: Collect all inputs from the new UI
+
         // Get brief from textarea
-        const briefInput = document.querySelector('.brief-input');
+        const briefInput = document.getElementById('brief-input');
         if (briefInput) {
             state.brief = briefInput.value;
         }
 
-        // Get selected niche
-        const activeNiche = document.querySelector('.niche-card.active');
-        if (activeNiche) {
-            state.niche = activeNiche.textContent.trim();
+        // Get thumbnail text
+        const thumbnailTextInput = document.getElementById('thumbnail-text');
+        if (thumbnailTextInput) {
+            state.thumbnailText = thumbnailTextInput.value;
         }
 
-        // Get selected style
-        const activeStyle = document.querySelector('.style-card.active h4');
-        if (activeStyle) {
-            state.style = activeStyle.textContent.trim().toLowerCase().replace(' ', '-');
+        // Get selected niche (from data-niche attribute)
+        const activeNiche = document.querySelector('.niche-card.active');
+        if (activeNiche && activeNiche.dataset.niche) {
+            state.niche = activeNiche.dataset.niche;
         }
+
+        // Get selected expression (from data-expression attribute)
+        const activeExpression = document.querySelector('.expression-card.active');
+        if (activeExpression && activeExpression.dataset.expression) {
+            state.expression = activeExpression.dataset.expression;
+        }
+
+        // Get face images from window.uploadedFaces if available
+        if (window.uploadedFaces && window.uploadedFaces.length > 0) {
+            state.faceImages = window.uploadedFaces.map(f => f.url || f.id);
+        }
+
+        console.log('[ThumbnailBuilder] Generating with:', {
+            brief: state.brief,
+            niche: state.niche,
+            expression: state.expression,
+            thumbnailText: state.thumbnailText,
+            faceCount: state.faceImages.length
+        });
 
         try {
-            // 1. Start Job
+            // 1. Start Job - v2.0 API with new fields
             const res = await fetch('/api/generate', {
                 method: 'POST',
                 headers: authHeaders(),
                 body: JSON.stringify({
                     brief: state.brief || 'Professional YouTube thumbnail',
-                    niche: state.niche,
-                    style: state.style || 'photorealistic',
-                    videoUrl: state.videoUrl
+                    niche: state.niche || 'reaction',
+                    expression: state.expression || 'excited',
+                    thumbnailText: state.thumbnailText || '',
+                    faceImages: state.faceImages
                 })
             });
 
@@ -203,7 +225,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- EVENT LISTENERS ---
 
     btnNext.addEventListener('click', async () => {
-        if (currentStep === 4) {
+        // v2.0: Generation triggers on step 3 (Brief step)
+        if (currentStep === 3) {
             // Generate Trigger
             await generateThumbnails();
         } else if (currentStep < totalSteps) {

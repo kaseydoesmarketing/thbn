@@ -798,9 +798,21 @@ body.create-mode {
 
 .niche-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(5, 1fr);
     gap: 12px;
     margin-top: 16px;
+}
+
+@media (max-width: 1200px) {
+    .niche-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 900px) {
+    .niche-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
 }
 
 .niche-card {
@@ -826,6 +838,161 @@ body.create-mode {
     border-color: var(--primary-orange);
     color: var(--text-main);
     background: rgba(255, 85, 0, 0.05);
+}
+
+/* v2.0: Updated niche card with icon + span layout */
+.niche-card span {
+    display: block;
+    margin-top: 4px;
+}
+
+/* v2.0: Expression Selector */
+.expression-selector {
+    margin-top: 32px;
+}
+
+.expression-selector h3 {
+    font-size: 14px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 16px;
+}
+
+.expression-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.expression-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 20px 16px;
+    border-radius: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.expression-card:hover,
+.expression-card.active {
+    border-color: var(--accent-purple);
+    background: rgba(157, 0, 255, 0.05);
+}
+
+.expression-card.active {
+    box-shadow: 0 0 20px rgba(157, 0, 255, 0.2);
+}
+
+.expression-emoji {
+    font-size: 36px;
+    margin-bottom: 8px;
+}
+
+.expression-card span {
+    display: block;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.expression-card.active span {
+    color: var(--text-main);
+}
+
+/* v2.0: Thumbnail Text Input */
+.thumbnail-text-card {
+    margin-bottom: 24px;
+}
+
+.thumbnail-text-input {
+    width: 100%;
+    padding: 16px 20px;
+    background: var(--bg-dark);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    color: var(--text-main);
+    font-family: var(--font-heading);
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    transition: all 0.2s;
+}
+
+.thumbnail-text-input:focus {
+    border-color: var(--primary-orange);
+    outline: none;
+    box-shadow: 0 0 20px rgba(255, 85, 0, 0.15);
+}
+
+.thumbnail-text-input::placeholder {
+    color: var(--text-muted);
+    opacity: 0.5;
+    font-size: 16px;
+    text-transform: none;
+    font-weight: 400;
+}
+
+.input-card label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+}
+
+.input-card label i {
+    color: var(--primary-orange);
+}
+
+.input-hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    opacity: 0.7;
+    margin-top: 8px;
+}
+
+/* v2.0: Brief Form Layout */
+.brief-form {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+}
+
+.brief-form .input-card {
+    margin-bottom: 24px;
+}
+
+.brief-form .input-card:last-of-type {
+    margin-bottom: 0;
+}
+
+/* v2.0: Chip with data-append */
+.chip[data-append] {
+    background: var(--surface-hover);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.chip[data-append]:hover {
+    border-color: var(--primary-orange);
+    color: var(--text-main);
+}
+
+/* v2.0: Panel tip text */
+.tip-text {
+    font-size: 12px;
+    color: var(--text-muted);
+    opacity: 0.7;
+    margin-top: 16px;
 }
 
 .style-carousel {
