@@ -21,22 +21,36 @@ var BUCKETS = {
 };
 
 // Upload face image from local file
-async function uploadFaceImage(filePath, userId) {
+async function uploadFaceImage(bufferOrPath, userId, label, contentType) {
     var client = getClient();
     if (!client) {
         console.warn('[Storage] Supabase not configured, using local storage');
-        return { url: filePath, isLocal: true };
+        return { url: bufferOrPath, isLocal: true };
     }
 
-    var buffer = fs.readFileSync(filePath);
-    var ext = path.extname(filePath);
-    var filename = userId + '/' + Date.now() + '_' + Math.random().toString(36).substring(7) + ext;
+    var buffer;
+    var ext;
+
+    // Handle both buffer and file path inputs
+    if (Buffer.isBuffer(bufferOrPath)) {
+        buffer = bufferOrPath;
+        contentType = contentType || 'image/jpeg';
+        ext = contentType.includes('png') ? '.png' : '.jpg';
+    } else {
+        // It's a file path
+        buffer = fs.readFileSync(bufferOrPath);
+        ext = path.extname(bufferOrPath);
+        contentType = getContentType(ext);
+    }
+
+    label = label || Date.now() + '_' + Math.random().toString(36).substring(7);
+    var filename = userId + '/' + label + ext;
 
     var result = await client.storage
         .from(BUCKETS.FACES)
         .upload(filename, buffer, {
-            contentType: getContentType(ext),
-            upsert: false
+            contentType: contentType,
+            upsert: true
         });
 
     if (result.error) {
