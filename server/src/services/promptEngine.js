@@ -56,24 +56,26 @@ const CREATOR_STYLES = {
 
     hormozi: {
         name: 'Alex Hormozi Style',
-        description: 'Business authority - confident, clean, high-value aesthetic',
+        description: 'Business authority - ALL CAPS, yellow #F7C204, confident, clean',
         colors: {
-            primary: '#F7C204',      // Hormozi yellow
-            secondary: '#02FB23',    // Hormozi green
+            primary: '#F7C204',      // EXACT Hormozi yellow (research-verified)
+            secondary: '#02FB23',    // EXACT Hormozi green (research-verified)
             accent: '#FF0000',       // Red accent
-            text: '#FFFFFF',         // White text
+            text: '#FFFFFF',         // White OR Yellow text
+            textAlt: '#F7C204',      // Yellow text alternative
             stroke: '#000000',       // Black stroke
             background: '#0A0A0A'    // Pure dark
         },
         font: {
-            family: 'Montserrat Black, Impact, Anton',
-            weight: 900,
+            family: 'Montserrat Black, The Bold Font, Impact',
+            weight: 900,             // BLACK weight (research: Montserrat 900)
             size: 140,
             strokeWidth: 12,
-            shadow: { dx: 8, dy: 8, blur: 0, color: 'rgba(0,0,0,1)' }
+            shadow: { dx: 8, dy: 8, blur: 0, color: 'rgba(0,0,0,1)' },
+            textCase: 'uppercase'    // ALL CAPS (research-backed)
         },
         face: {
-            expression: 'confident knowing look, slight smirk, intense direct eye contact',
+            expression: 'confident knowing look, slight smirk, intense direct eye contact, authoritative',
             placement: 'left 35%',
             size: '40% of frame',
             cutoutStroke: 'white or yellow 4px',
@@ -81,67 +83,72 @@ const CREATOR_STYLES = {
         },
         composition: {
             textPosition: 'right side',
-            textWords: '2-4 words, creates intrigue',
+            textWords: '2-4 words ALL CAPS, creates intrigue',
             background: 'dark gradient, gym equipment, office, wealth indicators',
-            props: 'business elements, charts going up, dollar signs'
+            props: 'business elements, charts going up, dollar signs',
+            rule: 'NO title text duplicated on thumbnail - text COMPLEMENTS title'
         },
-        promptKeywords: 'Alex Hormozi YouTube thumbnail style, confident business leader pose, dark moody background, professional studio lighting, high contrast, yellow and white accents on black, authoritative presence, gym owner entrepreneur aesthetic, clean composition, wealth and success imagery'
+        promptKeywords: 'Alex Hormozi YouTube thumbnail style, confident business leader pose, dark moody background, professional studio lighting, high contrast, yellow #F7C204 and white accents on black, authoritative presence, gym owner entrepreneur aesthetic, clean ONE THING focused composition, wealth and success imagery, reduced clutter'
     },
 
     gadzhi: {
         name: 'Iman Gadzhi Style',
-        description: 'Luxury minimalist - sophisticated, clean, aspirational',
+        description: 'Luxury minimalist - WHITE TEXT ONLY, lowercase, sophisticated',
         colors: {
-            primary: '#FFFFFF',      // Clean white
-            secondary: '#C9A227',    // Gold
+            primary: '#FFFFFF',      // WHITE ONLY (research-backed)
+            secondary: '#FFFFFF',    // WHITE ONLY - NO gold text
             accent: '#1A1A1A',       // Deep black
-            text: '#FFFFFF',         // White text
-            stroke: '#000000',       // Black or gold stroke
-            background: '#0D0D0D'    // Rich dark
+            text: '#FFFFFF',         // WHITE text ONLY
+            stroke: '#000000',       // Black stroke only
+            background: '#0A0A0A'    // Pure dark minimalist
         },
         font: {
-            family: 'Montserrat, Helvetica Neue, SF Pro',
-            weight: 800,
-            size: 120,
-            strokeWidth: 8,
-            shadow: { dx: 6, dy: 6, blur: 2, color: 'rgba(0,0,0,0.9)' }
+            family: 'Montserrat Light, Montserrat, Helvetica Neue',
+            weight: 300,             // LIGHT weight (research: Montserrat Light)
+            weightBold: 700,         // Bold weight for emphasis
+            size: 100,               // Smaller, elegant
+            strokeWidth: 4,          // Subtle stroke
+            shadow: { dx: 4, dy: 4, blur: 0, color: 'rgba(0,0,0,0.8)' },
+            textCase: 'lowercase'    // CRITICAL: lowercase (rare, premium feel)
         },
         face: {
-            expression: 'calm confident, successful, slight knowing smile',
+            expression: 'calm confident, successful, subtle knowing smile, relaxed affluent',
             placement: 'center-left 35%',
             size: '35-40% of frame',
-            cutoutStroke: 'subtle white 3px or gold',
-            outerGlow: 'soft warm gold 12px'
+            cutoutStroke: 'subtle white 2px',
+            outerGlow: 'soft white 8px'  // White glow, NOT gold
         },
         composition: {
             textPosition: 'right or bottom',
-            textWords: '2-5 words, provocative',
-            background: 'luxury gradient, Dubai skyline, private jets, yachts',
-            props: 'luxury lifestyle, travel, success symbols'
+            textWords: '2-4 words, provocative lowercase',
+            background: 'pure dark gradient, Dubai skyline silhouette, private jets, luxury minimalist',
+            props: 'luxury lifestyle, travel, success symbols, clean aesthetic'
         },
-        promptKeywords: 'Iman Gadzhi YouTube thumbnail style, young entrepreneur luxury aesthetic, minimalist clean design, dark sophisticated background, gold accents, Dubai lifestyle, private jet yacht imagery, aspirational wealth, clean typography, professional photography, subtle gradient background'
+        promptKeywords: 'Iman Gadzhi YouTube thumbnail style, young entrepreneur luxury aesthetic, MINIMALIST clean design, dark sophisticated background, NO colorful text - WHITE ONLY, Dubai lifestyle, private jet yacht imagery, aspirational wealth, clean elegant typography lowercase, professional photography, pure dark gradient background, premium sophisticated feel'
     },
 
     magnates: {
         name: 'Magnates Media Style',
-        description: 'Documentary dramatic - cinematic, story-driven, moody',
+        description: 'Documentary cinematic - Impact/Bebas Neue, red/black, story-driven',
         colors: {
-            primary: '#CC0000',      // Documentary red
+            primary: '#CC0000',      // Documentary red (research-backed)
             secondary: '#FFFFFF',    // White
-            accent: '#FFD700',       // Gold accent
+            accent: '#000000',       // Black (red/black palette)
             text: '#FFFFFF',         // White text
+            textAlt: '#CC0000',      // Red text for emphasis
             stroke: '#000000',       // Black stroke
             background: '#0A0A0A'    // Cinematic dark
         },
         font: {
-            family: 'Impact, Bebas Neue, Oswald',
+            family: 'Impact, Bebas Neue, Oswald',  // Tall narrow fonts (movie-poster feel)
             weight: 900,
             size: 130,
             strokeWidth: 10,
-            shadow: { dx: 8, dy: 8, blur: 0, color: 'rgba(0,0,0,1)' }
+            shadow: { dx: 8, dy: 8, blur: 0, color: 'rgba(0,0,0,1)' },
+            textCase: 'uppercase'    // ALL CAPS documentary style
         },
         face: {
-            expression: 'dramatic portrait, intense gaze, story subject',
+            expression: 'dramatic portrait, intense gaze, story subject, documentary subject',
             placement: 'center or rule of thirds',
             size: '50-60% of frame (dramatic close-up)',
             cutoutStroke: 'red or white 4px',
@@ -149,11 +156,12 @@ const CREATOR_STYLES = {
         },
         composition: {
             textPosition: 'top or bottom dramatic',
-            textWords: '3-6 words, story hook',
-            background: 'dramatic lighting, shadows, corporate imagery, scandal aesthetic',
-            props: 'documents, money, corporate logos, dramatic scenes'
+            textWords: '3-6 words, story hook, foreshadow the story',
+            background: 'film grain, shallow depth of field, directional dramatic lighting',
+            props: 'documents, money, corporate logos, dramatic scenes',
+            style: 'curiosity-generating, tease documentary content'
         },
-        promptKeywords: 'Magnates Media documentary thumbnail style, dramatic cinematic lighting, moody dark atmosphere, red and black color scheme, investigative journalism aesthetic, corporate scandal imagery, dramatic portrait lighting, Netflix documentary style, high contrast shadows, story-driven composition, mysterious intriguing mood'
+        promptKeywords: 'Magnates Media documentary thumbnail style, dramatic CINEMATIC lighting, moody dark atmosphere, red and black color scheme, investigative journalism aesthetic, corporate scandal imagery, dramatic portrait lighting, Netflix documentary style, high contrast shadows, story-driven composition, mysterious intriguing mood, film grain texture, shallow depth of field, directional light source'
     }
 };
 

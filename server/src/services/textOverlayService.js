@@ -35,40 +35,46 @@ const CREATOR_TEXT_PRESETS = {
         glow: { blur: 15, color: '#FFFF00' } // Subtle yellow glow
     },
 
-    // Alex Hormozi: Montserrat Black, yellow/white, confident authority
+    // Alex Hormozi: Montserrat Black 900, yellow #F7C204, ALL CAPS (research-backed)
     hormozi: {
         fontFamily: 'Impact, Arial Black, sans-serif', // Montserrat Black fallback
-        fontWeight: 900,
+        fontWeight: 900,          // BLACK weight (research: Montserrat 900)
         fontSize: 140,
-        fill: '#F7C204', // Hormozi yellow
+        fill: '#F7C204',          // EXACT Hormozi yellow (research-verified)
+        fillAlt: '#02FB23',       // EXACT Hormozi green for emphasis
         stroke: '#000000',
         strokeWidth: 12,
         shadow: { dx: 8, dy: 8, blur: 0, color: 'rgba(0,0,0,1)' },
-        glow: null
+        glow: null,
+        textCase: 'uppercase'     // ALL CAPS (research-backed)
     },
 
-    // Iman Gadzhi: Clean minimalist, white/gold, sophisticated
+    // Iman Gadzhi: MINIMALIST - WHITE ONLY, lowercase, NO glow (research-backed)
     gadzhi: {
-        fontFamily: 'Helvetica Neue, Arial, sans-serif', // Montserrat fallback
-        fontWeight: 800,
-        fontSize: 120,
-        fill: '#FFFFFF',
+        fontFamily: 'Helvetica Neue, Arial, sans-serif', // Montserrat Light fallback
+        fontWeight: 300,          // LIGHT weight (research: Montserrat Light)
+        fontWeightBold: 700,      // Bold for emphasis words
+        fontSize: 100,            // Smaller, elegant sizing
+        fill: '#FFFFFF',          // WHITE ONLY - no colors
         stroke: '#000000',
-        strokeWidth: 8,
-        shadow: { dx: 6, dy: 6, blur: 2, color: 'rgba(0,0,0,0.9)' },
-        glow: { blur: 12, color: '#C9A227' } // Subtle gold glow
+        strokeWidth: 4,           // Subtle stroke (not thick)
+        shadow: { dx: 4, dy: 4, blur: 0, color: 'rgba(0,0,0,0.8)' },
+        glow: null,               // NO GLOW - clean minimalist
+        textCase: 'lowercase'     // CRITICAL: lowercase for premium feel
     },
 
-    // Magnates Media: Documentary dramatic, red/white, cinematic
+    // Magnates Media: Documentary cinematic - Impact/Bebas Neue, red/black (research-backed)
     magnates: {
-        fontFamily: 'Impact, Arial Black, sans-serif', // Bebas Neue fallback
+        fontFamily: 'Impact, Arial Black, sans-serif', // Bebas Neue fallback (tall narrow)
         fontWeight: 900,
         fontSize: 130,
-        fill: '#FFFFFF',
-        stroke: '#CC0000', // Documentary red stroke
+        fill: '#FFFFFF',          // White text primary
+        fillAlt: '#CC0000',       // Red text for emphasis
+        stroke: '#000000',        // Black stroke (red/black palette)
         strokeWidth: 10,
         shadow: { dx: 8, dy: 8, blur: 0, color: 'rgba(0,0,0,1)' },
-        glow: { blur: 20, color: '#CC0000' } // Red dramatic glow
+        glow: { blur: 20, color: '#CC0000' }, // Red dramatic glow
+        textCase: 'uppercase'     // ALL CAPS documentary style
     }
 };
 
@@ -455,8 +461,17 @@ async function addTextOverlay(imageBuffer, options) {
         pos = position;
     }
 
+    // Apply text case transformation based on style (default uppercase, but Gadzhi uses lowercase)
+    let processedText = text;
+    if (style.textCase === 'lowercase') {
+        processedText = text.toLowerCase();
+    } else if (style.textCase === 'uppercase' || !style.textCase) {
+        processedText = text.toUpperCase();  // Default to uppercase for viral impact
+    }
+    // else: preserve original case
+
     // Generate SVG
-    const svg = generateTextSVG(text.toUpperCase(), style, pos, width, height);
+    const svg = generateTextSVG(processedText, style, pos, width, height);
 
     // Composite SVG onto image
     const result = await sharp(imageBuffer)
@@ -605,39 +620,53 @@ function getSmartPosition(niche, textLength, hasFace = true) {
 
 /**
  * Get text style for a specific creator style (MrBeast, Hormozi, Gadzhi, Magnates)
+ * Returns COMPLETE style including textCase for proper uppercase/lowercase handling
  * @param {string} creatorStyle - Creator style key
- * @returns {Object} Text style configuration
+ * @returns {Object} Text style configuration with textCase
  */
 function getCreatorTextStyle(creatorStyle) {
-    return CREATOR_TEXT_PRESETS[creatorStyle] || CREATOR_TEXT_PRESETS.mrbeast;
+    const preset = CREATOR_TEXT_PRESETS[creatorStyle] || CREATOR_TEXT_PRESETS.mrbeast;
+
+    // Ensure textCase is included (default to uppercase if not specified)
+    return {
+        ...preset,
+        textCase: preset.textCase || 'uppercase'
+    };
 }
 
 /**
  * Auto-select the best creator text style based on niche
  * Maps niches to the most appropriate creator style
+ * Returns COMPLETE style including textCase for proper uppercase/lowercase handling
  * @param {string} niche - Content niche
- * @returns {Object} Text style configuration
+ * @returns {Object} Text style configuration with textCase
  */
 function getAutoCreatorStyle(niche) {
     const nicheToCreator = {
         gaming: 'mrbeast',        // High energy, viral
         tech: 'hormozi',          // Clean, professional
         finance: 'hormozi',       // Business authority
-        beauty: 'gadzhi',         // Luxury aesthetic
+        beauty: 'gadzhi',         // Luxury aesthetic (lowercase!)
         fitness: 'hormozi',       // Confidence, results
         cooking: 'mrbeast',       // Vibrant, exciting
-        travel: 'gadzhi',         // Aspirational luxury
+        travel: 'gadzhi',         // Aspirational luxury (lowercase!)
         reaction: 'mrbeast',      // Maximum attention
         podcast: 'magnates',      // Documentary feel
         tutorial: 'hormozi',      // Professional trust
         business: 'hormozi',      // Authority
-        luxury: 'gadzhi',         // Sophisticated
+        luxury: 'gadzhi',         // Sophisticated (lowercase!)
         documentary: 'magnates',  // Cinematic
         entertainment: 'mrbeast'  // Viral energy
     };
 
     const creatorKey = nicheToCreator[niche] || 'mrbeast';
-    return CREATOR_TEXT_PRESETS[creatorKey];
+    const preset = CREATOR_TEXT_PRESETS[creatorKey];
+
+    // Ensure textCase is included
+    return {
+        ...preset,
+        textCase: preset.textCase || 'uppercase'
+    };
 }
 
 module.exports = {
