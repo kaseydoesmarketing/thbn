@@ -1183,6 +1183,59 @@ body.create-mode {
     font-size: 14px;
 }
 
+/* Export Variant Selector */
+.export-variant-selector {
+    max-width: 900px;
+    margin: 0 auto 32px;
+}
+
+.export-variant-selector h3 {
+    margin-bottom: 16px;
+    font-size: 16px;
+    color: var(--text-muted);
+}
+
+.export-thumbnails-grid {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.export-thumb-card {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 200px;
+}
+
+.export-thumb-card:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.export-thumb-card.selected {
+    border-color: var(--primary-orange);
+    box-shadow: 0 0 20px rgba(255, 85, 0, 0.2);
+}
+
+.export-thumb-card img {
+    width: 100%;
+    height: 112px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.export-thumb-label {
+    margin-top: 8px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 500;
+}
+
 /* Right Panel */
 .context-panel {
     width: 300px;

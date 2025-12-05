@@ -263,20 +263,29 @@
             <div class="step-content" id="step-5">
                 <div class="step-header">
                     <h2>Export & Test</h2>
-                    <p>Download your thumbnail or send it to Title Tester Pro.</p>
+                    <p>Select a variant and download or send to Title Tester Pro.</p>
                 </div>
+
+                <!-- Variant Selection -->
+                <div class="export-variant-selector">
+                    <h3>Select Variant to Export</h3>
+                    <div class="export-thumbnails-grid" id="export-thumbnails-grid">
+                        <!-- Will be populated with generated variants -->
+                    </div>
+                </div>
+
                 <div class="export-options">
                     <div class="export-card">
                         <i class="fab fa-youtube export-icon"></i>
                         <h3>Download for YouTube</h3>
                         <p>Get the high-res PNG ready for upload.</p>
-                        <button class="btn btn-secondary">Download PNG</button>
+                        <button class="btn btn-secondary" id="btn-download-png">Download PNG</button>
                     </div>
                     <div class="export-card highlight">
                         <i class="fas fa-rocket export-icon"></i>
                         <h3>Send to Testing</h3>
                         <p>Export directly to Title Tester Pro v8 for A/B testing.</p>
-                        <button class="btn btn-primary">Export to Title Tester</button>
+                        <button class="btn btn-primary" id="btn-export-tester">Export to Title Tester</button>
                     </div>
                 </div>
             </div>

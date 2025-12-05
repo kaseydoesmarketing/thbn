@@ -220,6 +220,9 @@ document.addEventListener('DOMContentLoaded', () => {
             card.appendChild(actions);
             grid.appendChild(card);
         });
+
+        // Also populate export grid for step 5
+        renderExportVariants();
     }
 
     // --- EVENT LISTENERS ---
@@ -242,6 +245,109 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // --- EXPORT FUNCTIONALITY ---
+
+    let selectedVariantIndex = 0; // Track which variant is selected for export
+
+    // Download PNG button handler
+    function setupExportButtons() {
+        const downloadBtn = document.getElementById('btn-download-png');
+        const testBtn = document.getElementById('btn-export-tester');
+
+        if (downloadBtn) {
+            downloadBtn.addEventListener('click', downloadSelectedThumbnail);
+        }
+
+        if (testBtn) {
+            testBtn.addEventListener('click', exportToTitleTester);
+        }
+    }
+
+    function renderExportVariants() {
+        const grid = document.getElementById('export-thumbnails-grid');
+        if (!grid || !state.variants.length) return;
+
+        grid.innerHTML = '';
+
+        state.variants.forEach((v, index) => {
+            const card = document.createElement('div');
+            card.className = 'export-thumb-card' + (index === selectedVariantIndex ? ' selected' : '');
+            card.dataset.index = index;
+
+            const img = document.createElement('img');
+            img.src = v.url;
+            img.alt = `Variant ${v.label || index + 1}`;
+
+            const label = document.createElement('div');
+            label.className = 'export-thumb-label';
+            label.textContent = v.label || `Variant ${index + 1}`;
+
+            card.appendChild(img);
+            card.appendChild(label);
+
+            card.addEventListener('click', () => {
+                selectedVariantIndex = index;
+                // Update selection UI
+                document.querySelectorAll('.export-thumb-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+            });
+
+            grid.appendChild(card);
+        });
+    }
+
+    async function downloadSelectedThumbnail() {
+        const variant = state.variants[selectedVariantIndex];
+
+        if (!variant || !variant.url) {
+            alert('No thumbnail available to download. Please generate thumbnails first.');
+            return;
+        }
+
+        const downloadBtn = document.getElementById('btn-download-png');
+        if (downloadBtn) {
+            downloadBtn.textContent = 'Downloading...';
+            downloadBtn.disabled = true;
+        }
+
+        try {
+            // Fetch the image as blob
+            const response = await fetch(variant.url);
+            if (!response.ok) throw new Error('Failed to fetch image');
+
+            const blob = await response.blob();
+
+            // Create download link
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `thumbnail_${variant.label || 'A'}_${Date.now()}.png`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+
+            console.log('[ThumbnailBuilder] Downloaded thumbnail:', variant.label);
+        } catch (err) {
+            console.error('[ThumbnailBuilder] Download failed:', err);
+            alert('Download failed: ' + err.message);
+        } finally {
+            if (downloadBtn) {
+                downloadBtn.textContent = 'Download PNG';
+                downloadBtn.disabled = false;
+            }
+        }
+    }
+
+    function exportToTitleTester() {
+        // Placeholder for Title Tester Pro integration
+        alert('Title Tester Pro integration coming soon!');
+    }
+
+    // Update renderThumbnails to also populate export grid
+    const originalRenderThumbnails = renderThumbnails;
+
     // Initialize
+    setupExportButtons();
     updateUI();
 });
