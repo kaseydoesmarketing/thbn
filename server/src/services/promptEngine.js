@@ -917,6 +917,71 @@ function getCreatorStyles() {
 }
 
 /**
+ * BUILD DIRECT PROMPT - For detailed user prompts
+ * When user provides specific composition/scene instructions, USE THEM DIRECTLY
+ * Only add quality boosters at the end - DON'T override their vision
+ *
+ * This matches how the user gets great results typing directly into Gemini
+ */
+function buildDirectPrompt(brief, options = {}) {
+    const { hasFace, niche, expression, thumbnailText } = options;
+
+    // Get niche-specific visual elements
+    const glowColor = getGlowColorForNiche(niche || 'tech');
+    const nicheTemplate = NICHE_TEMPLATES[niche] || NICHE_TEMPLATES.tech;
+
+    // Start with the user's EXACT prompt as the primary instruction
+    let prompt = `Generate a professional YouTube thumbnail image.
+
+${brief}
+
+VISUAL STYLE & QUALITY:
+- Professional graphic design quality (Photoshop-level compositing)
+- ${nicheTemplate.lightingKeywords}
+- High contrast that pops on YouTube's white interface
+- Multiple depth layers: detailed background, midground elements, foreground subject
+- Rich color saturation with ${nicheTemplate.colors.primary.join ? nicheTemplate.colors.primary.slice(0,2).join(', ') : 'vibrant colors'}
+- Circuit board patterns, tech elements, or thematic graphics where appropriate
+- Professional brand logos/icons if relevant to the content
+- Lens flares, particle effects, and atmospheric lighting for depth`;
+
+    // Face compositing - but DON'T override user's positioning if they specified it
+    if (hasFace) {
+        const hasPositionInBrief = brief.toLowerCase().includes('center') ||
+            brief.toLowerCase().includes('left') ||
+            brief.toLowerCase().includes('right');
+
+        prompt += `
+
+PERSON/FACE COMPOSITING:
+- Use the EXACT face from the reference photo provided
+- Professional cutout with crisp edges (Photoshop pen tool quality)
+- Add ${glowColor} colored stroke/outline around the person (3-5px)
+- Add soft ${glowColor} outer glow for dramatic background separation
+- Rim lighting on edges matching the glow color
+- Face features, skin tone, expression must be PRESERVED exactly from the photo`;
+
+        // Only add position guidance if user didn't specify
+        if (!hasPositionInBrief) {
+            prompt += `
+- Position person taking up 35-45% of frame with space for text`;
+        }
+    }
+
+    // Quality requirements at the END (don't override user's scene)
+    prompt += `
+
+PROFESSIONAL REQUIREMENTS:
+- 16:9 aspect ratio (1280x720)
+- 8K quality, ultra sharp details
+- Designed to look human-made, not AI-generated
+- Works at small mobile thumbnail size (168x94px)
+- Viral YouTube thumbnail aesthetic`;
+
+    return prompt;
+}
+
+/**
  * Auto-select the best creator style for a given niche
  * Maps niches to the creator style that fits best
  */
@@ -950,6 +1015,9 @@ function getCreatorStyleForNiche(niche) {
  * 2. Use photographic language (lens specs, camera angles, lighting)
  * 3. Be hyper-specific for more control
  * 4. Provide context about the image's purpose
+ *
+ * KEY INSIGHT: When user provides DETAILED prompts with specific scene descriptions,
+ * we should TRUST their prompt and add quality modifiers - NOT override with templates.
  */
 function buildUltimatePrompt(options) {
     const {
@@ -962,6 +1030,24 @@ function buildUltimatePrompt(options) {
         additionalContext
     } = options;
 
+    // DETECT if user provided a DETAILED, SPECIFIC prompt
+    // These indicate the user knows exactly what they want - DON'T override
+    const specificCompositionWords = [
+        'centered', 'left side', 'right side', 'background', 'foreground',
+        'show ', 'display', 'featuring', 'with a ', 'behind', 'in front',
+        'on the left', 'on the right', 'at the top', 'at the bottom',
+        'frame', 'composition', 'scene shows', 'image shows'
+    ];
+
+    const isDetailedPrompt = brief.length > 100 &&
+        specificCompositionWords.some(word => brief.toLowerCase().includes(word));
+
+    // If user has a detailed, specific prompt - USE IT DIRECTLY with quality boosters
+    if (isDetailedPrompt) {
+        return buildDirectPrompt(brief, { hasFace, niche, expression, thumbnailText });
+    }
+
+    // Otherwise, use the full template system for simple briefs
     // Determine creator style: use specified or auto-select based on niche
     // IMPORTANT: 'auto' means auto-select, not a literal style key
     const effectiveCreatorStyle = (!creatorStyle || creatorStyle === 'auto')
@@ -1075,6 +1161,7 @@ module.exports = {
     buildProfessionalPrompt,
     buildCreatorStylePrompt,
     buildUltimatePrompt,
+    buildDirectPrompt,
     getNiches,
     getExpressions,
     getTextStyleForNiche,
