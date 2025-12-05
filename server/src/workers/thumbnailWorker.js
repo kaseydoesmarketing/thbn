@@ -285,15 +285,23 @@ thumbnailQueue.queue.process('generate', async function(job) {
                 console.log('[Worker] Step 4: Adding text overlay to variant ' + variantLabel + '...');
 
                 try {
+                    // Determine if thumbnail has a face (affects text positioning)
+                    var hasFace = !!(data.faceImages && data.faceImages.length > 0);
+
+                    // Get smart position: RIGHT side if face, varies if no face
                     var position = textOverlayService.getSmartPosition(
                         data.niche || 'reaction',
-                        data.thumbnailText.length
+                        data.thumbnailText.length,
+                        hasFace
                     );
+
+                    console.log('[Worker] Text position: ' + position + ' (hasFace: ' + hasFace + ')');
 
                     imageBuffer = await textOverlayService.addTextOverlay(imageBuffer, {
                         text: data.thumbnailText,
                         niche: data.niche || 'reaction',
-                        position: position
+                        position: position,
+                        preset: data.niche || 'reaction' // Use niche-specific text preset
                     });
 
                     console.log('[Worker] Text overlay applied to variant ' + variantLabel);

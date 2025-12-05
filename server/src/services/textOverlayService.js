@@ -19,59 +19,100 @@ const sharp = require('sharp');
 // ============================================================================
 
 const TEXT_PRESETS = {
+    // PRO PRESET: Maximum impact - MrBeast style
     bold: {
         fontFamily: 'Impact, Arial Black, sans-serif',
         fontWeight: 900,
-        fontSize: 120, // Base size at 1280x720
+        fontSize: 140, // LARGER for mobile visibility
         fill: '#FFFFFF',
         stroke: '#000000',
-        strokeWidth: 10,
+        strokeWidth: 14, // THICKER stroke
+        shadow: { dx: 8, dy: 8, blur: 0, color: 'rgba(0,0,0,1)' }, // HARD shadow
+        glow: null
+    },
+
+    // Gaming: Neon cyberpunk style
+    gaming: {
+        fontFamily: 'Impact, Arial Black, sans-serif',
+        fontWeight: 900,
+        fontSize: 130,
+        fill: '#00FFFF',
+        stroke: '#000000',
+        strokeWidth: 12,
+        shadow: { dx: 6, dy: 6, blur: 0, color: 'rgba(0,0,0,1)' },
+        glow: { blur: 20, color: '#00D4FF' }
+    },
+
+    // Finance: Gold on black - wealth aesthetic
+    finance: {
+        fontFamily: 'Impact, Arial Black, sans-serif',
+        fontWeight: 900,
+        fontSize: 150,
+        fill: '#FFD700',
+        stroke: '#000000',
+        strokeWidth: 14,
+        shadow: { dx: 8, dy: 8, blur: 0, color: 'rgba(0,0,0,1)' },
+        glow: { blur: 10, color: '#FFD700' }
+    },
+
+    // Tech: Clean but bold - MKBHD style
+    tech: {
+        fontFamily: 'Helvetica Neue, Arial, sans-serif',
+        fontWeight: 800,
+        fontSize: 120,
+        fill: '#FFFFFF',
+        stroke: '#FF0000',
+        strokeWidth: 8,
+        shadow: { dx: 4, dy: 4, blur: 2, color: 'rgba(0,0,0,0.9)' },
+        glow: null
+    },
+
+    // Minimal: Clean but visible
+    minimal: {
+        fontFamily: 'Helvetica Neue, Arial, sans-serif',
+        fontWeight: 700,
+        fontSize: 110,
+        fill: '#FFFFFF',
+        stroke: '#000000',
+        strokeWidth: 6,
         shadow: { dx: 4, dy: 4, blur: 0, color: 'rgba(0,0,0,0.8)' },
         glow: null
     },
 
-    gaming: {
-        fontFamily: 'Impact, Arial Black, sans-serif',
-        fontWeight: 900,
-        fontSize: 110,
-        fill: '#00FFFF',
-        stroke: '#000000',
-        strokeWidth: 8,
-        shadow: { dx: 3, dy: 3, blur: 2, color: 'rgba(0,0,0,0.9)' },
-        glow: { blur: 15, color: '#00D4FF' }
-    },
-
-    finance: {
-        fontFamily: 'Impact, Arial Black, sans-serif',
-        fontWeight: 900,
-        fontSize: 130,
-        fill: '#FFD700',
-        stroke: '#000000',
-        strokeWidth: 10,
-        shadow: { dx: 5, dy: 5, blur: 0, color: 'rgba(0,0,0,0.9)' },
-        glow: null
-    },
-
-    minimal: {
-        fontFamily: 'Helvetica Neue, Arial, sans-serif',
-        fontWeight: 700,
-        fontSize: 100,
-        fill: '#FFFFFF',
-        stroke: '#000000',
-        strokeWidth: 4,
-        shadow: { dx: 2, dy: 2, blur: 4, color: 'rgba(0,0,0,0.5)' },
-        glow: null
-    },
-
+    // Reaction: MAXIMUM ATTENTION - Yellow on black
     reaction: {
         fontFamily: 'Impact, Arial Black, sans-serif',
         fontWeight: 900,
-        fontSize: 140,
+        fontSize: 160, // BIGGEST for reaction thumbnails
         fill: '#FFFF00',
         stroke: '#000000',
-        strokeWidth: 12,
-        shadow: { dx: 6, dy: 6, blur: 0, color: 'rgba(0,0,0,1)' },
+        strokeWidth: 16, // THICCEST stroke
+        shadow: { dx: 10, dy: 10, blur: 0, color: 'rgba(0,0,0,1)' }, // Hard shadow
         glow: null
+    },
+
+    // Fitness: Red energy
+    fitness: {
+        fontFamily: 'Impact, Arial Black, sans-serif',
+        fontWeight: 900,
+        fontSize: 140,
+        fill: '#FFFFFF',
+        stroke: '#FF0000',
+        strokeWidth: 14,
+        shadow: { dx: 8, dy: 8, blur: 0, color: 'rgba(0,0,0,1)' },
+        glow: { blur: 12, color: '#FF0000' }
+    },
+
+    // Beauty: Soft pink glow
+    beauty: {
+        fontFamily: 'Georgia, serif',
+        fontWeight: 700,
+        fontSize: 110,
+        fill: '#FFFFFF',
+        stroke: '#FFB6C1',
+        strokeWidth: 6,
+        shadow: { dx: 4, dy: 4, blur: 4, color: 'rgba(0,0,0,0.6)' },
+        glow: { blur: 15, color: '#FFB6C1' }
     }
 };
 
@@ -80,28 +121,34 @@ const TEXT_PRESETS = {
 // ============================================================================
 
 const POSITIONS = {
-    // Top left - common for titles
-    topLeft: { x: 50, y: 100, anchor: 'start' },
+    // Top right - BEST for face-on-left thumbnails
+    topRight: { x: 1230, y: 120, anchor: 'end' },
 
-    // Top center
-    topCenter: { x: 640, y: 100, anchor: 'middle' },
+    // Top center - for no-face or centered compositions
+    topCenter: { x: 640, y: 120, anchor: 'middle' },
 
-    // Top right
-    topRight: { x: 1230, y: 100, anchor: 'end' },
+    // Top left - when face is on right
+    topLeft: { x: 50, y: 120, anchor: 'start' },
 
-    // Center
+    // Right side center - PRIMARY for face thumbnails (face on left, text on right)
+    rightCenter: { x: 1230, y: 360, anchor: 'end' },
+
+    // Right side upper - good for short punchy text
+    rightUpper: { x: 1230, y: 250, anchor: 'end' },
+
+    // Center - dramatic, face behind text
     center: { x: 640, y: 400, anchor: 'middle' },
 
-    // Bottom left - safe zone
-    bottomLeft: { x: 50, y: 650, anchor: 'start' },
+    // Bottom left - safe zone (avoids YouTube duration)
+    bottomLeft: { x: 50, y: 620, anchor: 'start' },
 
-    // Bottom center - avoid (duration overlay area)
-    bottomCenter: { x: 640, y: 650, anchor: 'middle' },
+    // Bottom right - AVOID (YouTube duration overlay covers this)
+    bottomRight: { x: 1230, y: 620, anchor: 'end' },
 
-    // Left third (for face-right compositions)
+    // Left third (when face is on right)
     leftThird: { x: 50, y: 360, anchor: 'start' },
 
-    // Right third (for face-left compositions)
+    // Right third - DEFAULT for face-on-left thumbnails
     rightThird: { x: 1230, y: 360, anchor: 'end' }
 };
 
@@ -396,32 +443,50 @@ function getNicheTextStyle(niche) {
 
 /**
  * Smart text positioning based on composition
- * Analyzes image to find best text placement
+ * DEFAULT: Text on RIGHT side (face is on LEFT in pro thumbnails)
+ *
+ * @param {string} niche - Content niche
+ * @param {number} textLength - Character count
+ * @param {boolean} hasFace - Whether thumbnail has a face (affects positioning)
  */
-function getSmartPosition(niche, textLength) {
-    // For short text (1-2 words), can go in more places
-    // For longer text, needs more horizontal space
-
-    const shortTextPositions = ['topLeft', 'topCenter', 'bottomLeft', 'leftThird', 'rightThird'];
-    const longTextPositions = ['topLeft', 'bottomLeft', 'leftThird'];
-
+function getSmartPosition(niche, textLength, hasFace = true) {
     const isShort = textLength <= 12;
+    const isMedium = textLength <= 25;
 
-    // Niche-specific preferences
-    const nichePositionPrefs = {
-        gaming: isShort ? 'topCenter' : 'leftThird',
-        tech: 'topRight',
-        finance: isShort ? 'topCenter' : 'leftThird',
-        beauty: 'bottomLeft',
-        fitness: isShort ? 'center' : 'leftThird',
-        cooking: 'bottomLeft',
-        travel: 'bottomLeft',
-        reaction: isShort ? 'bottomLeft' : 'leftThird',
-        podcast: 'topLeft',
-        tutorial: 'topLeft'
-    };
+    // PRO THUMBNAIL RULE: Face on LEFT, text on RIGHT
+    // This creates visual balance and directs eye flow
 
-    return nichePositionPrefs[niche] || 'leftThird';
+    if (hasFace) {
+        // Face thumbnail: Text goes on RIGHT side
+        const facePositionPrefs = {
+            gaming: isShort ? 'rightUpper' : 'rightCenter',
+            tech: 'rightUpper',
+            finance: isShort ? 'rightUpper' : 'rightCenter',
+            beauty: 'rightCenter',
+            fitness: isShort ? 'rightUpper' : 'rightCenter',
+            cooking: 'rightCenter',
+            travel: 'rightCenter',
+            reaction: isShort ? 'rightUpper' : 'rightCenter', // Maximum impact position
+            podcast: 'rightCenter',
+            tutorial: 'rightUpper'
+        };
+        return facePositionPrefs[niche] || 'rightCenter';
+    } else {
+        // No face: Can use full frame
+        const noFacePositionPrefs = {
+            gaming: isShort ? 'center' : 'topCenter',
+            tech: 'topRight',
+            finance: isShort ? 'center' : 'topCenter',
+            beauty: 'bottomLeft',
+            fitness: 'center',
+            cooking: 'bottomLeft',
+            travel: 'bottomLeft',
+            reaction: isShort ? 'center' : 'topCenter',
+            podcast: 'topLeft',
+            tutorial: 'topLeft'
+        };
+        return noFacePositionPrefs[niche] || 'topCenter';
+    }
 }
 
 module.exports = {

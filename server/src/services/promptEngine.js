@@ -323,15 +323,53 @@ function buildProfessionalPrompt(options) {
         prompt += `. ${additionalContext}`;
     }
 
-    // Add face compositing instructions for Gemini
+    // Add face compositing instructions with PRO DESIGN ELEMENTS
     if (hasFace) {
-        prompt += `. CRITICAL INSTRUCTION: Composite the person from the provided reference photo into this scene. Use their ACTUAL face photo - do NOT generate a new face. Place them on the left third of the frame. The person's face, skin tone, and features must be the EXACT photo provided, seamlessly composited onto the generated background. Match the lighting on the person to the scene lighting. The person should appear naturally placed in the environment, with their real photo preserved.`;
+        // Get niche-specific glow color for the stroke/glow effect
+        const glowColor = getGlowColorForNiche(niche);
+
+        prompt += `. CRITICAL DESIGN INSTRUCTIONS FOR FACE:
+1. COMPOSITE the person from the provided reference photo - use their ACTUAL face, do NOT regenerate it.
+2. CUT OUT EFFECT: The person should appear cleanly cut out from any original background with a crisp edge.
+3. COLORED STROKE/BORDER: Add a visible ${glowColor} colored stroke/outline (3-5 pixel equivalent) around the entire person creating a "sticker effect" that separates them from the background.
+4. OUTER GLOW: Add a soft ${glowColor} outer glow/halo effect behind the person to make them pop off the background dramatically.
+5. PLACEMENT: Position the person on the LEFT side of the frame, taking up 35-45% of the image width. Face should be at eye-level, not too high or low.
+6. LIGHTING MATCH: The lighting on the person must match the scene - add rim lighting on the edges that matches the ${glowColor} glow.
+7. LEAVE TEXT SPACE: Keep the right 40-50% of the frame relatively clean for text overlay - avoid putting important elements there.
+8. The face must be the EXACT photo provided, seamlessly blended with professional compositing.`;
     }
 
-    // Add quality boosters
-    prompt += `. Ultra high quality, professional YouTube thumbnail, trending, viral potential, 8k details, sharp focus`;
+    // Add PRO THUMBNAIL quality boosters
+    prompt += `. PROFESSIONAL THUMBNAIL REQUIREMENTS:
+- Ultra high quality, sharp focus, 8k details
+- HIGH CONTRAST composition that pops on YouTube's white interface
+- BOLD, attention-grabbing visual that works at small mobile thumbnail size (168x94 pixels)
+- Clean separation between foreground subject and background
+- Dramatic lighting with visible light sources and shadows
+- Professional YouTube thumbnail aesthetic, viral potential`;
 
     return prompt;
+}
+
+/**
+ * Get the niche-specific glow/stroke color for face cutout effect
+ * These are the signature colors that make pro thumbnails pop
+ */
+function getGlowColorForNiche(niche) {
+    const glowColors = {
+        gaming: 'cyan/electric blue',      // Neon gaming aesthetic
+        tech: 'white/silver',              // Clean tech look
+        finance: 'gold/money green',       // Wealth indicators
+        beauty: 'soft pink/rose gold',     // Beauty glow
+        fitness: 'red/orange',             // Energy/intensity
+        cooking: 'warm orange/golden',     // Appetizing warmth
+        travel: 'golden/sunset orange',    // Adventure glow
+        reaction: 'bright yellow/white',   // Maximum attention
+        podcast: 'white/subtle blue',      // Professional
+        tutorial: 'blue/white'             // Educational trust
+    };
+
+    return glowColors[niche] || 'white/bright';
 }
 
 /**

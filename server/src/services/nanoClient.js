@@ -265,35 +265,59 @@ class GeminiImageClient {
      * @param {boolean} hasFaceImages - Whether face reference images are included
      */
     buildThumbnailPrompt(userPrompt, style, hasFaceImages) {
+        // Enhanced style modifiers with pro design elements
         var styleModifiers = {
-            'cinematic': 'cinematic lighting, dramatic shadows, movie poster quality',
-            'vibrant': 'vibrant saturated colors, high energy, eye-catching',
-            'minimal': 'clean minimalist design, simple composition, bold elements',
-            'dramatic': 'intense dramatic lighting, high contrast, powerful composition',
-            'photorealistic': 'photorealistic, ultra detailed, professional photography',
-            'cartoon': 'cartoon style, bold outlines, colorful illustration',
-            'gaming': 'gaming aesthetic, neon colors, dynamic action pose',
-            'modern': 'modern clean design, professional, high quality'
+            'cinematic': 'cinematic lighting, dramatic shadows, movie poster quality, high contrast',
+            'vibrant': 'vibrant saturated colors, high energy, eye-catching, bold composition',
+            'minimal': 'clean minimalist design, simple composition, bold elements, negative space',
+            'dramatic': 'intense dramatic lighting, high contrast, powerful composition, rim lighting',
+            'photorealistic': 'photorealistic, ultra detailed, professional photography, studio quality',
+            'cartoon': 'cartoon style, bold outlines, colorful illustration, clean edges',
+            'gaming': 'gaming aesthetic, neon cyan and magenta colors, dark background, edge glow, cyberpunk style',
+            'modern': 'modern clean design, professional, high quality, subtle gradient background',
+            'reaction': 'dramatic rim lighting, dark background, high contrast, face prominently featured, edge glow',
+            'finance': 'professional lighting, dark blue/black gradient, gold and green accents, wealth aesthetic',
+            'tech': 'clean studio lighting, minimalist dark background, red accents, MKBHD style',
+            'fitness': 'dramatic side lighting, intense shadows, red/orange energy, powerful'
         };
 
         var styleText = styleModifiers[style] || styleModifiers['photorealistic'];
 
-        var prompt = 'Generate a high-quality YouTube thumbnail image. ' +
+        // Get niche-specific glow color
+        var glowColors = {
+            'gaming': 'cyan/electric blue',
+            'finance': 'gold/money green',
+            'tech': 'white/silver',
+            'fitness': 'red/orange',
+            'reaction': 'bright yellow/white'
+        };
+        var glowColor = glowColors[style] || 'white/bright';
+
+        var prompt = 'Generate a PROFESSIONAL YouTube thumbnail image. ' +
             'Content: ' + userPrompt + '. ' +
             'Style: ' + styleText + '. ';
 
-        // Add face compositing instructions if face images are provided
+        // Add PRO face compositing instructions if face images are provided
         if (hasFaceImages) {
-            prompt += 'CRITICAL: Composite the person from the provided face photo into this thumbnail. ' +
-                'Use their ACTUAL photo - do NOT regenerate or modify their face. ' +
-                'Place the person on the left side of the frame, taking up 35-45% of the image. ' +
-                'The face must be the EXACT photo provided, seamlessly blended into the generated background. ' +
-                'Match the lighting on the person to the scene. ' +
-                'Keep the expression from their photo. ';
+            prompt += 'CRITICAL PROFESSIONAL DESIGN INSTRUCTIONS: ' +
+                '1. COMPOSITE the person from the provided face photo - use their ACTUAL face exactly as shown, do NOT regenerate or modify it. ' +
+                '2. CUT OUT EFFECT: The person must appear cleanly cut out with a crisp, professional edge - like a Photoshop cutout. ' +
+                '3. COLORED STROKE/BORDER: Add a visible ' + glowColor + ' colored stroke/outline around the ENTIRE person creating a "sticker effect" that separates them dramatically from the background. ' +
+                '4. OUTER GLOW: Add a soft ' + glowColor + ' outer glow/halo behind the person to make them pop off the background. ' +
+                '5. PLACEMENT: Position person on the LEFT side, filling 35-45% of frame width. Face at eye-level. ' +
+                '6. LIGHTING: Add rim lighting on person edges matching the ' + glowColor + ' glow color. ' +
+                '7. TEXT SPACE: Keep the RIGHT 40-50% of frame clean for text overlay. ' +
+                '8. The face features, skin tone, expression must be EXACTLY from the photo provided. ';
         }
 
-        prompt += 'Requirements: 16:9 aspect ratio (1280x720), attention-grabbing, ' +
-            'professional quality, clear focal point, suitable for YouTube.';
+        prompt += 'PROFESSIONAL REQUIREMENTS: ' +
+            '16:9 aspect ratio (1280x720), ' +
+            'HIGH CONTRAST that pops on YouTube white interface, ' +
+            'works at small mobile thumbnail size, ' +
+            'clean subject/background separation, ' +
+            'dramatic professional lighting, ' +
+            'viral thumbnail aesthetic, ' +
+            'sharp focus, ultra high quality.';
 
         return prompt;
     }
