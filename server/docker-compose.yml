@@ -25,6 +25,7 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - SUPABASE_URL=${SUPABASE_URL}
       - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
+      - REPLICATE_API_TOKEN=${REPLICATE_API_TOKEN}
     volumes:
       - ./uploads:/app/uploads
     depends_on:
@@ -59,6 +60,7 @@ services:
       - NANO_BANANA_API_BASE_URL=https://api.nanobanana.com/v1
       - SUPABASE_URL=${SUPABASE_URL}
       - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
+      - REPLICATE_API_TOKEN=${REPLICATE_API_TOKEN}
     volumes:
       - ./uploads:/app/uploads
     depends_on:
