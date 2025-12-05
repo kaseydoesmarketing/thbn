@@ -4,327 +4,588 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thumbnail Builder - AI-Powered YouTube Thumbnails</title>
+    <title>Thumbnail Builder - AI-Powered YouTube Thumbnails That Get Clicks</title>
+    <meta name="description" content="Create viral YouTube thumbnails in seconds with AI. Upload your face, describe your video, and generate scroll-stopping thumbnails. No design skills needed.">
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="home.css">
     <link
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Inter:wght@300;400;500;600&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap"
         rel="stylesheet">
-    <style>
-        .hero-home {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0f0f1a 100%);
-            position: relative;
-            overflow: hidden;
-        }
-        .hero-home::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -20%;
-            width: 80%;
-            height: 150%;
-            background: radial-gradient(ellipse, rgba(255,107,53,0.15) 0%, transparent 60%);
-            pointer-events: none;
-        }
-        .nav-home {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 24px 48px;
-            position: relative;
-            z-index: 10;
-        }
-        .nav-logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-decoration: none;
-        }
-        .nav-logo-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #ff6b35, #f7931e);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .nav-logo-icon::after {
-            content: '';
-            border: 8px solid transparent;
-            border-left: 12px solid white;
-            margin-left: 4px;
-        }
-        .nav-logo-text {
-            font-family: 'Outfit', sans-serif;
-            font-size: 22px;
-            font-weight: 600;
-            color: #fff;
-        }
-        .nav-actions {
-            display: flex;
-            gap: 16px;
-        }
-        .btn-nav {
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-decoration: none;
-        }
-        .btn-nav-ghost {
-            background: transparent;
-            border: 1px solid rgba(255,255,255,0.2);
-            color: #fff;
-        }
-        .btn-nav-ghost:hover {
-            border-color: rgba(255,255,255,0.4);
-            background: rgba(255,255,255,0.05);
-        }
-        .btn-nav-primary {
-            background: linear-gradient(90deg, #ff6b35, #f7931e);
-            border: none;
-            color: #fff;
-        }
-        .btn-nav-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(255,107,53,0.3);
-        }
-        .hero-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 0 24px;
-            position: relative;
-            z-index: 10;
-        }
-        .hero-badge {
-            background: rgba(255,107,53,0.1);
-            border: 1px solid rgba(255,107,53,0.3);
-            color: #ff6b35;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 14px;
-            margin-bottom: 24px;
-        }
-        .hero-title {
-            font-family: 'Outfit', sans-serif;
-            font-size: 64px;
-            font-weight: 700;
-            color: #fff;
-            line-height: 1.1;
-            margin: 0 0 24px 0;
-            max-width: 800px;
-        }
-        .hero-title .gradient {
-            background: linear-gradient(90deg, #ff6b35, #f7c531);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .hero-subtitle {
-            font-size: 20px;
-            color: #888;
-            max-width: 600px;
-            line-height: 1.6;
-            margin: 0 0 40px 0;
-        }
-        .hero-cta {
-            display: flex;
-            gap: 16px;
-            margin-bottom: 60px;
-        }
-        .btn-hero {
-            padding: 16px 32px;
-            border-radius: 10px;
-            font-size: 17px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-decoration: none;
-        }
-        .btn-hero-primary {
-            background: linear-gradient(90deg, #ff6b35, #f7931e);
-            border: none;
-            color: #fff;
-        }
-        .btn-hero-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 32px rgba(255,107,53,0.4);
-        }
-        .btn-hero-secondary {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: #fff;
-        }
-        .btn-hero-secondary:hover {
-            background: rgba(255,255,255,0.1);
-        }
-        .hero-preview {
-            max-width: 900px;
-            width: 100%;
-            position: relative;
-        }
-        .preview-mockup {
-            background: rgba(30,30,40,0.8);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 40px 80px rgba(0,0,0,0.5);
-        }
-        .preview-header {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-        .preview-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #333;
-        }
-        .preview-dot.red { background: #ff5f56; }
-        .preview-dot.yellow { background: #ffbd2e; }
-        .preview-dot.green { background: #27ca40; }
-        .preview-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
-        }
-        .preview-thumb {
-            aspect-ratio: 16/9;
-            border-radius: 8px;
-            background: linear-gradient(135deg, #222 0%, #333 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            color: #444;
-            overflow: hidden;
-        }
-        .preview-thumb img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .features-strip {
-            display: flex;
-            justify-content: center;
-            gap: 48px;
-            padding: 40px 24px;
-            border-top: 1px solid rgba(255,255,255,0.05);
-        }
-        .feature-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: #666;
-            font-size: 15px;
-        }
-        .feature-icon {
-            width: 24px;
-            height: 24px;
-            background: rgba(255,107,53,0.2);
-            border-radius: 6px;
-        }
-        @media (max-width: 768px) {
-            .hero-title { font-size: 36px; }
-            .nav-home { padding: 16px 24px; }
-            .preview-grid { grid-template-columns: 1fr; }
-            .features-strip { flex-direction: column; gap: 16px; align-items: center; }
-        }
-    </style>
 </head>
 
-<body>
-    <div class="hero-home">
-        <nav class="nav-home">
-            <a href="/" class="nav-logo">
-                <div class="nav-logo-icon"></div>
-                <span class="nav-logo-text">Thumbnail Builder</span>
-            </a>
-            <div class="nav-actions">
-                <a href="/login.html" class="btn-nav btn-nav-ghost">Sign In</a>
-                <a href="/login.html#register" class="btn-nav btn-nav-primary">Get Started Free</a>
+<body class="home-page">
+
+    <!-- Navigation -->
+    <nav class="nav-home">
+        <a href="/" class="nav-logo">
+            <div class="nav-logo-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M8 5.14v14l11-7-11-7z" fill="white"/>
+                </svg>
             </div>
-        </nav>
+            <span class="nav-logo-text">Thumbnail Builder</span>
+        </a>
+        <div class="nav-center">
+            <a href="#features" class="nav-link">Features</a>
+            <a href="#examples" class="nav-link">Examples</a>
+            <a href="#how-it-works" class="nav-link">How It Works</a>
+            <a href="#pricing" class="nav-link">Pricing</a>
+        </div>
+        <div class="nav-actions" id="navActions">
+            <a href="/login.html" class="btn-nav btn-nav-ghost">Sign In</a>
+            <a href="/login.html#register" class="btn-nav btn-nav-primary">Get Started Free</a>
+        </div>
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <a href="#features" class="mobile-link">Features</a>
+        <a href="#examples" class="mobile-link">Examples</a>
+        <a href="#how-it-works" class="mobile-link">How It Works</a>
+        <a href="#pricing" class="mobile-link">Pricing</a>
+        <div class="mobile-actions">
+            <a href="/login.html" class="btn-nav btn-nav-ghost">Sign In</a>
+            <a href="/login.html#register" class="btn-nav btn-nav-primary">Get Started Free</a>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-glow"></div>
+        <div class="hero-grid-overlay"></div>
 
         <div class="hero-content">
-            <div class="hero-badge">Powered by Google Gemini AI</div>
-            <h1 class="hero-title">
-                Create Viral YouTube Thumbnails <span class="gradient">in Seconds</span>
-            </h1>
-            <p class="hero-subtitle">
-                Upload your face, describe your video, and let AI generate scroll-stopping thumbnails that get clicks. No design skills needed.
-            </p>
-            <div class="hero-cta">
-                <a href="/login.html#register" class="btn-hero btn-hero-primary">Start Creating Free</a>
-                <a href="#demo" class="btn-hero btn-hero-secondary">See Examples</a>
+            <!-- Trust Badge -->
+            <div class="hero-badge">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+                <span>Powered by Google Gemini AI</span>
             </div>
 
-            <div class="hero-preview" id="demo">
-                <div class="preview-mockup">
-                    <div class="preview-header">
-                        <div class="preview-dot red"></div>
-                        <div class="preview-dot yellow"></div>
-                        <div class="preview-dot green"></div>
+            <!-- Main Headline -->
+            <h1 class="hero-title">
+                Stop Designing Thumbnails.
+                <span class="hero-title-gradient">Start Generating Them.</span>
+            </h1>
+
+            <!-- Subheadline -->
+            <p class="hero-subtitle">
+                Upload your face once. Describe your video. Get 4 scroll-stopping thumbnails in under 60 seconds.
+                Your likeness. Your style. Zero design skills required.
+            </p>
+
+            <!-- CTA Buttons -->
+            <div class="hero-ctas">
+                <a href="/login.html#register" class="btn-hero btn-hero-primary">
+                    <span>Start Creating Free</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </a>
+                <a href="#examples" class="btn-hero btn-hero-secondary">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                    <span>See Examples</span>
+                </a>
+            </div>
+
+            <!-- Social Proof -->
+            <div class="hero-proof">
+                <div class="proof-avatars">
+                    <div class="proof-avatar" style="background: linear-gradient(135deg, #FF6B35, #F7931E);"></div>
+                    <div class="proof-avatar" style="background: linear-gradient(135deg, #9D00FF, #FF2200);"></div>
+                    <div class="proof-avatar" style="background: linear-gradient(135deg, #00D4FF, #9D00FF);"></div>
+                    <div class="proof-avatar" style="background: linear-gradient(135deg, #00FF94, #00D4FF);"></div>
+                </div>
+                <span class="proof-text">Join 2,400+ creators already using Thumbnail Builder</span>
+            </div>
+        </div>
+
+        <!-- Hero Visual -->
+        <div class="hero-visual">
+            <div class="hero-mockup">
+                <div class="mockup-header">
+                    <div class="mockup-dots">
+                        <span class="dot red"></span>
+                        <span class="dot yellow"></span>
+                        <span class="dot green"></span>
                     </div>
-                    <div class="preview-grid">
-                        <div class="preview-thumb">
-                            <img src="https://oonnxsvficzxpvevcjmk.supabase.co/storage/v1/object/public/thumbnails/00000000-0000-0000-0000-000000000001/3d6393f9-fc80-46e3-86ce-aa73fe3ed85d/A.png" alt="AI Generated Thumbnail">
+                    <span class="mockup-title">Generated Thumbnails</span>
+                </div>
+                <div class="mockup-grid">
+                    <div class="mockup-thumb featured">
+                        <img src="https://oonnxsvficzxpvevcjmk.supabase.co/storage/v1/object/public/thumbnails/7cb3f210-6002-4a35-9df0-5518ff2c8528/25ed2e4c-3a04-43ed-9df0-c61fdf543f4d/A.png" alt="AI Generated YouTube Thumbnail Example A" loading="eager">
+                        <div class="thumb-badge">A</div>
+                    </div>
+                    <div class="mockup-thumb">
+                        <img src="https://oonnxsvficzxpvevcjmk.supabase.co/storage/v1/object/public/thumbnails/7cb3f210-6002-4a35-9df0-5518ff2c8528/25ed2e4c-3a04-43ed-9df0-c61fdf543f4d/B.png" alt="AI Generated YouTube Thumbnail Example B" loading="eager">
+                        <div class="thumb-badge">B</div>
+                    </div>
+                </div>
+                <div class="mockup-actions">
+                    <button class="mockup-btn primary">Download All</button>
+                    <button class="mockup-btn">Regenerate</button>
+                </div>
+            </div>
+
+            <!-- Floating Elements -->
+            <div class="floating-card card-1">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00FF94" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>Face preserved</span>
+            </div>
+            <div class="floating-card card-2">
+                <span class="stat-number">4</span>
+                <span>variants ready</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Logo Strip / Trust Bar -->
+    <section class="trust-bar">
+        <div class="trust-content">
+            <span class="trust-label">Trusted by creators on</span>
+            <div class="trust-logos">
+                <div class="trust-logo">
+                    <svg width="90" height="20" viewBox="0 0 90 20" fill="currentColor">
+                        <path d="M17.8 5.8c-.9-.9-2.2-1.4-3.8-1.4h-4.8v11.2h2.5v-3.5h2.3c1.6 0 2.9-.5 3.8-1.4.9-.9 1.3-2.1 1.3-3.5s-.4-2.5-1.3-3.4zm-2.1 5.1c-.4.4-1 .6-1.8.6h-2V6.7h2c.8 0 1.4.2 1.8.6.4.4.6 1 .6 1.8s-.2 1.4-.6 1.8z"/>
+                        <text x="24" y="14" font-size="12" font-weight="600">YouTube</text>
+                    </svg>
+                </div>
+                <div class="trust-logo">
+                    <svg width="80" height="20" viewBox="0 0 80 20" fill="currentColor">
+                        <text x="0" y="14" font-size="12" font-weight="600">Twitch</text>
+                    </svg>
+                </div>
+                <div class="trust-logo">
+                    <svg width="80" height="20" viewBox="0 0 80 20" fill="currentColor">
+                        <text x="0" y="14" font-size="12" font-weight="600">TikTok</text>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section" id="features">
+        <div class="section-container">
+            <div class="section-header">
+                <span class="section-badge">Features</span>
+                <h2 class="section-title">Everything You Need to Create <span class="text-gradient">Click-Worthy Thumbnails</span></h2>
+                <p class="section-subtitle">No Photoshop. No templates. No freelancers. Just describe what you want and let AI handle the rest.</p>
+            </div>
+
+            <div class="features-grid">
+                <!-- Feature 1: Face Lock -->
+                <div class="feature-card feature-large">
+                    <div class="feature-icon-wrap">
+                        <div class="feature-icon">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <circle cx="12" cy="8" r="4"></circle>
+                                <path d="M20 21a8 8 0 1 0-16 0"></path>
+                                <path d="M12 12v4"></path>
+                                <circle cx="12" cy="18" r="2"></circle>
+                            </svg>
                         </div>
-                        <div class="preview-thumb">
-                            <img src="https://oonnxsvficzxpvevcjmk.supabase.co/storage/v1/object/public/thumbnails/00000000-0000-0000-0000-000000000001/3d6393f9-fc80-46e3-86ce-aa73fe3ed85d/B.png" alt="AI Generated Thumbnail">
+                    </div>
+                    <h3>Face-Locked Realism</h3>
+                    <p>Upload once, use forever. Our AI preserves your exact likeness across every thumbnail, keeping your channel consistent and recognizable.</p>
+                    <div class="feature-visual">
+                        <div class="face-demo">
+                            <div class="face-input">
+                                <div class="face-placeholder"></div>
+                                <span>Your Photo</span>
+                            </div>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                            <div class="face-outputs">
+                                <div class="mini-thumb"></div>
+                                <div class="mini-thumb"></div>
+                                <div class="mini-thumb"></div>
+                            </div>
                         </div>
-                        <div class="preview-thumb">
-                            <img src="https://oonnxsvficzxpvevcjmk.supabase.co/storage/v1/object/public/thumbnails/00000000-0000-0000-0000-000000000001/e023d115-bb90-4221-b133-f358d7da264e/A.png" alt="AI Generated Thumbnail">
+                    </div>
+                </div>
+
+                <!-- Feature 2: Niche Styles -->
+                <div class="feature-card">
+                    <div class="feature-icon-wrap">
+                        <div class="feature-icon purple">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <rect x="3" y="3" width="7" height="7"></rect>
+                                <rect x="14" y="3" width="7" height="7"></rect>
+                                <rect x="14" y="14" width="7" height="7"></rect>
+                                <rect x="3" y="14" width="7" height="7"></rect>
+                            </svg>
+                        </div>
+                    </div>
+                    <h3>Niche-Driven Styles</h3>
+                    <p>Finance. Gaming. Vlogs. Reaction. Choose from 15+ proven thumbnail styles designed for maximum CTR in your specific niche.</p>
+                </div>
+
+                <!-- Feature 3: Instant Generation -->
+                <div class="feature-card">
+                    <div class="feature-icon-wrap">
+                        <div class="feature-icon blue">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                            </svg>
+                        </div>
+                    </div>
+                    <h3>60-Second Generation</h3>
+                    <p>Describe your video in plain English. Get 4 unique thumbnail variants in under a minute. Pick the winner. Done.</p>
+                </div>
+
+                <!-- Feature 4: A/B Testing -->
+                <div class="feature-card">
+                    <div class="feature-icon-wrap">
+                        <div class="feature-icon green">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M12 20V10"></path>
+                                <path d="M18 20V4"></path>
+                                <path d="M6 20v-4"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <h3>Built for A/B Testing</h3>
+                    <p>Export directly to YouTube Studio or Title Tester Pro. Test multiple variants and let data pick the winner.</p>
+                </div>
+
+                <!-- Feature 5: YouTube Optimized -->
+                <div class="feature-card">
+                    <div class="feature-icon-wrap">
+                        <div class="feature-icon red">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                                <line x1="8" y1="21" x2="16" y2="21"></line>
+                                <line x1="12" y1="17" x2="12" y2="21"></line>
+                            </svg>
+                        </div>
+                    </div>
+                    <h3>YouTube-Perfect Sizing</h3>
+                    <p>Every thumbnail is generated at 1280x720 with proper compression. Upload-ready, no resizing needed.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Examples Section -->
+    <section class="examples-section" id="examples">
+        <div class="section-container">
+            <div class="section-header">
+                <span class="section-badge">Gallery</span>
+                <h2 class="section-title">Real Thumbnails. <span class="text-gradient">Real Results.</span></h2>
+                <p class="section-subtitle">See what creators are generating with Thumbnail Builder. These are actual AI-generated outputs.</p>
+            </div>
+
+            <div class="examples-gallery">
+                <div class="example-card large">
+                    <img src="https://oonnxsvficzxpvevcjmk.supabase.co/storage/v1/object/public/thumbnails/7cb3f210-6002-4a35-9df0-5518ff2c8528/25ed2e4c-3a04-43ed-9df0-c61fdf543f4d/A.png" alt="AI Generated Thumbnail - Tech Review Style" loading="lazy">
+                    <div class="example-overlay">
+                        <span class="example-style">Tech Review</span>
+                    </div>
+                </div>
+                <div class="example-card">
+                    <img src="https://oonnxsvficzxpvevcjmk.supabase.co/storage/v1/object/public/thumbnails/7cb3f210-6002-4a35-9df0-5518ff2c8528/25ed2e4c-3a04-43ed-9df0-c61fdf543f4d/B.png" alt="AI Generated Thumbnail - Variant B" loading="lazy">
+                    <div class="example-overlay">
+                        <span class="example-style">Reaction</span>
+                    </div>
+                </div>
+                <div class="example-card placeholder">
+                    <div class="placeholder-content">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                            <polyline points="21 15 16 10 5 21"></polyline>
+                        </svg>
+                        <span>Your thumbnail here</span>
+                    </div>
+                </div>
+                <div class="example-card placeholder">
+                    <div class="placeholder-content">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                            <polyline points="21 15 16 10 5 21"></polyline>
+                        </svg>
+                        <span>Your thumbnail here</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="examples-cta">
+                <a href="/login.html#register" class="btn-hero btn-hero-primary">
+                    <span>Create Your First Thumbnail</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="how-section" id="how-it-works">
+        <div class="section-container">
+            <div class="section-header">
+                <span class="section-badge">How It Works</span>
+                <h2 class="section-title">From Idea to Thumbnail <span class="text-gradient">in 3 Steps</span></h2>
+                <p class="section-subtitle">No learning curve. No complex tools. Just results.</p>
+            </div>
+
+            <div class="steps-container">
+                <div class="step-card">
+                    <div class="step-number">01</div>
+                    <div class="step-content">
+                        <h3>Upload Your Face</h3>
+                        <p>One clear photo of yourself. We lock your likeness so every thumbnail looks like you.</p>
+                    </div>
+                    <div class="step-visual">
+                        <div class="step-icon-large">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-connector">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">02</div>
+                    <div class="step-content">
+                        <h3>Describe Your Video</h3>
+                        <p>Tell us what your video is about. Choose a style. Add any specific requests.</p>
+                    </div>
+                    <div class="step-visual">
+                        <div class="step-icon-large">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-connector">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </div>
+
+                <div class="step-card highlighted">
+                    <div class="step-number">03</div>
+                    <div class="step-content">
+                        <h3>Download and Publish</h3>
+                        <p>Get 4 unique variants. Pick your favorite. Upload to YouTube. Watch the clicks roll in.</p>
+                    </div>
+                    <div class="step-visual">
+                        <div class="step-icon-large success">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </section>
 
-        <div class="features-strip">
-            <div class="feature-item">
-                <div class="feature-icon"></div>
-                <span>AI-Powered Generation</span>
-            </div>
-            <div class="feature-item">
-                <div class="feature-icon"></div>
-                <span>Multiple Variants</span>
-            </div>
-            <div class="feature-item">
-                <div class="feature-icon"></div>
-                <span>YouTube Optimized (1280x720)</span>
-            </div>
-            <div class="feature-item">
-                <div class="feature-icon"></div>
-                <span>Instant Download</span>
+    <!-- Pricing Teaser Section -->
+    <section class="pricing-section" id="pricing">
+        <div class="section-container">
+            <div class="pricing-card">
+                <div class="pricing-content">
+                    <span class="section-badge">Simple Pricing</span>
+                    <h2 class="pricing-title">Start Free. Upgrade When Ready.</h2>
+                    <p class="pricing-subtitle">No credit card required. Generate your first thumbnails for free and see the quality for yourself.</p>
+
+                    <div class="pricing-features">
+                        <div class="pricing-feature">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00FF94" stroke-width="2">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            <span>5 free thumbnail generations</span>
+                        </div>
+                        <div class="pricing-feature">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00FF94" stroke-width="2">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            <span>All styles and niches included</span>
+                        </div>
+                        <div class="pricing-feature">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00FF94" stroke-width="2">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            <span>Full resolution downloads</span>
+                        </div>
+                        <div class="pricing-feature">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00FF94" stroke-width="2">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            <span>No watermarks</span>
+                        </div>
+                    </div>
+
+                    <a href="/login.html#register" class="btn-hero btn-hero-primary btn-large">
+                        <span>Get Started Free</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+                </div>
+
+                <div class="pricing-visual">
+                    <div class="pricing-mockup">
+                        <div class="price-display">
+                            <span class="price-currency">$</span>
+                            <span class="price-amount">0</span>
+                            <span class="price-period">to start</span>
+                        </div>
+                        <div class="price-upgrade">
+                            Then from <strong>$9/mo</strong> for unlimited
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
+    </section>
+
+    <!-- Final CTA Section -->
+    <section class="final-cta-section">
+        <div class="section-container">
+            <div class="final-cta-content">
+                <h2 class="final-cta-title">Ready to Stop Wasting Hours on Thumbnails?</h2>
+                <p class="final-cta-subtitle">Join thousands of creators who've switched to AI-powered thumbnail generation. Your next viral video deserves a thumbnail that matches.</p>
+
+                <div class="final-cta-buttons">
+                    <a href="/login.html#register" class="btn-hero btn-hero-primary btn-large">
+                        <span>Start Creating Now</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+                </div>
+
+                <p class="final-cta-note">Free to try. No credit card required.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-main">
+                <div class="footer-brand">
+                    <a href="/" class="footer-logo">
+                        <div class="nav-logo-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                <path d="M8 5.14v14l11-7-11-7z" fill="white"/>
+                            </svg>
+                        </div>
+                        <span class="nav-logo-text">Thumbnail Builder</span>
+                    </a>
+                    <p class="footer-tagline">AI-powered thumbnail generation for YouTube creators.</p>
+                </div>
+
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Product</h4>
+                        <a href="#features">Features</a>
+                        <a href="#examples">Examples</a>
+                        <a href="#pricing">Pricing</a>
+                        <a href="#how-it-works">How It Works</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Account</h4>
+                        <a href="/login.html">Sign In</a>
+                        <a href="/login.html#register">Create Account</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Legal</h4>
+                        <a href="#">Privacy Policy</a>
+                        <a href="#">Terms of Service</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p class="footer-copyright">2024 Thumbnail Builder. All rights reserved.</p>
+                <div class="footer-powered">
+                    <span>Powered by</span>
+                    <svg width="80" height="16" viewBox="0 0 80 16" fill="currentColor">
+                        <text x="0" y="12" font-size="11" font-weight="500">Google Gemini</text>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </footer>
 
     <script>
-        // Handle #register hash
-        if (window.location.hash === '#register') {
-            window.location.href = '/login.html';
-            setTimeout(() => {
-                if (typeof toggleForm === 'function') toggleForm('register');
-            }, 100);
-        }
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
 
-        // If already logged in, go to dashboard
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenuBtn.classList.toggle('active');
+            mobileMenu.classList.toggle('active');
+        });
+
+        // Close mobile menu on link click
+        document.querySelectorAll('.mobile-link').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenuBtn.classList.remove('active');
+                mobileMenu.classList.remove('active');
+            });
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Update nav based on auth status
         if (localStorage.getItem('tb_token')) {
-            document.querySelector('.nav-actions').innerHTML = `
+            document.getElementById('navActions').innerHTML = `
                 <a href="/index.html" class="btn-nav btn-nav-primary">Go to Dashboard</a>
             `;
         }
+
+        // Navbar scroll effect
+        const nav = document.querySelector('.nav-home');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
     </script>
 </body>
 

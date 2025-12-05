@@ -145,9 +145,10 @@
     </main>
 
     <script>
-        // Auth check
+        // Auth check - redirect to public landing page if not logged in
+        // The dashboard requires authentication
         if (!localStorage.getItem('tb_token')) {
-            window.location.href = '/login.html';
+            window.location.href = '/home.html';
         }
 
         // Start New Session button
@@ -159,7 +160,7 @@
         function logout() {
             localStorage.removeItem('tb_token');
             localStorage.removeItem('tb_user');
-            window.location.href = '/login.html';
+            window.location.href = '/home.html';
         }
     </script>
 </body>
