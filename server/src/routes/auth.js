@@ -3,11 +3,12 @@ var bcrypt = require('bcrypt');
 var router = express.Router();
 var db = require('../db/connection');
 var authMiddleware = require('../middleware/auth');
+var { authLimiter, loginLimiter, passwordResetLimiter } = require('../middleware/rateLimit');
 
 var SALT_ROUNDS = 12;
 
-// POST /api/auth/register
-router.post('/register', async function(req, res) {
+// POST /api/auth/register - rate limited (10 req/15min)
+router.post('/register', authLimiter, async function(req, res) {
     try {
         var email = req.body.email;
         var password = req.body.password;
@@ -74,8 +75,8 @@ router.post('/register', async function(req, res) {
     }
 });
 
-// POST /api/auth/login
-router.post('/login', async function(req, res) {
+// POST /api/auth/login - rate limited (5 failed attempts/15min)
+router.post('/login', loginLimiter, async function(req, res) {
     try {
         var email = req.body.email;
         var password = req.body.password;

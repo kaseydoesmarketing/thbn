@@ -3,13 +3,14 @@ var router = express.Router();
 var db = require('../db/connection');
 var thumbnailQueue = require('../queues/thumbnailQueue');
 var authMiddleware = require('../middleware/auth');
+var { generationLimiter } = require('../middleware/rateLimit');
 
 // Require authentication for all thumbnail routes
 router.use(authMiddleware.requireAuth);
 
 // POST /api/generate
-// Starts a thumbnail generation job
-router.post('/generate', async function(req, res) {
+// Starts a thumbnail generation job - rate limited (20 req/hour per user)
+router.post('/generate', generationLimiter, async function(req, res) {
     try {
         var videoUrl = req.body.videoUrl;
         var videoTitle = req.body.videoTitle;

@@ -13,6 +13,7 @@ var db = require('./src/db/connection');
 var redis = require('./src/config/redis');
 var storageService = require('./src/services/storageService');
 var thumbnailQueue = require('./src/queues/thumbnailQueue');
+var { generalLimiter } = require('./src/middleware/rateLimit');
 
 var app = express();
 var PORT = process.env.PORT || 3000;
@@ -27,6 +28,9 @@ app.use(cors({
 }));
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
+
+// Apply general rate limiting (100 req/15min)
+app.use(generalLimiter);
 
 // Serve uploaded files statically
 var uploadsDir = process.env.UPLOAD_DIR || path.join(__dirname, 'uploads');
