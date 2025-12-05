@@ -91,16 +91,22 @@ class GeminiImageClient {
     /**
      * Creates a thumbnail generation job using Gemini API
      * Generates fewer variants to stay within rate limits
+     * @param {Object} payload - { prompt, style_preset, faceImages }
+     * @param {Array} payload.faceImages - Optional array of {data: base64, mimeType: string}
      */
     async createThumbnailJob(payload) {
         try {
             var prompt = payload.prompt;
             var style = payload.style_preset || 'photorealistic';
+            var faceImages = payload.faceImages || [];
 
             // Build enhanced prompt for YouTube thumbnail
-            var enhancedPrompt = this.buildThumbnailPrompt(prompt, style);
+            var enhancedPrompt = this.buildThumbnailPrompt(prompt, style, faceImages.length > 0);
 
             console.log('[Gemini] Generating thumbnails with prompt:', enhancedPrompt.substring(0, 100) + '...');
+            if (faceImages.length > 0) {
+                console.log('[Gemini] Including ' + faceImages.length + ' face reference images');
+            }
 
             // Generate 2 variants to conserve daily image quota
             // Free: ~100/day, Paid: ~2000/day
@@ -111,7 +117,7 @@ class GeminiImageClient {
                 try {
                     console.log('[Gemini] Generating variant ' + (i + 1) + '/' + numVariants + '...');
 
-                    var imageData = await this.generateSingleImage(enhancedPrompt, i);
+                    var imageData = await this.generateSingleImage(enhancedPrompt, i, faceImages);
                     if (imageData) {
                         variants.push({
                             variant_label: String.fromCharCode(65 + i), // A, B
@@ -144,19 +150,23 @@ class GeminiImageClient {
     /**
      * Generate a single image using Gemini with rate limiting and retry
      * Automatically falls back to secondary model if primary fails with 400
+     * @param {string} prompt - Text prompt for generation
+     * @param {number} variantIndex - Variant index for prompt variation
+     * @param {Array} faceImages - Optional array of {data: base64, mimeType: string}
      */
-    async generateSingleImage(prompt, variantIndex) {
+    async generateSingleImage(prompt, variantIndex, faceImages) {
         var self = this;
         var currentModel = this.useFallback ? this.fallbackModel : this.model;
+        faceImages = faceImages || [];
 
         try {
-            return await this._generateWithModel(currentModel, prompt, variantIndex);
+            return await this._generateWithModel(currentModel, prompt, variantIndex, faceImages);
         } catch (error) {
             // If primary model fails with 400 (model not found), try fallback
             if (!this.useFallback && error.response && error.response.status === 400) {
                 console.log('[Gemini] Primary model failed, switching to fallback: ' + this.fallbackModel);
                 this.useFallback = true;
-                return await this._generateWithModel(this.fallbackModel, prompt, variantIndex);
+                return await this._generateWithModel(this.fallbackModel, prompt, variantIndex, faceImages);
             }
             throw error;
         }
@@ -164,9 +174,15 @@ class GeminiImageClient {
 
     /**
      * Internal: Generate image with specific model
+     * Supports multimodal input with face reference images
+     * @param {string} modelName - Gemini model name
+     * @param {string} prompt - Text prompt
+     * @param {number} variantIndex - Variant index
+     * @param {Array} faceImages - Array of {data: base64, mimeType: string}
      */
-    async _generateWithModel(modelName, prompt, variantIndex) {
+    async _generateWithModel(modelName, prompt, variantIndex, faceImages) {
         var self = this;
+        faceImages = faceImages || [];
 
         return await this.withRetry(async function() {
             // Wait for rate limit
@@ -184,11 +200,28 @@ class GeminiImageClient {
             ];
             var variedPrompt = prompt + (variations[variantIndex] || '');
 
+            // Build request parts - text prompt first, then any face images
+            var parts = [{
+                text: variedPrompt
+            }];
+
+            // Add face reference images as inline data
+            if (faceImages.length > 0) {
+                console.log('[Gemini] Adding ' + faceImages.length + ' face reference images to request');
+                for (var i = 0; i < faceImages.length; i++) {
+                    var faceImage = faceImages[i];
+                    parts.push({
+                        inlineData: {
+                            mimeType: faceImage.mimeType,
+                            data: faceImage.data
+                        }
+                    });
+                }
+            }
+
             var requestBody = {
                 contents: [{
-                    parts: [{
-                        text: variedPrompt
-                    }]
+                    parts: parts
                 }],
                 generationConfig: {
                     responseModalities: ['image', 'text'],
@@ -200,15 +233,17 @@ class GeminiImageClient {
                 timeout: self.timeout,
                 headers: {
                     'Content-Type': 'application/json'
-                }
+                },
+                maxContentLength: 50 * 1024 * 1024, // 50MB max for multimodal
+                maxBodyLength: 50 * 1024 * 1024
             });
 
             // Extract image from response
             var candidates = response.data.candidates || [];
             if (candidates.length > 0) {
-                var parts = candidates[0].content?.parts || [];
-                for (var j = 0; j < parts.length; j++) {
-                    var part = parts[j];
+                var responseParts = candidates[0].content?.parts || [];
+                for (var j = 0; j < responseParts.length; j++) {
+                    var part = responseParts[j];
                     if (part.inlineData) {
                         return {
                             data: part.inlineData.data,
@@ -225,8 +260,11 @@ class GeminiImageClient {
 
     /**
      * Build an optimized prompt for YouTube thumbnails
+     * @param {string} userPrompt - User's content description
+     * @param {string} style - Style preset name
+     * @param {boolean} hasFaceImages - Whether face reference images are included
      */
-    buildThumbnailPrompt(userPrompt, style) {
+    buildThumbnailPrompt(userPrompt, style, hasFaceImages) {
         var styleModifiers = {
             'cinematic': 'cinematic lighting, dramatic shadows, movie poster quality',
             'vibrant': 'vibrant saturated colors, high energy, eye-catching',
@@ -234,15 +272,24 @@ class GeminiImageClient {
             'dramatic': 'intense dramatic lighting, high contrast, powerful composition',
             'photorealistic': 'photorealistic, ultra detailed, professional photography',
             'cartoon': 'cartoon style, bold outlines, colorful illustration',
-            'gaming': 'gaming aesthetic, neon colors, dynamic action pose'
+            'gaming': 'gaming aesthetic, neon colors, dynamic action pose',
+            'modern': 'modern clean design, professional, high quality'
         };
 
         var styleText = styleModifiers[style] || styleModifiers['photorealistic'];
 
         var prompt = 'Generate a high-quality YouTube thumbnail image. ' +
             'Content: ' + userPrompt + '. ' +
-            'Style: ' + styleText + '. ' +
-            'Requirements: 16:9 aspect ratio (1280x720), attention-grabbing, ' +
+            'Style: ' + styleText + '. ';
+
+        // Add face reference instructions if face images are provided
+        if (hasFaceImages) {
+            prompt += 'IMPORTANT: Use the provided face reference images to include the person in the thumbnail. ' +
+                'The person should be prominently featured, expressive, and match the energy of the content. ' +
+                'Preserve the person\'s likeness, facial features, and skin tone accurately. ';
+        }
+
+        prompt += 'Requirements: 16:9 aspect ratio (1280x720), attention-grabbing, ' +
             'professional quality, clear focal point, suitable for YouTube.';
 
         return prompt;

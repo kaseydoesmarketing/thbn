@@ -4,6 +4,88 @@ var thumbnailQueue = require('../queues/thumbnailQueue');
 var nanoClient = require('../services/nanoClient');
 var storageService = require('../services/storageService');
 var db = require('../db/connection');
+var fs = require('fs');
+var path = require('path');
+
+// Upload directory for face images
+var UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(__dirname, '../../uploads');
+
+/**
+ * Load face images from storage
+ * @param {string} userId - User ID
+ * @param {Array} faceImageIds - Array of face image IDs or URLs
+ * @returns {Array} Array of {data: base64, mimeType: string}
+ */
+async function loadFaceImages(userId, faceImageIds) {
+    if (!faceImageIds || faceImageIds.length === 0) {
+        return [];
+    }
+
+    var faceImages = [];
+    var maxImages = 3; // Limit to avoid API issues
+
+    for (var i = 0; i < Math.min(faceImageIds.length, maxImages); i++) {
+        var faceRef = faceImageIds[i];
+
+        try {
+            // Handle different formats: ID, URL, or storage_key
+            var storageKey = null;
+
+            if (typeof faceRef === 'string') {
+                if (faceRef.startsWith('/uploads/')) {
+                    // URL format: /uploads/filename.jpg
+                    storageKey = faceRef.replace('/uploads/', '');
+                } else if (faceRef.includes('_')) {
+                    // Already a storage key: userId_timestamp_filename.jpg
+                    storageKey = faceRef;
+                } else {
+                    // Might be an ID - look up in database
+                    var imgResult = await db.query(
+                        'SELECT storage_key FROM face_profile_images WHERE id = $1',
+                        [faceRef]
+                    );
+                    if (imgResult.rows.length > 0) {
+                        storageKey = imgResult.rows[0].storage_key;
+                    }
+                }
+            } else if (faceRef && faceRef.url) {
+                // Object format: {id, url}
+                storageKey = faceRef.url.replace('/uploads/', '');
+            }
+
+            if (!storageKey) {
+                console.log('[Worker] Could not resolve face image:', faceRef);
+                continue;
+            }
+
+            // Load from local uploads
+            var filePath = path.join(UPLOAD_DIR, storageKey);
+            if (fs.existsSync(filePath)) {
+                var imageBuffer = fs.readFileSync(filePath);
+                var base64Data = imageBuffer.toString('base64');
+
+                // Determine MIME type
+                var ext = path.extname(storageKey).toLowerCase();
+                var mimeType = 'image/jpeg';
+                if (ext === '.png') mimeType = 'image/png';
+                else if (ext === '.webp') mimeType = 'image/webp';
+                else if (ext === '.gif') mimeType = 'image/gif';
+
+                faceImages.push({
+                    data: base64Data,
+                    mimeType: mimeType
+                });
+                console.log('[Worker] Loaded face image: ' + storageKey);
+            } else {
+                console.log('[Worker] Face image not found: ' + filePath);
+            }
+        } catch (err) {
+            console.error('[Worker] Error loading face image:', err.message);
+        }
+    }
+
+    return faceImages;
+}
 
 console.log('[Worker] Starting thumbnail worker...');
 
@@ -31,13 +113,24 @@ thumbnailQueue.queue.process('generate', async function(job) {
             prompt = '[' + data.niche.toUpperCase() + ' NICHE] ' + prompt;
         }
 
-        job.progress(20);
+        job.progress(15);
+
+        // Load face images if provided
+        var faceImages = [];
+        if (data.faceImages && data.faceImages.length > 0) {
+            console.log('[Worker] Loading ' + data.faceImages.length + ' face images...');
+            faceImages = await loadFaceImages(userId, data.faceImages);
+            console.log('[Worker] Loaded ' + faceImages.length + ' face images for generation');
+        }
+
+        job.progress(25);
 
         // Call Gemini API (Nano Banana)
-        console.log('[Worker] Calling Gemini API...');
+        console.log('[Worker] Calling Gemini API' + (faceImages.length > 0 ? ' with ' + faceImages.length + ' face images' : '') + '...');
         var result = await nanoClient.createThumbnailJob({
             prompt: prompt,
-            style_preset: data.style || 'photorealistic'
+            style_preset: data.style || 'photorealistic',
+            faceImages: faceImages
         });
 
         console.log('[Worker] Gemini returned ' + (result.variants ? result.variants.length : 0) + ' variants');
