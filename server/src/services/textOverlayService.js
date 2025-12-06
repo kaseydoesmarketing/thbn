@@ -551,26 +551,16 @@ function generateTextSVG(text, style, position, width = 1280, height = 720) {
         innerStrokeWidth = 4             // NEW: Inner stroke width
     } = style;
 
-    // FONT FIX: Map fancy fonts to guaranteed system fonts
-    // Ubuntu has: DejaVu Sans, Liberation Sans, FreeSans
-    const fontMap = {
-        'Impact': 'Liberation Sans, DejaVu Sans, sans-serif',
-        'Arial Black': 'Liberation Sans, DejaVu Sans, sans-serif',
-        'Helvetica Neue': 'Liberation Sans, DejaVu Sans, sans-serif',
-        'Georgia': 'Liberation Serif, DejaVu Serif, serif'
-    };
+    // FONT FIX V2: FORCE use fonts that are CONFIRMED installed on Ubuntu server
+    // Installed via apt: Liberation Sans, FreeSans, DejaVu Sans (with bold variants)
+    // These are the ONLY fonts guaranteed to render with Sharp/SVG on the server
+    //
+    // Liberation Sans Bold is the best Impact alternative on Linux
 
-    // Replace fancy fonts with system fonts
-    let safeFontFamily = fontFamily;
-    for (const [fancy, safe] of Object.entries(fontMap)) {
-        if (fontFamily.includes(fancy)) {
-            safeFontFamily = fontFamily.replace(fancy, safe);
-        }
-    }
-    // Ensure we always have a fallback
-    if (!safeFontFamily.includes('sans-serif') && !safeFontFamily.includes('serif')) {
-        safeFontFamily += ', sans-serif';
-    }
+    // ALWAYS use Liberation Sans - it's guaranteed to work
+    const safeFontFamily = 'Liberation Sans, FreeSans, DejaVu Sans, sans-serif';
+
+    console.log(`[TextOverlay] Rendering text "${text.substring(0, 20)}..." with Liberation Sans (weight: ${fontWeight})`)
 
     const { x, y, anchor = 'start' } = position;
 
