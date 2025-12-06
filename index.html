@@ -43,11 +43,12 @@
                 <span class="logo-text"><span style="color:#fff">Thumbnail</span><span style="color:#8B5CF6">Builder</span><span style="color:#6B7280;font-size:0.8em">.app</span></span>
             </a>
             <ul class="nav-links">
-                <li><a href="index.html">Dashboard</a></li>
+                <li><a href="index.html" class="active">Dashboard</a></li>
                 <li><a href="create.html">Create</a></li>
-                <li><a href="library.html" class="active">Library</a></li>
+                <li><a href="library.html">Library</a></li>
                 <li><a href="presets.html">Presets</a></li>
                 <li><a href="account.html">Account</a></li>
+                <li id="admin-link" style="display:none;"><a href="admin.html" style="color:#8B5CF6;">Admin</a></li>
             </ul>
         </div>
         <div class="nav-right">
@@ -167,6 +168,14 @@
         if (!localStorage.getItem('tb_token')) {
             window.location.href = '/home.html';
         }
+
+        // Show Admin link if user is admin
+        try {
+            const user = JSON.parse(localStorage.getItem('tb_user') || '{}');
+            if (user.role === 'admin') {
+                document.getElementById('admin-link').style.display = 'block';
+            }
+        } catch (e) {}
 
         // Start New Session button
         document.querySelector('.btn-primary')?.addEventListener('click', () => {
