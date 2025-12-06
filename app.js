@@ -24,13 +24,17 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // State - v2.0: Added expression and thumbnailText
+    // State - v2.0: Added expression, thumbnailText, and advanced options
     const state = {
         faceImages: [],
         brief: '',
         niche: 'reaction',
         expression: 'excited',
         thumbnailText: '',
+        // V2 Advanced Options
+        compositingMode: 'auto',
+        backgroundTier: 'pro',
+        textStyle: 'auto',
         variants: []
     };
 
@@ -111,6 +115,13 @@ document.addEventListener('DOMContentLoaded', () => {
             state.expression = activeExpression.dataset.expression;
         }
 
+        // V2: Get advanced options from tbState (set in create.html)
+        if (window.tbState) {
+            state.compositingMode = window.tbState.compositingMode || 'auto';
+            state.backgroundTier = window.tbState.backgroundTier || 'pro';
+            state.textStyle = window.tbState.textStyle || 'auto';
+        }
+
         // Get face images from window.uploadedFaces if available
         if (window.uploadedFaces && window.uploadedFaces.length > 0) {
             state.faceImages = window.uploadedFaces.map(f => f.url || f.id);
@@ -121,11 +132,15 @@ document.addEventListener('DOMContentLoaded', () => {
             niche: state.niche,
             expression: state.expression,
             thumbnailText: state.thumbnailText,
-            faceCount: state.faceImages.length
+            faceCount: state.faceImages.length,
+            // V2 Advanced Options
+            compositingMode: state.compositingMode,
+            backgroundTier: state.backgroundTier,
+            textStyle: state.textStyle
         });
 
         try {
-            // 1. Start Job - v2.0 API with new fields
+            // 1. Start Job - v2.0 API with new fields + advanced options
             const res = await fetch('/api/generate', {
                 method: 'POST',
                 headers: authHeaders(),
@@ -134,7 +149,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     niche: state.niche || 'reaction',
                     expression: state.expression || 'excited',
                     thumbnailText: state.thumbnailText || '',
-                    faceImages: state.faceImages
+                    faceImages: state.faceImages,
+                    // V2 Advanced Options
+                    compositingMode: state.compositingMode || 'auto',
+                    backgroundTier: state.backgroundTier || 'pro',
+                    textStyle: state.textStyle || 'auto'
                 })
             });
 

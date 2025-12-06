@@ -326,7 +326,7 @@
             <div class="step-content" id="step-5">
                 <div class="step-header">
                     <h2>Export & Test</h2>
-                    <p>Select a variant and download or send to Title Tester Pro.</p>
+                    <p>Select a variant and download or export to TitleTesterPro.</p>
                 </div>
 
                 <!-- Variant Selection -->
@@ -347,8 +347,8 @@
                     <div class="export-card highlight">
                         <i class="fas fa-rocket export-icon"></i>
                         <h3>Send to Testing</h3>
-                        <p>Export directly to Title Tester Pro v8 for A/B testing.</p>
-                        <button class="btn btn-primary" id="btn-export-tester">Export to Title Tester</button>
+                        <p>Export directly to TitleTesterPro for A/B testing.</p>
+                        <button class="btn btn-primary" id="btn-export-tester">Export to TitleTesterPro</button>
                     </div>
                 </div>
             </div>
@@ -434,7 +434,8 @@
         // ThumbnailBuilder v2.0 - UI State Management
         // ============================================================
 
-        const tbState = {
+        // Expose to window for app.js access
+        window.tbState = {
             niche: 'reaction',
             expression: 'excited',
             thumbnailText: '',
@@ -444,6 +445,7 @@
             backgroundTier: 'pro',       // basic, pro, cinematic
             textStyle: 'auto'            // auto, viral, money, minimal
         };
+        const tbState = window.tbState;
 
         // Niche card selection
         document.querySelectorAll('.niche-card').forEach(card => {
