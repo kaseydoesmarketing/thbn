@@ -18,13 +18,30 @@
     <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-left">
-            <div class="logo">
-                <div class="logo-icon">
-                    <!-- CSS Shape for Logo -->
-                    <div class="play-shape"></div>
-                </div>
-                <span class="logo-text">Thumbnail Builder</span>
-            </div>
+            <a href="/" class="logo">
+                <svg class="logo-icon-svg" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="tbPlayGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#8B5CF6"/>
+                            <stop offset="100%" style="stop-color:#3B82F6"/>
+                        </linearGradient>
+                        <filter id="tbGlow">
+                            <feGaussianBlur stdDeviation="1" result="coloredBlur"/>
+                            <feMerge>
+                                <feMergeNode in="coloredBlur"/>
+                                <feMergeNode in="SourceGraphic"/>
+                            </feMerge>
+                        </filter>
+                    </defs>
+                    <rect x="0" y="0" width="32" height="32" rx="8" fill="url(#tbPlayGradient)"/>
+                    <path d="M12 8L24 16L12 24V8Z" fill="white"/>
+                    <g fill="#FFD700" filter="url(#tbGlow)">
+                        <circle cx="26" cy="6" r="2"/>
+                        <path d="M26 2L26.5 5L29 4L26.5 5.5L28 8L26 6L24 8L25.5 5.5L23 4L25.5 5L26 2Z" fill="#FFD700"/>
+                    </g>
+                </svg>
+                <span class="logo-text"><span style="color:#fff">Thumbnail</span><span style="color:#8B5CF6">Builder</span><span style="color:#6B7280;font-size:0.8em">.app</span></span>
+            </a>
             <ul class="nav-links">
                 <li><a href="index.html">Dashboard</a></li>
                 <li><a href="create.html">Create</a></li>

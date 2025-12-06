@@ -256,9 +256,22 @@
 <body>
     <div class="admin-container">
         <header class="admin-header">
-            <div class="admin-title">
-                <span>Admin</span> Dashboard
-            </div>
+            <a href="/" style="display: flex; align-items: center; gap: 12px; text-decoration: none;">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="tbPlayGradientAdm" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#8B5CF6"/>
+                            <stop offset="100%" style="stop-color:#3B82F6"/>
+                        </linearGradient>
+                    </defs>
+                    <rect x="0" y="0" width="32" height="32" rx="8" fill="url(#tbPlayGradientAdm)"/>
+                    <path d="M12 8L24 16L12 24V8Z" fill="white"/>
+                    <circle cx="26" cy="6" r="2" fill="#FFD700"/>
+                </svg>
+                <div class="admin-title">
+                    <span style="color:#fff">Thumbnail</span><span style="color:#8B5CF6">Builder</span><span style="color:#6B7280;font-size:0.7em">.app</span> <span>Admin</span>
+                </div>
+            </a>
             <div class="admin-user">
                 <span class="admin-user-email" id="admin-email"></span>
                 <button class="btn-logout" onclick="logout()">Logout</button>

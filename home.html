@@ -121,12 +121,28 @@
     <!-- Navigation -->
     <nav class="nav-home">
         <a href="/" class="nav-logo">
-            <div class="nav-logo-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <path d="M8 5.14v14l11-7-11-7z" fill="white"/>
-                </svg>
-            </div>
-            <span class="nav-logo-text">Thumbnail Builder</span>
+            <svg class="nav-logo-icon-svg" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="tbPlayGradientNav" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#8B5CF6"/>
+                        <stop offset="100%" style="stop-color:#3B82F6"/>
+                    </linearGradient>
+                    <filter id="tbGlowNav">
+                        <feGaussianBlur stdDeviation="1" result="coloredBlur"/>
+                        <feMerge>
+                            <feMergeNode in="coloredBlur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                </defs>
+                <rect x="0" y="0" width="32" height="32" rx="8" fill="url(#tbPlayGradientNav)"/>
+                <path d="M12 8L24 16L12 24V8Z" fill="white"/>
+                <g fill="#FFD700" filter="url(#tbGlowNav)">
+                    <circle cx="26" cy="6" r="2"/>
+                    <path d="M26 2L26.5 5L29 4L26.5 5.5L28 8L26 6L24 8L25.5 5.5L23 4L25.5 5L26 2Z" fill="#FFD700"/>
+                </g>
+            </svg>
+            <span class="nav-logo-text"><span style="color:#fff">Thumbnail</span><span style="color:#8B5CF6">Builder</span><span style="color:#6B7280;font-size:0.85em">.app</span></span>
         </a>
         <div class="nav-center">
             <a href="#features" class="nav-link">Features</a>
@@ -598,12 +614,18 @@
             <div class="footer-main">
                 <div class="footer-brand">
                     <a href="/" class="footer-logo">
-                        <div class="nav-logo-icon">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                                <path d="M8 5.14v14l11-7-11-7z" fill="white"/>
-                            </svg>
-                        </div>
-                        <span class="nav-logo-text">Thumbnail Builder</span>
+                        <svg class="footer-logo-icon" width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="tbPlayGradientFtr" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#8B5CF6"/>
+                                    <stop offset="100%" style="stop-color:#3B82F6"/>
+                                </linearGradient>
+                            </defs>
+                            <rect x="0" y="0" width="32" height="32" rx="8" fill="url(#tbPlayGradientFtr)"/>
+                            <path d="M12 8L24 16L12 24V8Z" fill="white"/>
+                            <circle cx="26" cy="6" r="2" fill="#FFD700"/>
+                        </svg>
+                        <span class="nav-logo-text"><span style="color:#fff">Thumbnail</span><span style="color:#8B5CF6">Builder</span><span style="color:#6B7280;font-size:0.85em">.app</span></span>
                     </a>
                     <p class="footer-tagline">AI-powered thumbnail generation for YouTube creators.</p>
                 </div>
