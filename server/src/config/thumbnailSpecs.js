@@ -13,9 +13,9 @@ const YOUTUBE_THUMBNAIL_SPECS = {
     // DIMENSIONS
     // ==========================================================================
 
-    // Standard HD Resolution (RECOMMENDED for most use cases)
-    WIDTH: 1280,
-    HEIGHT: 720,
+    // Full HD Resolution (1920x1080 - higher quality output)
+    WIDTH: 1920,
+    HEIGHT: 1080,
     ASPECT_RATIO: '16:9',
     ASPECT_RATIO_DECIMAL: 16 / 9, // 1.7777...
 

@@ -283,8 +283,9 @@ thumbnailQueue.queue.process('generate', async function(job) {
 
         // Import sharp for dimension enforcement
         var sharp = require('sharp');
-        var YOUTUBE_WIDTH = 1280;
-        var YOUTUBE_HEIGHT = 720;
+        var YOUTUBE_WIDTH = 1920;   // Full HD width
+        var YOUTUBE_HEIGHT = 1080;  // Full HD height
+        var MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB max
 
         for (var i = 0; i < variants.length; i++) {
             var variant = variants[i];
@@ -292,7 +293,7 @@ thumbnailQueue.queue.process('generate', async function(job) {
 
             var imageBuffer = Buffer.from(variant.image_data, 'base64');
 
-            // STEP 4a: ENFORCE EXACT YOUTUBE DIMENSIONS (1280x720)
+            // STEP 4a: ENFORCE EXACT YOUTUBE DIMENSIONS (1920x1080)
             try {
                 var metadata = await sharp(imageBuffer).metadata();
                 if (metadata.width !== YOUTUBE_WIDTH || metadata.height !== YOUTUBE_HEIGHT) {
@@ -302,9 +303,23 @@ thumbnailQueue.queue.process('generate', async function(job) {
                             fit: 'cover',
                             position: 'center'
                         })
-                        .png()
+                        .png({ quality: 100 })
                         .toBuffer();
                 }
+
+                // STEP 4a-2: Ensure file size is under 2MB (high quality JPEG if PNG too large)
+                if (imageBuffer.length > MAX_FILE_SIZE) {
+                    console.log('[Worker] Image too large (' + Math.round(imageBuffer.length / 1024) + 'KB), optimizing...');
+                    var quality = 95;
+                    while (imageBuffer.length > MAX_FILE_SIZE && quality > 60) {
+                        imageBuffer = await sharp(imageBuffer)
+                            .jpeg({ quality: quality, mozjpeg: true })
+                            .toBuffer();
+                        console.log('[Worker] Optimized to quality ' + quality + ' (' + Math.round(imageBuffer.length / 1024) + 'KB)');
+                        quality -= 5;
+                    }
+                }
+                console.log('[Worker] Final image size: ' + Math.round(imageBuffer.length / 1024) + 'KB');
             } catch (resizeErr) {
                 console.error('[Worker] Resize failed:', resizeErr.message);
             }

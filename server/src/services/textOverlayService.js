@@ -535,7 +535,7 @@ const POSITIONS = {
  * @param {number} width - Canvas width
  * @param {number} height - Canvas height
  */
-function generateTextSVG(text, style, position, width = 1280, height = 720) {
+function generateTextSVG(text, style, position, width = 1920, height = 1080) {
     const {
         fontFamily = 'sans-serif',  // FIXED: Use guaranteed system font as base
         fontWeight = 900,
@@ -748,8 +748,8 @@ async function addTextOverlay(imageBuffer, options) {
 
     // Get image metadata
     const metadata = await sharp(imageBuffer).metadata();
-    const width = metadata.width || 1280;
-    const height = metadata.height || 720;
+    const width = metadata.width || 1920;
+    const height = metadata.height || 1080;
 
     // Get style preset
     let style = TEXT_PRESETS[preset] || TEXT_PRESETS.bold;
@@ -1019,8 +1019,8 @@ async function addHierarchicalText(imageBuffer, options) {
 
     // Get image metadata
     const metadata = await sharp(imageBuffer).metadata();
-    const width = metadata.width || 1280;
-    const height = metadata.height || 720;
+    const width = metadata.width || 1920;
+    const height = metadata.height || 1080;
 
     // Get base position
     let pos;
@@ -1082,7 +1082,7 @@ function enforceMinimumLegibility(style) {
  * @param {number} height - Canvas height
  * @returns {boolean} Whether position is safe
  */
-function isInSafeZone(x, y, width = 1280, height = 720) {
+function isInSafeZone(x, y, width = 1920, height = 1080) {
     // Check if in duration overlay danger zone (bottom right)
     const durationOverlay = YOUTUBE_THUMBNAIL_SPECS?.SAFE_ZONES?.durationOverlay;
     if (durationOverlay) {
@@ -1112,7 +1112,7 @@ function isInSafeZone(x, y, width = 1280, height = 720) {
  * @param {number} height - Canvas height
  * @returns {Object} Safe position
  */
-function getSafePosition(desiredPos, width = 1280, height = 720) {
+function getSafePosition(desiredPos, width = 1920, height = 1080) {
     const { x, y, anchor } = desiredPos;
 
     // If position is unsafe (in duration overlay), move it
