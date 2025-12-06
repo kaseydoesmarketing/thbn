@@ -124,18 +124,18 @@ const CREATOR_TEXT_PRESETS = {
 
 const TEXT_PRESETS = {
     // PRO PRESET: Maximum impact - MrBeast style (default)
-    // ENHANCED: Double-stroke for viral impact
+    // V3 ENHANCED: Even bigger text, thicker strokes for viral impact
     bold: {
         fontFamily: 'Impact, Arial Black, sans-serif',
         fontWeight: 900,
-        fontSize: 180, // EVEN LARGER for mobile visibility
+        fontSize: 220, // V3: MASSIVE for viral thumbnails
         fill: '#FFFFFF',
         stroke: '#000000',
-        strokeWidth: 18, // THICKER stroke
-        doubleStroke: true, // NEW
+        strokeWidth: 24, // V3: EXTRA THICK stroke for maximum visibility
+        doubleStroke: true,
         innerStroke: '#FFFFFF',
-        innerStrokeWidth: 4,
-        shadow: { dx: 12, dy: 12, blur: 0, color: 'rgba(0,0,0,1)' }, // HARD shadow
+        innerStrokeWidth: 6,
+        shadow: { dx: 16, dy: 16, blur: 0, color: 'rgba(0,0,0,1)' }, // V3: Bigger hard shadow
         glow: null,
         textCase: 'uppercase'
     },
@@ -199,20 +199,20 @@ const TEXT_PRESETS = {
     },
 
     // Reaction: MAXIMUM ATTENTION - MrBeast signature
-    // ENHANCED: Double-stroke + rotation for viral energy
+    // V3 ENHANCED: MASSIVE text, THICKEST strokes for viral energy
     reaction: {
         fontFamily: 'Impact, Arial Black, sans-serif',
         fontWeight: 900,
-        fontSize: 200, // BIGGEST for reaction thumbnails
+        fontSize: 240, // V3: BIGGEST for reaction thumbnails - MASSIVE!
         fill: '#FFFF00',
         stroke: '#000000',
-        strokeWidth: 22, // THICCEST stroke
-        doubleStroke: true, // NEW
+        strokeWidth: 28, // V3: THICKEST stroke for maximum pop
+        doubleStroke: true,
         innerStroke: '#FFFFFF',
-        innerStrokeWidth: 5,
-        shadow: { dx: 14, dy: 14, blur: 0, color: 'rgba(0,0,0,1)' }, // Hard shadow
-        glow: { blur: 20, color: '#FFFF00' }, // Yellow glow for attention
-        rotation: -2, // Slight tilt
+        innerStrokeWidth: 7,
+        shadow: { dx: 18, dy: 18, blur: 0, color: 'rgba(0,0,0,1)' }, // V3: Bigger hard shadow
+        glow: { blur: 25, color: '#FFFF00' }, // V3: Stronger yellow glow
+        rotation: -2, // Slight tilt for energy
         textCase: 'uppercase'
     },
 
@@ -304,35 +304,35 @@ const TEXT_PRESETS = {
     // V2 ULTRA-BOLD PRESETS - Maximum mobile visibility
     // ============================================================================
 
-    // ULTRA_IMPACT: Maximum visibility at any size
+    // ULTRA_IMPACT: V3 Maximum visibility at any size - THE BIGGEST
     ultra_impact: {
         fontFamily: 'Impact, Arial Black, sans-serif',
         fontWeight: 900,
-        fontSize: 220, // BIGGEST possible
+        fontSize: 280, // V3: ABSOLUTE MAXIMUM size
         fill: '#FFFFFF',
         stroke: '#000000',
-        strokeWidth: 24, // Extra thick stroke
+        strokeWidth: 32, // V3: MASSIVE stroke
         doubleStroke: true,
         innerStroke: '#FFFFFF',
-        innerStrokeWidth: 6,
-        shadow: { dx: 16, dy: 16, blur: 0, color: 'rgba(0,0,0,1)' },
+        innerStrokeWidth: 8,
+        shadow: { dx: 20, dy: 20, blur: 0, color: 'rgba(0,0,0,1)' },
         glow: null,
         textCase: 'uppercase'
     },
 
-    // VIRAL: Yellow + black for maximum CTR
+    // VIRAL: V3 Yellow + black for maximum CTR - MrBeast style
     viral: {
         fontFamily: 'Impact, Arial Black, sans-serif',
         fontWeight: 900,
-        fontSize: 200,
+        fontSize: 250, // V3: HUGE for viral impact
         fill: '#FFFF00',
         stroke: '#000000',
-        strokeWidth: 22,
+        strokeWidth: 30, // V3: Extra thick
         doubleStroke: true,
         innerStroke: '#FFFFFF',
-        innerStrokeWidth: 5,
-        shadow: { dx: 14, dy: 14, blur: 0, color: 'rgba(0,0,0,1)' },
-        glow: { blur: 25, color: '#FFFF00' },
+        innerStrokeWidth: 7,
+        shadow: { dx: 18, dy: 18, blur: 0, color: 'rgba(0,0,0,1)' },
+        glow: { blur: 30, color: '#FFFF00' }, // V3: Stronger glow
         rotation: -2,
         textCase: 'uppercase'
     },
@@ -551,23 +551,38 @@ function generateTextSVG(text, style, position, width = 1920, height = 1080) {
         innerStrokeWidth = 4             // NEW: Inner stroke width
     } = style;
 
-    // FONT FIX V2: FORCE use fonts that are CONFIRMED installed on Ubuntu server
-    // Installed via apt: Liberation Sans, FreeSans, DejaVu Sans (with bold variants)
-    // These are the ONLY fonts guaranteed to render with Sharp/SVG on the server
+    // FONT FIX V3: Use proper font chain with MS Core Fonts (Impact, Arial Black) installed
+    // Server has: Impact, Arial Black, Oswald-Bold, Liberation Sans, FreeSans, DejaVu Sans
     //
-    // Liberation Sans Bold is the best Impact alternative on Linux
+    // Impact and Arial Black are now available via ttf-mscorefonts-installer!
 
-    // ALWAYS use Liberation Sans - it's guaranteed to work
-    const safeFontFamily = 'Liberation Sans, FreeSans, DejaVu Sans, sans-serif';
+    // Build proper font fallback chain based on requested font
+    let safeFontFamily;
+    if (fontFamily.includes('Impact') || fontFamily.includes('Arial Black')) {
+        // Use Impact/Arial Black for bold viral thumbnails - NOW AVAILABLE!
+        safeFontFamily = 'Impact, Arial Black, Oswald, Liberation Sans, sans-serif';
+    } else if (fontFamily.includes('Helvetica') || fontFamily.includes('Arial')) {
+        // Use Arial family for clean professional look
+        safeFontFamily = 'Arial, Helvetica Neue, Liberation Sans, sans-serif';
+    } else if (fontFamily.includes('Georgia') || fontFamily.includes('serif')) {
+        // Use serif for beauty/luxury styles
+        safeFontFamily = 'Georgia, Times New Roman, DejaVu Serif, serif';
+    } else {
+        // Default to the requested font with fallbacks
+        safeFontFamily = `${fontFamily}, Liberation Sans, sans-serif`;
+    }
 
-    console.log(`[TextOverlay] Rendering text "${text.substring(0, 20)}..." with Liberation Sans (weight: ${fontWeight})`)
+    console.log(`[TextOverlay] Rendering text "${text.substring(0, 20)}..." with ${safeFontFamily.split(',')[0]} (weight: ${fontWeight})`)
 
     const { x, y, anchor = 'start' } = position;
 
-    // Scale font size based on canvas dimensions (20% boost for impact)
-    const scaledFontSize = Math.round(fontSize * 1.15 * (width / 1280));
-    const scaledStrokeWidth = Math.round(strokeWidth * (width / 1280));
-    const scaledInnerStrokeWidth = Math.round(innerStrokeWidth * (width / 1280));
+    // SCALE FIX V3: Use 1920x1080 as base (actual output) instead of legacy 1280x720
+    // This provides more accurate scaling for HD thumbnails
+    // Font multiplier increased from 1.15 to 1.3 for MAXIMUM IMPACT
+    // Stroke multiplier increased by 50% for THICKER outlines
+    const scaledFontSize = Math.round(fontSize * 1.3 * (width / 1920));
+    const scaledStrokeWidth = Math.round(strokeWidth * 1.5 * (width / 1920));  // 50% thicker strokes!
+    const scaledInnerStrokeWidth = Math.round(innerStrokeWidth * 1.5 * (width / 1920));  // Match
 
     // Build filter definitions for effects
     let filterDefs = '';
@@ -763,11 +778,13 @@ async function addTextOverlay(imageBuffer, options) {
     // Apply custom overrides
     style = { ...style, ...customStyle };
 
-    // Get position
+    // Get position - UPDATED for 1920x1080 base
+    // Position presets are defined for 1280x720, scale to actual dimensions
     let pos;
     if (typeof position === 'string') {
         pos = POSITIONS[position] || POSITIONS.leftThird;
-        // Scale position to actual image size
+        // SCALE FIX V3: Scale from 1280x720 preset coordinates to actual image size
+        // Using proper ratio calculation for HD output
         pos = {
             x: Math.round(pos.x * (width / 1280)),
             y: Math.round(pos.y * (height / 720)),

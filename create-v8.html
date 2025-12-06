@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThumbnailBuilder V8 - Viral Thumbnails</title>
+    <link rel="stylesheet" href="design-system.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* V8 Specific Styles */
+
+        /* Feature Badge */
+        .v8-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            background: linear-gradient(135deg, #FF5500 0%, #E64D00 100%);
+            color: white;
+            font-size: 10px;
+            font-weight: 600;
+            border-radius: var(--radius-full);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .v8-badge--new {
+            background: linear-gradient(135deg, #00C853 0%, #00A042 100%);
+        }
+
+        /* Outfit Section */
+        .outfit-section {
+            margin-bottom: var(--space-6);
+            padding: var(--space-4);
+            background: var(--color-surface-glass-dark);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border-subtle);
+        }
+
+        .outfit-section__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-4);
+        }
+
+        .outfit-section__title {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-size: var(--text-sm);
+            font-weight: var(--weight-semibold);
+            color: var(--color-text-primary);
+        }
+
+        .outfit-toggle {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .outfit-toggle__label {
+            font-size: var(--text-xs);
+            color: var(--color-text-tertiary);
+        }
+
+        /* Outfit Presets Grid */
+        .outfit-presets {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-2);
+            margin-bottom: var(--space-4);
+        }
+
+        .outfit-preset {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-1);
+            padding: var(--space-3);
+            background: var(--color-bg-elevated);
+            border: 2px solid transparent;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .outfit-preset:hover {
+            background: var(--color-surface-glass);
+            border-color: var(--color-border-default);
+        }
+
+        .outfit-preset.selected {
+            border-color: var(--color-primary);
+            background: var(--color-primary-muted);
+        }
+
+        .outfit-preset.disabled {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .outfit-preset__icon {
+            font-size: 20px;
+        }
+
+        .outfit-preset__label {
+            font-size: 10px;
+            font-weight: var(--weight-medium);
+            color: var(--color-text-secondary);
+            text-align: center;
+        }
+
+        /* Custom Outfit Input */
+        .outfit-custom {
+            display: none;
+            margin-top: var(--space-3);
+        }
+
+        .outfit-custom.visible {
+            display: block;
+        }
+
+        .outfit-custom__input {
+            width: 100%;
+            padding: var(--space-3);
+            background: var(--color-bg-elevated);
+            border: 1px solid var(--color-border-subtle);
+            border-radius: var(--radius-md);
+            color: var(--color-text-primary);
+            font-size: var(--text-sm);
+        }
+
+        .outfit-custom__input::placeholder {
+            color: var(--color-text-muted);
+        }
+
+        /* Outfit Color Picker */
+        .outfit-colors {
+            display: flex;
+            gap: var(--space-2);
+            margin-top: var(--space-3);
+        }
+
+        .outfit-color {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-sm);
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .outfit-color:hover {
+            transform: scale(1.1);
+        }
+
+        .outfit-color.selected {
+            border-color: white;
+            box-shadow: 0 0 0 2px var(--color-primary);
+        }
+
+        /* Glassy Mode Section */
+        .glassy-section {
+            margin-bottom: var(--space-6);
+            padding: var(--space-4);
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .glassy-section__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-4);
+        }
+
+        .glassy-section__title {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-size: var(--text-sm);
+            font-weight: var(--weight-semibold);
+            color: var(--color-text-primary);
+        }
+
+        .glassy-section__title svg {
+            width: 16px;
+            height: 16px;
+            color: #8B5CF6;
+        }
+
+        /* Glassy Presets */
+        .glassy-presets {
+            display: flex;
+            gap: var(--space-2);
+            margin-bottom: var(--space-3);
+        }
+
+        .glassy-preset {
+            flex: 1;
+            padding: var(--space-2) var(--space-3);
+            background: var(--color-bg-elevated);
+            border: 1px solid transparent;
+            border-radius: var(--radius-sm);
+            font-size: var(--text-xs);
+            font-weight: var(--weight-medium);
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            text-align: center;
+            transition: all var(--transition-fast);
+        }
+
+        .glassy-preset:hover {
+            border-color: var(--color-border-default);
+        }
+
+        .glassy-preset.selected {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.3) 0%, rgba(59, 130, 246, 0.3) 100%);
+            border-color: #8B5CF6;
+            color: white;
+        }
+
+        /* Glassy Intensity Slider */
+        .glassy-slider {
+            margin-top: var(--space-3);
+        }
+
+        .glassy-slider__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-2);
+        }
+
+        .glassy-slider__label {
+            font-size: var(--text-xs);
+            color: var(--color-text-tertiary);
+        }
+
+        .glassy-slider__value {
+            font-size: var(--text-sm);
+            font-weight: var(--weight-semibold);
+            color: #8B5CF6;
+        }
+
+        /* Text Position Grid (9-position) */
+        .text-position-section {
+            margin-bottom: var(--space-5);
+        }
+
+        .text-position-section__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-3);
+        }
+
+        .text-position-section__title {
+            font-size: var(--text-xs);
+            font-weight: var(--weight-medium);
+            color: var(--color-text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: var(--tracking-wider);
+        }
+
+        .text-position-auto {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-size: var(--text-xs);
+            color: var(--color-text-secondary);
+        }
+
+        .position-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-2);
+            padding: var(--space-3);
+            background: var(--color-bg-elevated);
+            border-radius: var(--radius-md);
+        }
+
+        .position-btn {
+            aspect-ratio: 16/9;
+            background: var(--color-surface-glass-dark);
+            border: 1px solid transparent;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            position: relative;
+        }
+
+        .position-btn::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: var(--color-text-tertiary);
+            border-radius: var(--radius-full);
+            opacity: 0.3;
+        }
+
+        /* Position indicators for text position */
+        .position-btn[data-position="top-left"]::after { top: 20%; left: 20%; }
+        .position-btn[data-position="top-center"]::after { top: 20%; left: 50%; transform: translateX(-50%); }
+        .position-btn[data-position="top-right"]::after { top: 20%; right: 20%; }
+        .position-btn[data-position="middle-left"]::after { top: 50%; left: 20%; transform: translateY(-50%); }
+        .position-btn[data-position="middle-center"]::after { top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        .position-btn[data-position="middle-right"]::after { top: 50%; right: 20%; transform: translateY(-50%); }
+        .position-btn[data-position="bottom-left"]::after { bottom: 20%; left: 20%; }
+        .position-btn[data-position="bottom-center"]::after { bottom: 20%; left: 50%; transform: translateX(-50%); }
+        .position-btn[data-position="bottom-right"]::after { bottom: 20%; right: 20%; }
+
+        .position-btn:hover {
+            background: var(--color-surface-glass);
+        }
+
+        .position-btn.active {
+            background: var(--color-primary-muted);
+            border-color: var(--color-primary);
+        }
+
+        .position-btn.active::after {
+            background: var(--color-primary);
+            opacity: 1;
+        }
+
+        /* Heuristics Overlay */
+        .heuristics-overlay {
+            position: absolute;
+            top: var(--space-3);
+            left: var(--space-3);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-1);
+            padding: var(--space-3);
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-border-subtle);
+            z-index: 10;
+            min-width: 200px;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all var(--transition-normal);
+            pointer-events: none;
+        }
+
+        .heuristics-overlay.visible {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .heuristics-overlay__title {
+            font-size: var(--text-xs);
+            font-weight: var(--weight-semibold);
+            color: var(--color-text-primary);
+            margin-bottom: var(--space-2);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .heuristics-overlay__score {
+            padding: 2px 6px;
+            background: var(--color-success);
+            color: white;
+            border-radius: var(--radius-xs);
+            font-size: 10px;
+        }
+
+        .heuristics-overlay__score.warning {
+            background: var(--color-warning);
+        }
+
+        .heuristics-overlay__score.error {
+            background: var(--color-error);
+        }
+
+        .heuristics-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-size: var(--text-xs);
+            color: var(--color-text-secondary);
+        }
+
+        .heuristics-item__icon {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+        }
+
+        .heuristics-item__icon.pass {
+            color: var(--color-success);
+        }
+
+        .heuristics-item__icon.fail {
+            color: var(--color-error);
+        }
+
+        .heuristics-item__icon.warn {
+            color: var(--color-warning);
+        }
+
+        /* Heuristics Toggle Button */
+        .heuristics-toggle {
+            position: absolute;
+            top: var(--space-3);
+            right: var(--space-3);
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--color-border-subtle);
+            border-radius: var(--radius-md);
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            z-index: 10;
+            transition: all var(--transition-fast);
+        }
+
+        .heuristics-toggle:hover {
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+        }
+
+        .heuristics-toggle.active {
+            background: var(--color-primary);
+            border-color: var(--color-primary);
+            color: white;
+        }
+
+        /* Subject Separation Indicator */
+        .separation-indicator {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-2) var(--space-3);
+            background: var(--color-surface-glass-dark);
+            border-radius: var(--radius-sm);
+            margin-top: var(--space-3);
+        }
+
+        .separation-indicator__icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        .separation-indicator__icon.good {
+            color: var(--color-success);
+        }
+
+        .separation-indicator__icon.warning {
+            color: var(--color-warning);
+        }
+
+        .separation-indicator__text {
+            font-size: var(--text-xs);
+            color: var(--color-text-secondary);
+        }
+
+        /* V8 Summary Cards */
+        .v8-summary {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-3);
+            margin-top: var(--space-4);
+        }
+
+        .v8-summary__card {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            padding: var(--space-3);
+            background: var(--color-surface-glass-dark);
+            border-radius: var(--radius-md);
+        }
+
+        .v8-summary__icon {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--color-bg-elevated);
+            border-radius: var(--radius-sm);
+            font-size: 16px;
+        }
+
+        .v8-summary__content {
+            flex: 1;
+        }
+
+        .v8-summary__label {
+            font-size: var(--text-xs);
+            color: var(--color-text-tertiary);
+        }
+
+        .v8-summary__value {
+            font-size: var(--text-sm);
+            font-weight: var(--weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        /* Main Layout (inherited from V3) */
+        .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 var(--space-5);
+            background: var(--color-surface-glass);
+            backdrop-filter: var(--glass-blur-md);
+            border-bottom: 1px solid var(--color-border-subtle);
+            z-index: var(--z-sticky);
+        }
+
+        .top-bar__left {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            text-decoration: none;
+        }
+
+        .logo__icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--color-primary) 0%, #E64D00 100%);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo__icon svg {
+            width: 20px;
+            height: 20px;
+            color: white;
+        }
+
+        .logo__text {
+            font-size: var(--text-lg);
+            font-weight: var(--weight-semibold);
+            color: var(--color-text-primary);
+        }
+
+        .top-bar__title {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-size: var(--text-sm);
+            color: var(--color-text-secondary);
+            padding-left: var(--space-4);
+            border-left: 1px solid var(--color-border-subtle);
+        }
+
+        .app-layout {
+            display: grid;
+            grid-template-columns: 220px 1fr 380px;
+            gap: var(--space-5);
+            min-height: 100vh;
+            padding: calc(64px + var(--space-5)) var(--space-5) var(--space-5);
+            background: var(--color-bg-base);
+        }
+
+        @media (max-width: 1400px) {
+            .app-layout {
+                grid-template-columns: 200px 1fr 340px;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .app-layout {
+                grid-template-columns: 1fr 340px;
+            }
+            .sidebar-left { display: none; }
+        }
+
+        @media (max-width: 900px) {
+            .app-layout {
+                grid-template-columns: 1fr;
+            }
+            .sidebar-right {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                max-height: 50vh;
+                z-index: var(--z-overlay);
+            }
+        }
+
+        .sidebar-left {
+            position: sticky;
+            top: calc(64px + var(--space-5));
+            height: fit-content;
+        }
+
+        .sidebar-right {
+            position: sticky;
+            top: calc(64px + var(--space-5));
+            height: fit-content;
+            max-height: calc(100vh - 64px - var(--space-10));
+            overflow-y: auto;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-5);
+            min-width: 0;
+        }
+
+        .preview-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 500px;
+        }
+
+        .preview-canvas {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-6);
+            position: relative;
+        }
+
+        .preview-frame {
+            position: relative;
+            width: 100%;
+            max-width: 854px;
+            aspect-ratio: 16 / 9;
+            background: var(--color-bg-elevated);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-xl);
+        }
+
+        .preview-frame__placeholder {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-4);
+            color: var(--color-text-tertiary);
+        }
+
+        .preview-frame__placeholder-icon {
+            width: 64px;
+            height: 64px;
+            opacity: 0.5;
+        }
+
+        .control-panel {
+            padding: var(--space-5);
+        }
+
+        .control-panel__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-5);
+            padding-bottom: var(--space-4);
+            border-bottom: 1px solid var(--color-border-subtle);
+        }
+
+        .control-panel__title {
+            font-size: var(--text-lg);
+            font-weight: var(--weight-semibold);
+            color: var(--color-text-primary);
+        }
+
+        .control-section {
+            margin-bottom: var(--space-5);
+        }
+
+        .control-section__label {
+            display: block;
+            font-size: var(--text-xs);
+            font-weight: var(--weight-medium);
+            color: var(--color-text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: var(--tracking-wider);
+            margin-bottom: var(--space-3);
+        }
+
+        .slider-group__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-2);
+        }
+
+        .slider-group__label {
+            font-size: var(--text-sm);
+            color: var(--color-text-secondary);
+        }
+
+        .slider-group__value {
+            font-size: var(--text-sm);
+            font-weight: var(--weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        .stepper-panel {
+            padding: var(--space-5);
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            padding: var(--space-3);
+            background: transparent;
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+            transition: all var(--transition-fast);
+            margin-bottom: var(--space-2);
+        }
+
+        .step:hover {
+            background: var(--color-surface-glass-dark);
+        }
+
+        .step--active {
+            background: var(--color-primary-muted);
+        }
+
+        .step__indicator {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--color-bg-elevated);
+            border-radius: var(--radius-full);
+            font-size: var(--text-sm);
+            font-weight: var(--weight-semibold);
+            color: var(--color-text-tertiary);
+        }
+
+        .step--active .step__indicator {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .step__content {
+            flex: 1;
+        }
+
+        .step__title {
+            font-size: var(--text-sm);
+            font-weight: var(--weight-medium);
+            color: var(--color-text-primary);
+        }
+
+        .step__description {
+            font-size: var(--text-xs);
+            color: var(--color-text-tertiary);
+        }
+
+        /* Variant Strip */
+        .variant-strip-section {
+            flex-shrink: 0;
+        }
+
+        .variant-strip-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--space-4) var(--space-5);
+            border-bottom: 1px solid var(--color-border-subtle);
+        }
+
+        .variant-strip {
+            display: flex;
+            gap: var(--space-3);
+            padding: var(--space-4) var(--space-5);
+            overflow-x: auto;
+        }
+
+        .variant-card {
+            position: relative;
+            flex-shrink: 0;
+            width: 160px;
+            aspect-ratio: 16 / 9;
+            background: var(--color-bg-elevated);
+            border: 2px solid transparent;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .variant-card:hover {
+            border-color: var(--color-border-strong);
+        }
+
+        .variant-card.active {
+            border-color: var(--color-primary);
+            box-shadow: var(--glow-primary-sm);
+        }
+
+        /* Navigation Buttons */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: var(--space-4);
+            padding: var(--space-5);
+            border-top: 1px solid var(--color-border-subtle);
+        }
+
+        /* Safe Frame Overlay */
+        .safe-frame-overlay {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 5;
+            opacity: 0;
+            transition: opacity var(--transition-normal);
+        }
+
+        .safe-frame-overlay.visible {
+            opacity: 1;
+        }
+
+        .safe-frame-border {
+            position: absolute;
+            top: 5%;
+            left: 3%;
+            right: 3%;
+            bottom: 5%;
+            border: 1px dashed rgba(255, 85, 0, 0.4);
+            border-radius: var(--radius-sm);
+        }
+
+        .danger-zone {
+            position: absolute;
+            bottom: 8%;
+            right: 4%;
+            width: 80px;
+            height: 28px;
+            background: rgba(255, 61, 113, 0.2);
+            border: 1px dashed var(--color-error);
+            border-radius: var(--radius-xs);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            color: var(--color-error);
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Bar -->
+    <header class="top-bar">
+        <div class="top-bar__left">
+            <a href="index.html" class="logo">
+                <div class="logo__icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2"/>
+                        <circle cx="8.5" cy="8.5" r="1.5"/>
+                        <path d="M21 15l-5-5L5 21"/>
+                    </svg>
+                </div>
+                <span class="logo__text">ThumbnailBuilder</span>
+            </a>
+            <span class="top-bar__title">
+                <span class="v8-badge">V8</span>
+                Viral Thumbnail Pipeline
+            </span>
+        </div>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="app-layout">
+        <!-- Left Sidebar - Stepper -->
+        <aside class="sidebar-left">
+            <div class="stepper-panel glass-panel">
+                <nav class="stepper">
+                    <button class="step step--active" data-step="1">
+                        <div class="step__indicator">1</div>
+                        <div class="step__content">
+                            <div class="step__title">Face</div>
+                            <div class="step__description">Upload photos</div>
+                        </div>
+                    </button>
+                    <button class="step" data-step="2">
+                        <div class="step__indicator">2</div>
+                        <div class="step__content">
+                            <div class="step__title">Style</div>
+                            <div class="step__description">Niche & expression</div>
+                        </div>
+                    </button>
+                    <button class="step" data-step="3">
+                        <div class="step__indicator">3</div>
+                        <div class="step__content">
+                            <div class="step__title">Content</div>
+                            <div class="step__description">Text & scene</div>
+                        </div>
+                    </button>
+                    <button class="step" data-step="4">
+                        <div class="step__indicator">4</div>
+                        <div class="step__content">
+                            <div class="step__title">Compose</div>
+                            <div class="step__description">Position & outfit</div>
+                        </div>
+                    </button>
+                    <button class="step" data-step="5">
+                        <div class="step__indicator">5</div>
+                        <div class="step__content">
+                            <div class="step__title">Generate</div>
+                            <div class="step__description">Create & export</div>
+                        </div>
+                    </button>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Preview Section -->
+            <section class="preview-section glass-panel">
+                <div class="preview-canvas">
+                    <div class="preview-frame" id="preview-frame">
+                        <!-- Placeholder -->
+                        <div class="preview-frame__placeholder" id="preview-placeholder">
+                            <svg class="preview-frame__placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                <circle cx="8.5" cy="8.5" r="1.5"/>
+                                <path d="M21 15l-5-5L5 21"/>
+                            </svg>
+                            <span>Your V8 thumbnail preview</span>
+                        </div>
+
+                        <!-- Preview Image -->
+                        <img class="preview-frame__image" id="preview-image" src="" alt="Thumbnail preview" style="display: none; width: 100%; height: 100%; object-fit: cover;">
+
+                        <!-- Safe Frame Overlay -->
+                        <div class="safe-frame-overlay" id="safe-frame-overlay">
+                            <div class="safe-frame-border"></div>
+                            <div class="danger-zone">Duration</div>
+                        </div>
+
+                        <!-- Heuristics Toggle -->
+                        <button class="heuristics-toggle" id="heuristics-toggle" title="Show quality checklist">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 11l3 3L22 4"/>
+                                <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+                            </svg>
+                        </button>
+
+                        <!-- Heuristics Overlay -->
+                        <div class="heuristics-overlay" id="heuristics-overlay">
+                            <div class="heuristics-overlay__title">
+                                Quality Check
+                                <span class="heuristics-overlay__score" id="heuristics-score">85%</span>
+                            </div>
+                            <div class="heuristics-item" id="h-face">
+                                <svg class="heuristics-item__icon pass" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                <span>Face dominant</span>
+                            </div>
+                            <div class="heuristics-item" id="h-text">
+                                <svg class="heuristics-item__icon pass" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                <span>Text readable</span>
+                            </div>
+                            <div class="heuristics-item" id="h-contrast">
+                                <svg class="heuristics-item__icon pass" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                <span>High contrast</span>
+                            </div>
+                            <div class="heuristics-item" id="h-separation">
+                                <svg class="heuristics-item__icon warn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <line x1="12" y1="8" x2="12" y2="12"/>
+                                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                                </svg>
+                                <span>Subject separated</span>
+                            </div>
+                            <div class="heuristics-item" id="h-logos">
+                                <svg class="heuristics-item__icon pass" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                <span>Logos legible</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Variant Strip -->
+                <div class="variant-strip-section glass-panel-dark">
+                    <div class="variant-strip-header">
+                        <span>Generated Variants</span>
+                        <span id="variant-count">0 variants</span>
+                    </div>
+                    <div class="variant-strip" id="variant-strip">
+                        <div style="padding: var(--space-4); color: var(--color-text-tertiary); text-align: center; width: 100%;">
+                            Variants will appear here after generation
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Navigation -->
+            <div class="nav-buttons glass-panel-dark">
+                <button class="btn btn-secondary" id="btn-back" disabled>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6"/>
+                    </svg>
+                    Back
+                </button>
+                <button class="btn btn-primary" id="btn-next">
+                    Continue
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"/>
+                    </svg>
+                </button>
+            </div>
+        </main>
+
+        <!-- Right Sidebar - V8 Controls -->
+        <aside class="sidebar-right">
+            <div class="control-panel glass-panel">
+                <div class="control-panel__header">
+                    <h3 class="control-panel__title">V8 Controls</h3>
+                    <span class="v8-badge v8-badge--new">NEW</span>
+                </div>
+
+                <!-- Subject Position -->
+                <div class="control-section">
+                    <span class="control-section__label">Subject Position</span>
+                    <div class="position-grid" id="subject-position-grid">
+                        <button class="position-btn" data-position="top-left"></button>
+                        <button class="position-btn" data-position="top-center"></button>
+                        <button class="position-btn" data-position="top-right"></button>
+                        <button class="position-btn active" data-position="middle-left"></button>
+                        <button class="position-btn" data-position="middle-center"></button>
+                        <button class="position-btn" data-position="middle-right"></button>
+                        <button class="position-btn" data-position="bottom-left"></button>
+                        <button class="position-btn" data-position="bottom-center"></button>
+                        <button class="position-btn" data-position="bottom-right"></button>
+                    </div>
+                </div>
+
+                <!-- Subject Scale -->
+                <div class="control-section">
+                    <div class="slider-group">
+                        <div class="slider-group__header">
+                            <span class="slider-group__label">Subject Scale</span>
+                            <span class="slider-group__value" id="subject-scale-value">100%</span>
+                        </div>
+                        <input type="range" class="slider-control__input" id="subject-scale-slider" min="50" max="150" value="100">
+                    </div>
+                </div>
+
+                <!-- Text Position -->
+                <div class="text-position-section">
+                    <div class="text-position-section__header">
+                        <span class="text-position-section__title">Text Position</span>
+                        <div class="text-position-auto">
+                            <input type="checkbox" id="text-auto-position" checked>
+                            <label for="text-auto-position">Auto</label>
+                        </div>
+                    </div>
+                    <div class="position-grid" id="text-position-grid">
+                        <button class="position-btn" data-position="top-left"></button>
+                        <button class="position-btn" data-position="top-center"></button>
+                        <button class="position-btn" data-position="top-right"></button>
+                        <button class="position-btn" data-position="middle-left"></button>
+                        <button class="position-btn" data-position="middle-center"></button>
+                        <button class="position-btn active" data-position="middle-right"></button>
+                        <button class="position-btn" data-position="bottom-left"></button>
+                        <button class="position-btn" data-position="bottom-center"></button>
+                        <button class="position-btn" data-position="bottom-right"></button>
+                    </div>
+                </div>
+
+                <!-- Outfit Section -->
+                <div class="outfit-section">
+                    <div class="outfit-section__header">
+                        <span class="outfit-section__title">
+                            Outfit
+                            <span class="v8-badge v8-badge--new">NEW</span>
+                        </span>
+                        <div class="outfit-toggle">
+                            <span class="outfit-toggle__label">Keep original</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" class="toggle-switch__input" id="keep-original-outfit">
+                                <span class="toggle-switch__track">
+                                    <span class="toggle-switch__thumb"></span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="outfit-presets" id="outfit-presets">
+                        <div class="outfit-preset selected" data-outfit="tech-hoodie">
+                            <span class="outfit-preset__icon">🧥</span>
+                            <span class="outfit-preset__label">Tech Hoodie</span>
+                        </div>
+                        <div class="outfit-preset" data-outfit="streetwear">
+                            <span class="outfit-preset__icon">👕</span>
+                            <span class="outfit-preset__label">Streetwear</span>
+                        </div>
+                        <div class="outfit-preset" data-outfit="business-casual">
+                            <span class="outfit-preset__icon">👔</span>
+                            <span class="outfit-preset__label">Business</span>
+                        </div>
+                        <div class="outfit-preset" data-outfit="full-suit">
+                            <span class="outfit-preset__icon">🤵</span>
+                            <span class="outfit-preset__label">Full Suit</span>
+                        </div>
+                        <div class="outfit-preset" data-outfit="plain-tee">
+                            <span class="outfit-preset__icon">👚</span>
+                            <span class="outfit-preset__label">Plain Tee</span>
+                        </div>
+                        <div class="outfit-preset" data-outfit="custom">
+                            <span class="outfit-preset__icon">✨</span>
+                            <span class="outfit-preset__label">Custom</span>
+                        </div>
+                    </div>
+
+                    <div class="outfit-custom" id="outfit-custom">
+                        <input type="text" class="outfit-custom__input" id="custom-outfit-input" placeholder="Describe custom outfit...">
+                    </div>
+
+                    <div class="outfit-colors">
+                        <div class="outfit-color selected" data-color="#000000" style="background: #000000;" title="Black"></div>
+                        <div class="outfit-color" data-color="#FFFFFF" style="background: #FFFFFF;" title="White"></div>
+                        <div class="outfit-color" data-color="#1E3A8A" style="background: #1E3A8A;" title="Navy"></div>
+                        <div class="outfit-color" data-color="#7C3AED" style="background: #7C3AED;" title="Purple"></div>
+                        <div class="outfit-color" data-color="#DC2626" style="background: #DC2626;" title="Red"></div>
+                        <div class="outfit-color" data-color="#059669" style="background: #059669;" title="Green"></div>
+                    </div>
+                </div>
+
+                <!-- Glassy Mode Section -->
+                <div class="glassy-section">
+                    <div class="glassy-section__header">
+                        <span class="glassy-section__title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                            </svg>
+                            Glassy Mode
+                        </span>
+                        <span class="v8-badge v8-badge--new">NEW</span>
+                    </div>
+
+                    <div class="glassy-presets" id="glassy-presets">
+                        <button class="glassy-preset" data-intensity="0">Off</button>
+                        <button class="glassy-preset" data-intensity="25">Subtle</button>
+                        <button class="glassy-preset selected" data-intensity="50">Balanced</button>
+                        <button class="glassy-preset" data-intensity="75">Cinematic</button>
+                        <button class="glassy-preset" data-intensity="100">Dramatic</button>
+                    </div>
+
+                    <div class="glassy-slider">
+                        <div class="glassy-slider__header">
+                            <span class="glassy-slider__label">Intensity</span>
+                            <span class="glassy-slider__value" id="glassy-intensity-value">50%</span>
+                        </div>
+                        <input type="range" class="slider-control__input" id="glassy-intensity-slider" min="0" max="100" value="50">
+                    </div>
+                </div>
+
+                <!-- Safe Frame Toggle -->
+                <div class="control-section">
+                    <label class="toggle-switch">
+                        <input type="checkbox" class="toggle-switch__input" id="safe-frame-toggle">
+                        <span class="toggle-switch__track">
+                            <span class="toggle-switch__thumb"></span>
+                        </span>
+                        <span class="toggle-switch__label">Show Safe Frame</span>
+                    </label>
+                </div>
+
+                <!-- V8 Summary -->
+                <div class="v8-summary">
+                    <div class="v8-summary__card">
+                        <div class="v8-summary__icon">📍</div>
+                        <div class="v8-summary__content">
+                            <div class="v8-summary__label">Subject</div>
+                            <div class="v8-summary__value" id="summary-position">Middle-Left @ 100%</div>
+                        </div>
+                    </div>
+                    <div class="v8-summary__card">
+                        <div class="v8-summary__icon">👔</div>
+                        <div class="v8-summary__content">
+                            <div class="v8-summary__label">Outfit</div>
+                            <div class="v8-summary__value" id="summary-outfit">Tech Hoodie (Black)</div>
+                        </div>
+                    </div>
+                    <div class="v8-summary__card">
+                        <div class="v8-summary__icon">✨</div>
+                        <div class="v8-summary__content">
+                            <div class="v8-summary__label">Glassy Mode</div>
+                            <div class="v8-summary__value" id="summary-glassy">Balanced (50%)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <script src="app-v8.js"></script>
+</body>
+</html>
