@@ -25,6 +25,11 @@ const {
     getDefaultCompositingMode
 } = require('../config/compositingRules');
 
+const {
+    getBackgroundPrompt,
+    getDefaultTier
+} = require('../config/backgroundQuality');
+
 // ============================================================================
 // CREATOR STYLE TEMPLATES - Locked-in exact specifications
 // ============================================================================
@@ -601,14 +606,23 @@ PLACEMENT:
 - Keep the right 40-50% of the frame relatively clean for text overlay`;
     }
 
+    // Add background quality instructions (V2)
+    const backgroundInstructions = getBackgroundPrompt(niche);
+    prompt += `.
+
+${backgroundInstructions}`;
+
     // Add PRO THUMBNAIL quality boosters
-    prompt += `. PROFESSIONAL THUMBNAIL REQUIREMENTS:
+    prompt += `
+
+PROFESSIONAL THUMBNAIL REQUIREMENTS:
 - Ultra high quality, sharp focus, 8k details
 - HIGH CONTRAST composition that pops on YouTube's white interface
 - BOLD, attention-grabbing visual that works at small mobile thumbnail size (168x94 pixels)
 - Clean separation between foreground subject and background
 - Dramatic lighting with visible light sources and shadows
-- Professional YouTube thumbnail aesthetic, viral potential`;
+- Professional YouTube thumbnail aesthetic, viral potential
+- 16:9 aspect ratio (1280x720 pixels)`;
 
     return prompt;
 }
@@ -989,6 +1003,12 @@ ${compositingInstructions}`;
         }
     }
 
+    // V2: Add background quality instructions
+    const backgroundInstructions = getBackgroundPrompt(niche || 'tech');
+    prompt += `
+
+${backgroundInstructions}`;
+
     // Quality requirements at the END (don't override user's scene)
     prompt += `
 
@@ -1139,7 +1159,11 @@ The scene should feature ${expressionData.keywords} mood and energy. The composi
     }
 
     // Visual effects and depth layers
+    // V2: Enhanced background quality instructions
+    const backgroundInstructions = getBackgroundPrompt(niche);
     prompt += `
+
+${backgroundInstructions}
 
 VISUAL EFFECTS & DEPTH:
 This thumbnail has multiple visual layers creating depth:
