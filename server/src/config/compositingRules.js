@@ -22,15 +22,26 @@ const COMPOSITING_MODES = {
     natural: {
         name: 'Natural Blend',
         description: 'Subject blends seamlessly with background - no visible cutout edge',
-        promptInstructions: `CRITICAL COMPOSITING - NATURAL BLEND:
-1. SEAMLESS INTEGRATION: The person must appear naturally IN the scene, not cut-and-pasted on top
-2. EDGE TREATMENT: Soft, natural edge transitions - NO hard strokes or outlines
-3. COLOR GRADING: Apply consistent color grading across BOTH subject and background
-4. LIGHTING MATCH: Subject lighting direction MUST match the background light sources
-5. ATMOSPHERIC DEPTH: Add subtle atmospheric haze/color between subject and background for depth
-6. SHADOW GROUNDING: Cast subtle shadows from subject onto background elements
-7. HAIR/EDGE DETAIL: Preserve natural hair flyaways and edge details - don't mask too tightly
-8. The person should look like they were PHOTOGRAPHED in this scene, not composited`,
+        promptInstructions: `CRITICAL COMPOSITING - NATURAL PHOTOGRAPHIC BLEND:
+
+MUST DO:
+1. Person appears NATURALLY IN the scene like they were photographed there
+2. Soft natural edge transitions between person and background
+3. Consistent color grading across entire image (person + background)
+4. Lighting on person matches background light direction
+5. Subtle atmospheric depth between layers
+6. Natural shadow grounding the person in the scene
+7. Professional photography look - like a REAL PHOTO
+
+ABSOLUTELY DO NOT (CRITICAL):
+- NO stroke or outline around the person
+- NO colored border/edge around the person
+- NO cutout/sticker effect
+- NO visible separation line between person and background
+- NO "pasted on" appearance
+- NO hard edges around the subject
+- NO glowing outline
+- The person should NOT look like a PNG placed on a background`,
         edgeStyle: 'soft',
         hasStroke: false,
         hasGlow: false,

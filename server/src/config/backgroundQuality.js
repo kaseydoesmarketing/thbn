@@ -61,16 +61,31 @@ const BACKGROUND_TIERS = {
     cinematic: {
         name: 'Cinematic',
         description: 'Film-quality dramatic backgrounds',
-        promptInstructions: `BACKGROUND STYLE - CINEMATIC EPIC:
-- DRAMATIC LIGHTING: Strong directional light with deep shadows
-- VOLUMETRIC EFFECTS: Light rays, god rays, or atmospheric beams
-- MULTIPLE DEPTH LAYERS: Rich foreground, detailed midground, expansive background
-- LENS EFFECTS: Subtle lens flares, light leaks, chromatic aberration
-- PARTICLE EFFECTS: Dust, embers, sparks, or floating particles
-- COLOR GRADING: Film-like color grade (teal/orange, or niche-specific)
-- MOTION BLUR: Subtle motion blur on background elements for energy
-- ENVIRONMENTAL DETAIL: Rich textures and environmental storytelling
-- ANAMORPHIC FEEL: Wide cinematic composition with letterbox-ready framing`,
+        promptInstructions: `BACKGROUND STYLE - CINEMATIC BLOCKBUSTER QUALITY:
+
+LIGHTING (CRITICAL):
+- DRAMATIC KEY LIGHT: Strong single directional light source creating defined shadows
+- RIM/BACK LIGHT: Bright edge lighting separating subject from background
+- VOLUMETRIC LIGHT: God rays, light beams piercing through atmospheric haze
+- HIGH CONTRAST: Deep blacks and bright highlights (like movie poster)
+
+DEPTH & LAYERS:
+- FAR BACKGROUND: Expansive environment (city skyline, mountains, space, dramatic sky)
+- MID BACKGROUND: Atmospheric elements (fog, smoke, particles, bokeh lights)
+- NEAR BACKGROUND: Supporting details with motion blur
+- FOREGROUND: Subject with sharp focus and dramatic lighting
+
+VISUAL EFFECTS:
+- LENS EFFECTS: Subtle anamorphic lens flares, light leaks at edges
+- PARTICLE EFFECTS: Floating dust, embers, sparks, water droplets
+- ATMOSPHERIC HAZE: Subtle fog or smoke for depth separation
+- COLOR GRADING: Cinematic teal/orange color grade OR bold saturated colors
+
+COMPOSITION:
+- EPIC SCALE: Background should feel expansive and impressive
+- VISUAL WEIGHT: 60/40 asymmetric composition
+- NEGATIVE SPACE: Clean area for text overlay (usually right side)
+- The final image should look like a MOVIE POSTER or NETFLIX THUMBNAIL`,
         layerCount: 5,
         complexity: 'high',
         bestFor: ['gaming', 'reaction', 'documentary', 'travel', 'entertainment']

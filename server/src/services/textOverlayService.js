@@ -525,6 +525,10 @@ const POSITIONS = {
 /**
  * Generate SVG text with styling
  * ENHANCED: Double-stroke effect for maximum impact (inner stroke + outer stroke)
+ *
+ * FONT FIX: Uses embedded base64 fonts OR system fonts guaranteed on Ubuntu
+ * The font-family stack ensures text renders even without Impact installed
+ *
  * @param {string} text - The text to render
  * @param {Object} style - Style configuration
  * @param {Object} position - Position configuration
@@ -533,7 +537,7 @@ const POSITIONS = {
  */
 function generateTextSVG(text, style, position, width = 1280, height = 720) {
     const {
-        fontFamily = 'Impact, sans-serif',
+        fontFamily = 'sans-serif',  // FIXED: Use guaranteed system font as base
         fontWeight = 900,
         fontSize = 120,
         fill = '#FFFFFF',
@@ -546,6 +550,27 @@ function generateTextSVG(text, style, position, width = 1280, height = 720) {
         innerStroke = '#FFFFFF',         // NEW: Inner stroke color
         innerStrokeWidth = 4             // NEW: Inner stroke width
     } = style;
+
+    // FONT FIX: Map fancy fonts to guaranteed system fonts
+    // Ubuntu has: DejaVu Sans, Liberation Sans, FreeSans
+    const fontMap = {
+        'Impact': 'Liberation Sans, DejaVu Sans, sans-serif',
+        'Arial Black': 'Liberation Sans, DejaVu Sans, sans-serif',
+        'Helvetica Neue': 'Liberation Sans, DejaVu Sans, sans-serif',
+        'Georgia': 'Liberation Serif, DejaVu Serif, serif'
+    };
+
+    // Replace fancy fonts with system fonts
+    let safeFontFamily = fontFamily;
+    for (const [fancy, safe] of Object.entries(fontMap)) {
+        if (fontFamily.includes(fancy)) {
+            safeFontFamily = fontFamily.replace(fancy, safe);
+        }
+    }
+    // Ensure we always have a fallback
+    if (!safeFontFamily.includes('sans-serif') && !safeFontFamily.includes('serif')) {
+        safeFontFamily += ', sans-serif';
+    }
 
     const { x, y, anchor = 'start' } = position;
 
@@ -623,7 +648,7 @@ function generateTextSVG(text, style, position, width = 1280, height = 720) {
             <text
                 x="${x}"
                 y="${lineY}"
-                font-family="${fontFamily}"
+                font-family="${safeFontFamily}"
                 font-weight="${fontWeight}"
                 font-size="${scaledFontSize}"
                 text-anchor="${anchor}"
@@ -640,7 +665,7 @@ function generateTextSVG(text, style, position, width = 1280, height = 720) {
             <text
                 x="${x}"
                 y="${lineY}"
-                font-family="${fontFamily}"
+                font-family="${safeFontFamily}"
                 font-weight="${fontWeight}"
                 font-size="${scaledFontSize}"
                 text-anchor="${anchor}"
@@ -656,7 +681,7 @@ function generateTextSVG(text, style, position, width = 1280, height = 720) {
             <text
                 x="${x}"
                 y="${lineY}"
-                font-family="${fontFamily}"
+                font-family="${safeFontFamily}"
                 font-weight="${fontWeight}"
                 font-size="${scaledFontSize}"
                 text-anchor="${anchor}"
@@ -669,7 +694,7 @@ function generateTextSVG(text, style, position, width = 1280, height = 720) {
             <text
                 x="${x}"
                 y="${lineY}"
-                font-family="${fontFamily}"
+                font-family="${safeFontFamily}"
                 font-weight="${fontWeight}"
                 font-size="${scaledFontSize}"
                 text-anchor="${anchor}"

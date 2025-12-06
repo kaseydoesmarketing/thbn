@@ -66,7 +66,7 @@ const CREATOR_STYLES = {
             background: 'solid dark or dramatic scene',
             props: 'money, cars, challenges, extreme items'
         },
-        promptKeywords: 'MrBeast YouTube thumbnail style, EXTREME expression, jaw-dropped shocked face, bold saturated colors, massive money pile, dramatic lighting, viral thumbnail aesthetic, professional photography quality, high contrast, attention-grabbing, white stroke cutout around person'
+        promptKeywords: 'MrBeast YouTube thumbnail style, EXTREME expression, jaw-dropped shocked face, bold saturated colors, massive money pile, dramatic rim lighting, viral thumbnail aesthetic, professional photography quality, high contrast, attention-grabbing, person naturally in scene with dramatic backlighting'
     },
 
     hormozi: {
@@ -1191,7 +1191,20 @@ PROFESSIONAL QUALITY REQUIREMENTS:
 - Sharp details in the subject, with appropriate depth of field blur elsewhere
 - 16:9 aspect ratio (1280x720 pixels)
 - 8K quality fine details, professional photo retouching quality
-- The image should have the polished look of a thumbnail that would get millions of views`;
+- The image should have the polished look of a thumbnail that would get millions of views
+
+CRITICAL - DO NOT INCLUDE THESE (NEGATIVE PROMPT):
+- NO stroke or outline around the person - the person should blend naturally into the scene
+- NO colored border or edge around any person
+- NO "cutout" or "sticker" effect where the person looks pasted on
+- NO visible separation line between person and background
+- NO hard edges around subjects
+- NO text rendered in the image - text will be added separately
+- NO watermarks or signatures
+- NO split-screen or collage layouts
+- NO blurry or low quality areas
+- NO unrealistic skin smoothing
+- The person must look like they were PHOTOGRAPHED in this environment, NOT composited`;
 
     // Additional context
     if (additionalContext) {

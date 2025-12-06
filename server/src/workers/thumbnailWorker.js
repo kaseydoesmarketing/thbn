@@ -276,10 +276,15 @@ thumbnailQueue.queue.process('generate', async function(job) {
         job.progress(50);
 
         // =====================================================================
-        // STEP 4: Apply Text Overlay (if thumbnailText provided)
+        // STEP 4: Enforce YouTube Dimensions + Apply Text Overlay
         // =====================================================================
         var variants = result.variants || [];
         var processedVariants = [];
+
+        // Import sharp for dimension enforcement
+        var sharp = require('sharp');
+        var YOUTUBE_WIDTH = 1280;
+        var YOUTUBE_HEIGHT = 720;
 
         for (var i = 0; i < variants.length; i++) {
             var variant = variants[i];
@@ -287,7 +292,24 @@ thumbnailQueue.queue.process('generate', async function(job) {
 
             var imageBuffer = Buffer.from(variant.image_data, 'base64');
 
-            // Apply text overlay if text provided
+            // STEP 4a: ENFORCE EXACT YOUTUBE DIMENSIONS (1280x720)
+            try {
+                var metadata = await sharp(imageBuffer).metadata();
+                if (metadata.width !== YOUTUBE_WIDTH || metadata.height !== YOUTUBE_HEIGHT) {
+                    console.log('[Worker] Resizing from ' + metadata.width + 'x' + metadata.height + ' to ' + YOUTUBE_WIDTH + 'x' + YOUTUBE_HEIGHT);
+                    imageBuffer = await sharp(imageBuffer)
+                        .resize(YOUTUBE_WIDTH, YOUTUBE_HEIGHT, {
+                            fit: 'cover',
+                            position: 'center'
+                        })
+                        .png()
+                        .toBuffer();
+                }
+            } catch (resizeErr) {
+                console.error('[Worker] Resize failed:', resizeErr.message);
+            }
+
+            // STEP 4b: Apply text overlay if text provided
             if (data.thumbnailText && data.thumbnailText.trim()) {
                 console.log('[Worker] Step 4: Adding CREATOR-STYLE text overlay to variant ' + variantLabel + '...');
 
