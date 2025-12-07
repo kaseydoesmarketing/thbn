@@ -873,13 +873,15 @@
             });
         });
 
-        // Thumbnail text
-        DOM.thumbnailText.addEventListener('input', (e) => {
-            state.thumbnailText = e.target.value;
-            updateTextCounter();
-            updateTextPreview();
-            updateSummaries();
-        });
+        // Thumbnail text (may be removed from UI)
+        if (DOM.thumbnailText) {
+            DOM.thumbnailText.addEventListener('input', (e) => {
+                state.thumbnailText = e.target.value;
+                updateTextCounter();
+                updateTextPreview();
+                updateSummaries();
+            });
+        }
 
         // Logo upload
         DOM.addLogoBtn.addEventListener('click', () => {
@@ -906,6 +908,7 @@
     }
 
     function updateTextCounter() {
+        if (!DOM.textCounter) return; // Element removed from UI
         const length = state.thumbnailText.length;
         DOM.textCounter.textContent = `${length}/${CONFIG.MAX_TEXT_LENGTH}`;
 
@@ -913,9 +916,9 @@
         DOM.textCounter.classList.remove('warning', 'error');
         if (length > CONFIG.TEXT_WARNING_LENGTH) {
             DOM.textCounter.classList.add('warning');
-            DOM.textWarning.style.display = 'flex';
+            if (DOM.textWarning) DOM.textWarning.style.display = 'flex';
         } else {
-            DOM.textWarning.style.display = 'none';
+            if (DOM.textWarning) DOM.textWarning.style.display = 'none';
         }
 
         if (length >= CONFIG.MAX_TEXT_LENGTH) {
@@ -924,6 +927,7 @@
     }
 
     function updateTextPreview() {
+        if (!DOM.textPreview) return; // Element removed from UI
         if (state.thumbnailText) {
             DOM.textPreview.textContent = state.thumbnailText;
             DOM.textPreview.classList.add('visible');
