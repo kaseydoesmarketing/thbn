@@ -24,31 +24,47 @@ const CANVAS = {
 };
 
 // YouTube UI danger zones to AVOID
+// Based on 2025 professional thumbnail best practices
 const YOUTUBE_DANGER_ZONES = {
-    // Bottom-right: Video duration timestamp
+    // Bottom-right: Video duration timestamp - CRITICAL AVOID ZONE
+    // Takes up significant space especially on mobile
     timestamp: {
-        x: [1680, 1920],
-        y: [980, 1080],
+        x: [1600, 1920],  // Extended left for mobile safety
+        y: [920, 1080],   // Extended up for mobile safety
         label: 'Duration badge'
     },
     // Bottom-left: Watch later, playlist icons
     bottomLeftIcons: {
-        x: [0, 150],
-        y: [950, 1080],
+        x: [0, 180],
+        y: [920, 1080],
         label: 'Watch later icons'
     },
     // Top-right: Channel badge on hover
     topRightBadge: {
-        x: [1750, 1920],
-        y: [0, 120],
+        x: [1700, 1920],
+        y: [0, 140],
         label: 'Channel badge'
+    },
+    // Bottom edge danger zone - mobile cropping happens here
+    bottomEdgeCrop: {
+        x: [0, 1920],
+        y: [1000, 1080],
+        label: 'Mobile bottom crop zone'
     }
 };
 
-// Safe margins from edges - INCREASED for better text visibility
+// Safe margins from edges - PROFESSIONAL STANDARDS
+// Based on research: Keep elements within center 1100x620px for desktop, 960x540px for mobile
 const SAFE_MARGINS = {
-    desktop: { x: 100, y: 80 },
-    mobile: { x: 180, y: 140 }  // Increased Y margin to prevent bottom cutoff
+    desktop: { x: 120, y: 100 },
+    mobile: { x: 200, y: 160 }  // Mobile accounts for 70%+ of YouTube viewing - critical!
+};
+
+// Professional safe zone (center area where text should ideally be placed)
+// Rule of thirds + avoiding mobile crop zones
+const PRO_SAFE_ZONE = {
+    x: [200, 1720],    // Leave ~200px on each side
+    y: [120, 880]      // Keep text in upper 81% of frame (avoid bottom crop)
 };
 
 function clamp(value, min, max) {
@@ -65,62 +81,62 @@ const TEXT_BUDGET = {
 };
 
 // Text position presets for Manual mode (3x3 grid)
+// PROFESSIONAL ALIGNMENT: Uses rule of thirds + mobile-safe zones
+// All Y values kept ABOVE 0.75 (upper 75% of frame) to prevent bottom cutoff
 const MANUAL_POSITIONS = {
     'top-left': {
-        x: 0.12,
-        y: 0.15,
+        x: 0.15,          // Aligned to left third
+        y: 0.18,          // Upper third intersection area
         anchor: 'start',
         safeZoneAdjust: null
     },
     'top-center': {
         x: 0.50,
-        y: 0.15,
+        y: 0.18,
         anchor: 'middle',
         safeZoneAdjust: null
     },
     'top-right': {
-        x: 0.88,
-        y: 0.15,
+        x: 0.85,          // Aligned to right third
+        y: 0.18,
         anchor: 'end',
         safeZoneAdjust: null
     },
     'middle-left': {
-        x: 0.12,
-        y: 0.50,
+        x: 0.15,
+        y: 0.45,          // Slightly above center for balance
         anchor: 'start',
         safeZoneAdjust: null
     },
     'middle-center': {
         x: 0.50,
-        y: 0.50,
+        y: 0.45,
         anchor: 'middle',
         safeZoneAdjust: null
     },
     'middle-right': {
-        x: 0.88,
-        y: 0.50,
+        x: 0.85,
+        y: 0.45,
         anchor: 'end',
         safeZoneAdjust: null
     },
     'bottom-left': {
-        x: 0.12,
-        y: 0.72,  // Moved UP from 0.82 to prevent bottom cutoff
+        x: 0.15,
+        y: 0.65,          // CRITICAL: Stay in upper 65% to avoid mobile crop
         anchor: 'start',
-        // Shift up to avoid bottom-left icons
-        safeZoneAdjust: { y: -0.05 }
+        safeZoneAdjust: null
     },
     'bottom-center': {
         x: 0.50,
-        y: 0.72,  // Moved UP from 0.82 to prevent bottom cutoff
+        y: 0.65,          // CRITICAL: Stay in upper 65% to avoid mobile crop
         anchor: 'middle',
         safeZoneAdjust: null
     },
     'bottom-right': {
-        x: 0.68,  // Moved LEFT from 0.72 to avoid timestamp
-        y: 0.68,  // Moved UP from 0.78 to prevent bottom cutoff
+        x: 0.60,          // Moved LEFT significantly to avoid timestamp
+        y: 0.60,          // CRITICAL: Stay well above timestamp zone
         anchor: 'end',
-        // Shift left and up to avoid timestamp
-        safeZoneAdjust: { x: -0.08, y: -0.05 }
+        safeZoneAdjust: null
     }
 };
 
@@ -385,19 +401,24 @@ async function calculateAutoPosition(imageBuffer, options) {
     const textWidth = text.length * charWidth;
     const textHeight = fontSize * 1.2;
 
-    // Define candidate zones based on rule of thirds
-    // Y positions kept in upper 70% to avoid cutoff at bottom
+    // Define candidate zones based on rule of thirds + professional safe zones
+    // ALL Y positions kept in upper 65% to prevent any bottom cutoff
+    // Based on 2025 research: mobile viewing is 70%+ of YouTube traffic
     const candidates = [
-        // Right side (preferred when subject on left)
-        { x: 0.65, y: 0.32, anchor: 'end', priority: 1 },
-        { x: 0.65, y: 0.48, anchor: 'end', priority: 2 },
-        // Left side (when subject on right)
-        { x: 0.35, y: 0.32, anchor: 'start', priority: 3 },
-        { x: 0.35, y: 0.48, anchor: 'start', priority: 4 },
-        // Top center (fallback)
-        { x: 0.50, y: 0.18, anchor: 'middle', priority: 5 },
-        // Bottom (avoiding timestamp) - moved UP to prevent cutoff
-        { x: 0.40, y: 0.65, anchor: 'middle', priority: 6 }
+        // RIGHT SIDE (preferred when subject on left) - rule of thirds
+        { x: 0.70, y: 0.28, anchor: 'end', priority: 1 },    // Upper right third
+        { x: 0.70, y: 0.45, anchor: 'end', priority: 2 },    // Middle right
+
+        // LEFT SIDE (when subject on right) - rule of thirds
+        { x: 0.30, y: 0.28, anchor: 'start', priority: 3 },  // Upper left third
+        { x: 0.30, y: 0.45, anchor: 'start', priority: 4 },  // Middle left
+
+        // TOP CENTER (high visibility, MrBeast style)
+        { x: 0.50, y: 0.20, anchor: 'middle', priority: 5 }, // Top center impact
+
+        // LOWER POSITIONS (still safe from cutoff)
+        { x: 0.40, y: 0.58, anchor: 'middle', priority: 6 }, // Lower center-left
+        { x: 0.50, y: 0.58, anchor: 'middle', priority: 7 }  // Lower center
     ];
 
     // Filter candidates based on subject position
@@ -432,9 +453,9 @@ async function calculateAutoPosition(imageBuffer, options) {
         if (candidate.anchor === 'middle') textX -= textWidth / 2;
         if (candidate.anchor === 'end') textX -= textWidth;
 
-        // Clamp into mobile safe area to avoid edge cutoffs
-        textX = clamp(textX, SAFE_MARGINS.mobile.x, CANVAS.width - SAFE_MARGINS.mobile.x - textWidth);
-        const textY = clamp(pixelY - textHeight / 2, SAFE_MARGINS.mobile.y, CANVAS.height - SAFE_MARGINS.mobile.y - textHeight);
+        // Clamp into professional safe zone to avoid ALL edge cutoffs and mobile crop
+        textX = clamp(textX, PRO_SAFE_ZONE.x[0], PRO_SAFE_ZONE.x[1] - textWidth);
+        const textY = clamp(pixelY - textHeight / 2, PRO_SAFE_ZONE.y[0], PRO_SAFE_ZONE.y[1] - textHeight);
 
         const textBounds = {
             x: textX,
@@ -779,5 +800,7 @@ module.exports = {
     MANUAL_POSITIONS,
     TEXT_COLOR_PALETTE,
     TEXT_BUDGET,
-    CANVAS
+    CANVAS,
+    SAFE_MARGINS,
+    PRO_SAFE_ZONE
 };
