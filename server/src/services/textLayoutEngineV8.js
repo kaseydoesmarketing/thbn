@@ -45,10 +45,10 @@ const YOUTUBE_DANGER_ZONES = {
     }
 };
 
-// Safe margins from edges
+// Safe margins from edges - INCREASED for better text visibility
 const SAFE_MARGINS = {
-    desktop: { x: 90, y: 60 },
-    mobile: { x: 160, y: 100 }
+    desktop: { x: 100, y: 80 },
+    mobile: { x: 180, y: 140 }  // Increased Y margin to prevent bottom cutoff
 };
 
 function clamp(value, min, max) {
@@ -104,23 +104,23 @@ const MANUAL_POSITIONS = {
     },
     'bottom-left': {
         x: 0.12,
-        y: 0.82,
+        y: 0.72,  // Moved UP from 0.82 to prevent bottom cutoff
         anchor: 'start',
         // Shift up to avoid bottom-left icons
         safeZoneAdjust: { y: -0.05 }
     },
     'bottom-center': {
         x: 0.50,
-        y: 0.82,
+        y: 0.72,  // Moved UP from 0.82 to prevent bottom cutoff
         anchor: 'middle',
         safeZoneAdjust: null
     },
     'bottom-right': {
-        x: 0.72,
-        y: 0.78,
+        x: 0.68,  // Moved LEFT from 0.72 to avoid timestamp
+        y: 0.68,  // Moved UP from 0.78 to prevent bottom cutoff
         anchor: 'end',
         // Shift left and up to avoid timestamp
-        safeZoneAdjust: { x: -0.08, y: -0.08 }
+        safeZoneAdjust: { x: -0.08, y: -0.05 }
     }
 };
 
@@ -386,17 +386,18 @@ async function calculateAutoPosition(imageBuffer, options) {
     const textHeight = fontSize * 1.2;
 
     // Define candidate zones based on rule of thirds
+    // Y positions kept in upper 70% to avoid cutoff at bottom
     const candidates = [
         // Right side (preferred when subject on left)
-        { x: 0.65, y: 0.35, anchor: 'end', priority: 1 },
-        { x: 0.65, y: 0.50, anchor: 'end', priority: 2 },
+        { x: 0.65, y: 0.32, anchor: 'end', priority: 1 },
+        { x: 0.65, y: 0.48, anchor: 'end', priority: 2 },
         // Left side (when subject on right)
-        { x: 0.35, y: 0.35, anchor: 'start', priority: 3 },
-        { x: 0.35, y: 0.50, anchor: 'start', priority: 4 },
+        { x: 0.35, y: 0.32, anchor: 'start', priority: 3 },
+        { x: 0.35, y: 0.48, anchor: 'start', priority: 4 },
         // Top center (fallback)
         { x: 0.50, y: 0.18, anchor: 'middle', priority: 5 },
-        // Bottom (avoiding timestamp)
-        { x: 0.40, y: 0.78, anchor: 'middle', priority: 6 }
+        // Bottom (avoiding timestamp) - moved UP to prevent cutoff
+        { x: 0.40, y: 0.65, anchor: 'middle', priority: 6 }
     ];
 
     // Filter candidates based on subject position

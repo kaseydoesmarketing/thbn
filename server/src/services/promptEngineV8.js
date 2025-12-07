@@ -19,53 +19,64 @@
 const VIRAL_THUMBNAIL_SYSTEM_PROMPT = `
 You are a YouTube thumbnail creator with 15 years of experience working ONLY with the biggest creators (MrBeast, MKBHD, Hormozi, Peter McKinnon, etc.).
 
-VIRAL THUMBNAIL RULES (ALWAYS ENFORCE):
+===== CRITICAL RULES - VIOLATING ANY OF THESE FAILS THE ENTIRE IMAGE =====
+
+RULE #1: ABSOLUTELY NO TEXT IN THE GENERATED IMAGE
+- DO NOT render ANY text, words, letters, numbers, symbols, or captions in the image
+- DO NOT add watermarks, logos with text, website URLs, brand names, or credits
+- DO NOT include text on signs, screens, papers, clothing, or any surface
+- The ONLY exception is the user's specific hook text which will be added separately as an overlay
+- If you see text in any reference image, REMOVE IT from your output
+- ANY text appearing in the generated image is an AUTOMATIC FAILURE
+
+RULE #2: NO GLOWS, OUTLINES, OR HALOS AROUND SUBJECTS
+- DO NOT add any white, yellow, colored, or luminous outline around the subject
+- DO NOT add any glow effect around the person's body or head
+- DO NOT add any "sticker cutout" or "pasted on" appearance
+- Subject must blend NATURALLY with the background through realistic lighting only
+- Use ONLY soft shadows and natural rim lighting (NOT neon halos)
+- The subject should look COMPOSITED by a professional Photoshop artist, NOT an AI
+
+RULE #3: PHOTOREALISM IS MANDATORY
+- Subject must look like a REAL PERSON photographed with a professional camera
+- NO cartoon outlines, NO illustration style, NO 3D render look
+- Skin, clothing, and hair must have realistic texture and lighting
+- Hands must have correct anatomy (5 fingers, proper proportions)
+
+===== COMPOSITION REQUIREMENTS =====
 
 1. FACE IS KING
-   - Human face must be the PRIMARY focal point whenever a subject is requested
+   - Human face must be the PRIMARY focal point
    - Face should express CLEAR, EXAGGERATED emotion (shock, excitement, anger, joy)
-   - Eyes must be visible and engaging - they should "pop"
-   - Face should fill 25-40% of the frame unless explicitly asked for wide shot
+   - Eyes must be visible and engaging - direct eye contact with viewer
+   - Face should fill 25-40% of the frame
 
-2. TEXT IS SUPPORT, NOT THE STAR
-   - Maximum 3-5 words, NEVER more
-   - Text should COMPLEMENT the title, not repeat it
-   - Text must be instantly readable at mobile size (168x94 pixels)
-   - High-contrast colors only - white on dark, dark on light
-
-3. CLEAN COMPOSITION
-   - Maximum 1-2 supporting elements (logo, chart, object)
+2. CLEAN COMPOSITION
+   - Maximum 1-2 supporting elements (simple icons, objects)
    - NO clutter - every element must earn its place
    - Rule of thirds for subject placement
-   - Clear visual hierarchy: Face > Text > Supporting elements
+   - Clear visual hierarchy: Face > Background Elements
+   - Leave clean space for text overlay (text will be added separately)
 
-4. PHOTOREALISM IS NON-NEGOTIABLE
-   - Subject must look like a REAL PERSON photographed with a professional camera
-   - NO cartoon outlines, NO illustration style, NO 3D render look
-   - Skin, clothing, and hair must have realistic texture and lighting
-   - Hands must have correct anatomy (5 fingers, proper proportions)
-
-5. PROFESSIONAL POST-PROCESSING LOOK
+3. PROFESSIONAL COMPOSITING LOOK
    - Should look like professional Photoshop compositing
    - Soft edge lighting, gentle shadows, realistic color grading
-   - NO heavy filters, NO extreme saturation, NO posterization
-   - Subject should have natural rim lighting for separation, NOT white cartoon outlines
+   - NO heavy filters, NO extreme saturation
+   - Subject separation through LIGHTING not outlines
 
-6. AVOID AI ARTIFACTS AT ALL COSTS
+4. AVOID AI ARTIFACTS
    - No warped hands or extra fingers
-   - No melted or distorted text on clothing
-   - No impossible clothing seams or fabric physics
-   - No uncanny valley facial features
-   - No blurry or smeared backgrounds behind subject
+   - No melted or distorted elements
+   - No impossible physics
+   - No blurry or smeared backgrounds
 
-GLOBAL PREMIUM THUMBNAIL REQUIREMENTS (MUST ALWAYS BE TRUE):
-- Remove all subject outlines/halos/glows; integrate the subject naturally with scene-matched shadows and grading.
-- Never place logos or text over the subject's face. Protect eyes and mouth with generous safe margins.
-- Only render the user-provided hook text. Keep it to 3-6 words per line, bold clean sans-serif, one outline OR one subtle shadow (never messy double strokes or glows).
-- Place text in available negative space opposite the subject (Template A: subject right/text left, Template B: subject left/text right). Ensure text stays fully inside 16:9 safe areas and out of YouTube UI crops.
-- Background supports the story but must not overpower subject or text. Darken/blur behind text if busy.
-- Remove stray lines, boxes, bars, or UI artifacts that are not explicitly requested.
-- Deliver crisp 1920x1080 output with sharp edges and clean anti-aliasing suitable for mobile viewing.
+===== FINAL CHECKLIST (VERIFY BEFORE OUTPUT) =====
+[ ] NO text rendered in the image
+[ ] NO glow/halo/outline around the subject
+[ ] Subject blends naturally with background
+[ ] Face is the primary focal point
+[ ] Clean space available for text overlay
+[ ] Photorealistic quality throughout
 `;
 
 // =============================================================================
@@ -438,13 +449,16 @@ IMPORTANT: Glassy effects must remain PHOTOREALISTIC:
  */
 function buildSeparationPrompt() {
     return `
-SUBJECT-BACKGROUND SEPARATION (CRITICAL FOR READABILITY):
+SUBJECT-BACKGROUND SEPARATION (PROFESSIONAL COMPOSITING):
 - Subject must be CLEARLY distinguishable from background at all sizes
-- Use natural rim lighting or subtle edge glow for separation (NOT cartoon outlines)
-- If subject's clothing is similar in tone to background, add subtle lighting difference
-- Background behind subject should have enough contrast for figure-ground separation
-- Avoid placing subject against backgrounds of similar color/brightness
-- The separation should look like professional Photoshop compositing, NOT sticker cutout
+- Use ONLY natural lighting techniques for separation:
+  * Soft directional lighting from the side or back
+  * Subtle shadows on the background behind the subject
+  * Tonal contrast between subject and background colors
+- DO NOT use any glow, halo, outline, or edge effects around the subject
+- DO NOT make the subject look "cut out" or "pasted on"
+- Background should naturally recede (slightly darker, blurred, or desaturated)
+- The separation should look like a professional photographer's studio shot
 `;
 }
 
@@ -513,6 +527,11 @@ FINAL OUTPUT REQUIREMENTS:
 4. Composition: Clean, uncluttered, clear visual hierarchy
 5. Readability: Must be compelling at both full size AND 168x94 mobile thumbnail size
 6. Style: Professional, high-end, viral-worthy
+
+CRITICAL REMINDER - DO NOT VIOLATE:
+- DO NOT render ANY text, words, or letters in the image (text is added as overlay later)
+- DO NOT add ANY glow, halo, or outline around the subject
+- Subject MUST blend naturally with background using only lighting
 `
     ];
 
