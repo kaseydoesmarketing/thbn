@@ -46,7 +46,7 @@ services:
     build: .
     container_name: thumbnailbuilder-worker
     restart: unless-stopped
-    command: node src/workers/thumbnailWorker.js
+    command: node src/workers/thumbnailWorkerV8.js
     environment:
       - NODE_ENV=production
       - DB_HOST=postgres
