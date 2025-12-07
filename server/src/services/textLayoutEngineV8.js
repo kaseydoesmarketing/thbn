@@ -51,6 +51,10 @@ const SAFE_MARGINS = {
     mobile: { x: 160, y: 100 }
 };
 
+function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value));
+}
+
 // Text budget constraints
 const TEXT_BUDGET = {
     minAreaPercent: 0.08,   // Text should cover at least 8% of canvas
@@ -329,6 +333,36 @@ function overlapsSubjectFace(textBounds, subjectBounds) {
     return rectsIntersect(textBounds, faceArea);
 }
 
+/**
+ * Estimate subject bounds from positioning + scale to protect face/text separation
+ */
+function estimateSubjectBounds(positionKey = 'middle-left', scale = 100) {
+    const normalizedScale = clamp(scale / 100, 0.6, 1.4);
+    const baseWidth = CANVAS.width * 0.32 * normalizedScale;
+    const baseHeight = CANVAS.height * 0.62 * normalizedScale;
+
+    const centerMap = {
+        'top-left': { x: 0.28, y: 0.28 },
+        'top-center': { x: 0.50, y: 0.28 },
+        'top-right': { x: 0.72, y: 0.28 },
+        'middle-left': { x: 0.28, y: 0.50 },
+        'middle-center': { x: 0.50, y: 0.50 },
+        'middle-right': { x: 0.72, y: 0.50 },
+        'bottom-left': { x: 0.28, y: 0.72 },
+        'bottom-center': { x: 0.50, y: 0.72 },
+        'bottom-right': { x: 0.72, y: 0.72 }
+    };
+
+    const center = centerMap[positionKey] || centerMap['middle-left'];
+    const width = clamp(baseWidth, CANVAS.width * 0.22, CANVAS.width * 0.55);
+    const height = clamp(baseHeight, CANVAS.height * 0.4, CANVAS.height * 0.85);
+
+    const x = clamp(center.x * CANVAS.width - width / 2, SAFE_MARGINS.mobile.x, CANVAS.width - SAFE_MARGINS.mobile.x - width);
+    const y = clamp(center.y * CANVAS.height - height / 2, SAFE_MARGINS.mobile.y, CANVAS.height - SAFE_MARGINS.mobile.y - height);
+
+    return { x, y, width, height };
+}
+
 // =============================================================================
 // TEXT POSITION CALCULATION
 // =============================================================================
@@ -397,9 +431,13 @@ async function calculateAutoPosition(imageBuffer, options) {
         if (candidate.anchor === 'middle') textX -= textWidth / 2;
         if (candidate.anchor === 'end') textX -= textWidth;
 
+        // Clamp into mobile safe area to avoid edge cutoffs
+        textX = clamp(textX, SAFE_MARGINS.mobile.x, CANVAS.width - SAFE_MARGINS.mobile.x - textWidth);
+        const textY = clamp(pixelY - textHeight / 2, SAFE_MARGINS.mobile.y, CANVAS.height - SAFE_MARGINS.mobile.y - textHeight);
+
         const textBounds = {
             x: textX,
-            y: pixelY - textHeight / 2,
+            y: textY,
             width: textWidth,
             height: textHeight
         };
@@ -696,6 +734,8 @@ async function calculateTextLayout(options) {
     // Check for danger zone warnings
     const dangerCheck = isInDangerZone(textBounds.x, textBounds.y, textBounds.width, textBounds.height);
 
+    const layoutLines = text.split(/\n/);
+
     return {
         position: {
             x: position.x,
@@ -703,7 +743,7 @@ async function calculateTextLayout(options) {
             anchor: position.anchor,
             mode: position.mode
         },
-        textBounds,
+        textBounds: { ...textBounds, lines: layoutLines },
         color: colorResult,
         warnings: [
             ...(dangerCheck.inDanger ? [`Text overlaps YouTube ${dangerCheck.zoneLabel}`] : []),
@@ -733,6 +773,7 @@ module.exports = {
     relativeLuminance,
     isInDangerZone,
     sampleBackgroundColors,
+    estimateSubjectBounds,
     YOUTUBE_DANGER_ZONES,
     MANUAL_POSITIONS,
     TEXT_COLOR_PALETTE,

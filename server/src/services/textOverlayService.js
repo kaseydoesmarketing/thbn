@@ -122,6 +122,32 @@ const CREATOR_TEXT_PRESETS = {
     }
 };
 
+function enforceCleanTextStyle(style) {
+    const clean = { ...style };
+
+    // Force sans-serif, single outline OR single shadow, no neon glows
+    clean.fontFamily = 'Inter, "Helvetica Neue", Arial, sans-serif';
+    clean.glow = null;
+    clean.doubleStroke = false;
+    clean.innerStroke = null;
+    clean.innerStrokeWidth = 0;
+
+    if (clean.strokeWidth) {
+        clean.strokeWidth = Math.min(clean.strokeWidth, 10);
+    }
+
+    // Prefer outline; drop shadow if stroke already present
+    if (clean.stroke && clean.shadow) {
+        clean.shadow = null;
+    }
+
+    if (!clean.stroke && !clean.shadow) {
+        clean.shadow = { dx: 6, dy: 6, blur: 12, color: 'rgba(0,0,0,0.45)' };
+    }
+
+    return clean;
+}
+
 const TEXT_PRESETS = {
     // PRO PRESET: Maximum impact - MrBeast style (default)
     // V3 ENHANCED: Even bigger text, thicker strokes for viral impact
@@ -958,7 +984,7 @@ function getSmartPosition(niche, textLength, hasFace = true) {
  * @returns {Object} Text style configuration with textCase
  */
 function getCreatorTextStyle(creatorStyle) {
-    const preset = CREATOR_TEXT_PRESETS[creatorStyle] || CREATOR_TEXT_PRESETS.mrbeast;
+    const preset = enforceCleanTextStyle(CREATOR_TEXT_PRESETS[creatorStyle] || CREATOR_TEXT_PRESETS.mrbeast);
 
     // Ensure textCase is included (default to uppercase if not specified)
     return {
@@ -993,7 +1019,7 @@ function getAutoCreatorStyle(niche) {
     };
 
     const creatorKey = nicheToCreator[niche] || 'mrbeast';
-    const preset = CREATOR_TEXT_PRESETS[creatorKey];
+    const preset = enforceCleanTextStyle(CREATOR_TEXT_PRESETS[creatorKey]);
 
     // Ensure textCase is included
     return {

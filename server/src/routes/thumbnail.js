@@ -39,6 +39,15 @@ router.post('/generate', generationLimiter, async function(req, res) {
         }
 
         var userId = req.userId;
+        var isAdmin = req.userRole === 'admin';
+
+        // Variant rules: default to exactly 2 for all users, admins can request up to 6
+        var requestedVariantCount = parseInt(req.body.variantCount, 10) || 2;
+        var maxVariants = isAdmin ? 6 : 2;
+        var variantCount = Math.min(Math.max(requestedVariantCount, 2), maxVariants);
+
+        // Unique nonce ensures prompt changes always trigger fresh generations (no silent reuse)
+        var generationNonce = `job-${Date.now()}-${Math.round(Math.random() * 100000)}`;
 
         // Store brief with new fields including creatorStyle
         var briefJson = JSON.stringify({
@@ -70,6 +79,9 @@ router.post('/generate', generationLimiter, async function(req, res) {
             thumbnailText: thumbnailText,
             faceImages: faceImages,
             creatorStyle: creatorStyle,  // NEW: Pass creator style to worker
+            variantCount: variantCount,
+            generationNonce: generationNonce,
+            userRole: req.userRole,
             // Legacy fields
             videoUrl: videoUrl,
             videoTitle: videoTitle,
@@ -85,7 +97,8 @@ router.post('/generate', generationLimiter, async function(req, res) {
             status: 'queued',
             message: 'Thumbnail generation queued',
             creatorStyle: creatorStyle,
-            pipeline: pipelineStyle + ' + ' + (faceImages && faceImages.length > 0 ? 'Face' : 'No Face')
+            pipeline: pipelineStyle + ' + ' + (faceImages && faceImages.length > 0 ? 'Face' : 'No Face'),
+            variantCount: variantCount
         });
 
     } catch (error) {

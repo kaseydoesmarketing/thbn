@@ -38,7 +38,7 @@ const path = require('path');
 const sharp = require('sharp');
 
 // V8 Services - New Smart Pipeline
-const { calculateTextLayout, selectOptimalTextColor } = require('../services/textLayoutEngineV8');
+const { calculateTextLayout, selectOptimalTextColor, estimateSubjectBounds } = require('../services/textLayoutEngineV8');
 const { buildCinematicPromptV8, SUBJECT_POSITION_MAP, OUTFIT_PRESETS } = require('../services/promptEngineV8');
 const { applyGlassyMode, getGlassyPromptEnhancement } = require('../services/glassyModeService');
 const { runHeuristicsCheck } = require('../services/heuristicsChecker');
@@ -157,6 +157,21 @@ async function loadFaceImages(userId, faceImageIds) {
     return faceImages;
 }
 
+// Chunk text into 3-6 word lines to keep hooks legible without altering user wording
+function chunkTextToSafeLines(text, maxWordsPerLine = 6) {
+    const words = text.trim().split(/\s+/);
+    const lines = [];
+
+    for (let i = 0; i < words.length; i += maxWordsPerLine) {
+        const slice = words.slice(i, i + maxWordsPerLine);
+        if (slice.length) {
+            lines.push(slice.join(' '));
+        }
+    }
+
+    return lines.length ? lines : [text.trim()];
+}
+
 // =============================================================================
 // V8 PIPELINE FUNCTIONS
 // =============================================================================
@@ -214,21 +229,29 @@ function buildV8Prompt(options, log) {
  * Apply V8 smart text layout with safe zones and contrast
  */
 async function applyV8TextOverlay(imageBuffer, text, options, log) {
-    const { niche, hasFace, textPosition, textColor } = options;
+    const { niche, hasFace, textPosition, textColor, subjectPosition, subjectScale } = options;
 
     if (!text || text.trim() === '') {
         log.debug('No text to overlay, skipping');
         return imageBuffer;
     }
 
+    const sanitizedLines = chunkTextToSafeLines(text, 6);
+    const preparedText = sanitizedLines.join('\n');
+
     try {
         // Use V8 text layout engine to calculate optimal position
+        const positionConfig = textPosition && textPosition !== 'auto'
+            ? { positionMode: 'manual', manualPosition: textPosition }
+            : { positionMode: 'auto' };
+
         const layoutResult = await calculateTextLayout({
-            text,
+            text: preparedText,
             imageBuffer,
-            position: textPosition || 'auto',
-            hasFace,
-            forceColor: textColor
+            ...positionConfig,
+            textColorMode: textColor ? 'manual' : 'auto',
+            manualTextColor: textColor || undefined,
+            subjectBounds: estimateSubjectBounds(subjectPosition, subjectScale)
         });
 
         log.info('V8 text layout calculated:', {
@@ -243,7 +266,7 @@ async function applyV8TextOverlay(imageBuffer, text, options, log) {
 
         // Apply text overlay with calculated layout
         const processedImage = await textOverlayService.addTextOverlay(imageBuffer, {
-            text: layoutResult.textBounds.lines ? layoutResult.textBounds.lines.join('\n') : text,
+            text: layoutResult.textBounds.lines ? layoutResult.textBounds.lines.join('\n') : preparedText,
             niche: niche || 'reaction',
             position: {
                 x: layoutResult.x,
@@ -456,7 +479,10 @@ async function processJobV8(job) {
             result = await nanoClient.createThumbnailJob({
                 prompt,
                 style_preset: data.niche || 'photorealistic',
-                faceImages: faceImagesForGemini
+                faceImages: faceImagesForGemini,
+                variantCount: data.variantCount || 2,
+                generationNonce: data.generationNonce,
+                forceNewComposition: true
             });
             log.info(`Generated ${result.variants ? result.variants.length : 0} variants`);
         } catch (genErr) {
@@ -491,7 +517,9 @@ async function processJobV8(job) {
                     niche: data.niche,
                     hasFace,
                     textPosition: data.textPosition,
-                    textColor: data.textColor
+                    textColor: data.textColor,
+                    subjectPosition: data.subjectPosition,
+                    subjectScale: data.subjectScale
                 }, log);
             }
 

@@ -101,6 +101,9 @@ class GeminiImageClient {
             var style = payload.style_preset || 'photorealistic';
             var faceImages = payload.faceImages || [];
             var useRawPrompt = payload.useRawPrompt !== false; // Default to TRUE - trust promptEngine
+            var variantCount = Math.min(Math.max(payload.variantCount || 2, 1), 6);
+            var generationNonce = payload.generationNonce || `run-${Date.now()}`;
+            var forceNewComposition = payload.forceNewComposition !== false;
 
             // Use prompt directly if it's already professionally crafted (from promptEngine)
             // Only wrap if explicitly requested (legacy/simple prompts)
@@ -121,16 +124,21 @@ class GeminiImageClient {
                 console.log('[Gemini] Including ' + faceImages.length + ' face reference images');
             }
 
-            // Generate 2 variants to conserve daily image quota
-            // Free: ~100/day, Paid: ~2000/day
+            // Build variant prompts to ensure meaningful layout differences
             var variants = [];
-            var numVariants = 2;
+            var variantPrompts = buildVariantPrompts(
+                enhancedPrompt,
+                variantCount,
+                payload.variantBlueprints,
+                forceNewComposition,
+                generationNonce
+            );
 
-            for (var i = 0; i < numVariants; i++) {
+            for (var i = 0; i < variantPrompts.length; i++) {
                 try {
-                    console.log('[Gemini] Generating variant ' + (i + 1) + '/' + numVariants + '...');
+                    console.log('[Gemini] Generating variant ' + (i + 1) + '/' + variantPrompts.length + '...');
 
-                    var imageData = await this.generateSingleImage(enhancedPrompt, i, faceImages);
+                    var imageData = await this.generateSingleImage(variantPrompts[i], i, faceImages);
                     if (imageData) {
                         variants.push({
                             variant_label: String.fromCharCode(65 + i), // A, B
@@ -367,6 +375,47 @@ class GeminiImageClient {
             throw new Error('Gemini Client Error: ' + error.message);
         }
     }
+}
+
+/**
+ * Build distinct variant prompts that still share a cohesive mood
+ */
+function buildVariantPrompts(basePrompt, count, providedPrompts = [], forceNewComposition = true, generationNonce = 'nonce') {
+    var prompts = [];
+    var total = Math.min(Math.max(count || 2, 1), 6);
+    var layoutVariants = [
+        'Template A: subject anchored on the RIGHT, text on the LEFT in available negative space. Keep logos behind or beside the subject, never covering the face.',
+        'Template B: subject anchored on the LEFT, text on the RIGHT with ample padding. Keep background darker behind text for clarity.',
+        'Depth variant: tighter crop on the subject with blurred/darkened background and text elevated in the clearest negative space.',
+        'Context variant: slightly wider crop showing hands/props, text tucked opposite the gaze direction, background softened near text.',
+        'Logo emphasis: supporting logos small and behind the subject, placed opposite the face and never overlapping eyes or mouth.',
+        'Motion/energy variant: subtle motion blur trails in background only, text locked to safe zones with strong contrast.'
+    ];
+
+    for (var i = 0; i < total; i++) {
+        if (providedPrompts && providedPrompts[i]) {
+            prompts.push(providedPrompts[i]);
+            continue;
+        }
+
+        var layoutNote = layoutVariants[i % layoutVariants.length];
+        var cleanDesignRules = [
+            'ABSOLUTELY NO outlines, strokes, or neon glows around the subject. No sticker cutouts. Natural shadows only.',
+            'Do not place logos, UI, or text over the subject face. Eyes and mouth must remain unobstructed with a safety margin.',
+            'Only render the exact user-provided hook text, keep it to 3-6 words per line, bold sans-serif, one clean outline OR one soft shadow only.',
+            'Remove any stray lines, bars, glitches, or debug shapes. Composition must be clean and cinematic.',
+            'Ensure text sits fully inside a 16:9 safe area with padding; never let text touch edges or the timestamp region.'
+        ].join(' ');
+
+        var variantId = String.fromCharCode(65 + i);
+        var uniqueness = forceNewComposition ? `Unique composition token: ${generationNonce}-${i}.` : '';
+
+        prompts.push(
+            `${basePrompt}\n\n[VARIANT ${variantId} DESIGN]\n${layoutNote}\n${cleanDesignRules}\nKeep overall color palette and mood consistent across variants for clean A/B tests. ${uniqueness}`
+        );
+    }
+
+    return prompts;
 }
 
 module.exports = new GeminiImageClient();

@@ -57,6 +57,15 @@ VIRAL THUMBNAIL RULES (ALWAYS ENFORCE):
    - No impossible clothing seams or fabric physics
    - No uncanny valley facial features
    - No blurry or smeared backgrounds behind subject
+
+GLOBAL PREMIUM THUMBNAIL REQUIREMENTS (MUST ALWAYS BE TRUE):
+- Remove all subject outlines/halos/glows; integrate the subject naturally with scene-matched shadows and grading.
+- Never place logos or text over the subject's face. Protect eyes and mouth with generous safe margins.
+- Only render the user-provided hook text. Keep it to 3-6 words per line, bold clean sans-serif, one outline OR one subtle shadow (never messy double strokes or glows).
+- Place text in available negative space opposite the subject (Template A: subject right/text left, Template B: subject left/text right). Ensure text stays fully inside 16:9 safe areas and out of YouTube UI crops.
+- Background supports the story but must not overpower subject or text. Darken/blur behind text if busy.
+- Remove stray lines, boxes, bars, or UI artifacts that are not explicitly requested.
+- Deliver crisp 1920x1080 output with sharp edges and clean anti-aliasing suitable for mobile viewing.
 `;
 
 // =============================================================================
