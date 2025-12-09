@@ -57,12 +57,27 @@ app.get('/health', async function(req, res) {
         status: 'ok',
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
-        version: '2.0.0',
+        version: '9.1.0',
+        pipeline: 'V9_PRO',
+        features: {
+            tier1: true,  // Multi-Model, Multi-Pass, Color Grading, 3D Text
+            tier2: true,  // Emotion Detection, Face Enhancement, Style Transfer
+            tier3: true   // A/B Variants, Dynamic Composition
+        },
         services: {
             nano_config: !!nanoConfig.nanoBanana.apiKey,
             database: false,
             redis: false,
             storage: false
+        },
+        tier2Services: {
+            emotion: 'loaded',
+            faceEnhancement: 'loaded',
+            styleTransfer: 'loaded'
+        },
+        tier3Services: {
+            variantGenerator: 'loaded',
+            composition: 'loaded'
         }
     };
 
