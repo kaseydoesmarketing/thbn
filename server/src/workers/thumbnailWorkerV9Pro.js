@@ -1,26 +1,30 @@
 /**
  * ThumbnailBuilder V9 PRO Worker - WORLD-CLASS THUMBNAIL PIPELINE
  *
- * This is the MASTER PIPELINE integrating ALL Tier 1 quality upgrades:
- *
+ * TIER 1 QUALITY UPGRADES:
  * 1. Multi-Model Selection - Routes to best AI model (Flux PuLID / Gemini)
  * 2. Multi-Pass Generation - Generates 4 variants, selects best 2
  * 3. AI Composition Analysis - Finds optimal text placement
  * 4. Professional Color Grading - Cinematic LUTs per creator style
  * 5. 3D Text Rendering - Professional extruded text effects
  *
- * Result: Every thumbnail is WORLD-CLASS quality.
+ * TIER 2 ENHANCEMENTS:
+ * 6. Emotion Detection - Auto-detects emotion from brief/niche
+ * 7. Face Enhancement - Professional skin/eye/teeth touch-ups
+ * 8. Style Transfer - Artistic presets (MrBeast, cinematic, etc.)
+ *
+ * Result: Every thumbnail is WORLD-CLASS quality with emotion intelligence.
  *
  * PIPELINE STAGES:
  * 1. Input validation and face image loading
- * 2. Model selection (best AI for this job)
- * 3. Multi-pass generation with quality scoring
- * 4. Professional color grading
- * 5. AI composition analysis
- * 6. 3D text rendering
- * 7. Final optimization and storage
+ * 2. Determine creator style and quality tier
+ * 3. Tier 2: Emotion detection and enhancement
+ * 4. Build emotion-enhanced prompt
+ * 5. Generate via PRO Pipeline (multi-model + multi-pass)
+ * 6. Tier 2: Face enhancement + style transfer
+ * 7. Upload final images with complete metadata
  *
- * VERSION: 9.0.0 PRO
+ * VERSION: 9.1.0 PRO (Tier 1 + Tier 2)
  * @module thumbnailWorkerV9Pro
  */
 
@@ -44,6 +48,11 @@ const text3DRenderService = require('../services/text3DRenderService');
 const compositionAnalysisService = require('../services/compositionAnalysisService');
 const modelRouterService = require('../services/modelRouterService');
 const qualityScoringService = require('../services/qualityScoringService');
+
+// Tier 2 Enhancement Services
+const emotionService = require('../services/emotionExpressionService');
+const faceService = require('../services/faceEnhancementService');
+const styleService = require('../services/styleTransferService');
 
 // V8 Services (for fallback)
 const { processJobV8 } = require('./thumbnailWorkerV8');
@@ -71,7 +80,12 @@ const V9_PRO_FEATURES = {
     colorGrading: true,            // Professional color LUTs
     compositionAnalysis: true,     // AI finds optimal text placement
     text3D: true,                  // Professional 3D text effects
-    autoPosition: true             // AI chooses text position
+    autoPosition: true,            // AI chooses text position
+
+    // Tier 2 Enhancement Features
+    emotionDetection: true,        // Auto-detect emotion from brief/niche
+    faceEnhancement: true,         // Professional face touch-ups
+    styleTransfer: true            // Artistic style presets
 };
 
 // =============================================================================
@@ -227,27 +241,75 @@ async function processJobV9Pro(job) {
         job.progress(15);
 
         // =========================================================================
-        // STEP 3: Build Prompt
+        // STEP 3: Tier 2 Emotion Detection & Enhancement
         // =========================================================================
-        log.step(3, 'BUILD WORLD-CLASS PROMPT');
+        log.step(3, 'TIER 2: EMOTION INTELLIGENCE');
 
-        const prompt = promptEngine.buildUltimatePrompt({
+        let emotionData = null;
+        let enhancedExpression = data.expression || 'excited';
+
+        if (V9_PRO_FEATURES.emotionDetection && !data.emotion) {
+            // Auto-detect emotion from brief and niche
+            emotionData = {
+                brief: data.brief,
+                niche: data.niche || 'reaction'
+            };
+
+            const detectedEmotion = emotionService.getEmotionDetails(
+                emotionService.getRecommendedExpressions(emotionData.brief, emotionData.niche)[0] || 'excited'
+            );
+
+            enhancedExpression = detectedEmotion.name.toLowerCase();
+            emotionData = detectedEmotion;
+
+            log.info('Emotion detected:', {
+                emotion: enhancedExpression,
+                viralScore: emotionData.viralScore,
+                colors: emotionData.colorAssociation
+            });
+        } else if (data.emotion) {
+            // User specified emotion
+            emotionData = emotionService.getEmotionDetails(data.emotion);
+            enhancedExpression = data.emotion;
+            log.info('User-specified emotion:', data.emotion);
+        }
+
+        // Get emotion-based styling for later use
+        const emotionStyling = emotionData ? emotionService.getEmotionStyling(enhancedExpression) : null;
+
+        job.progress(15);
+
+        // =========================================================================
+        // STEP 4: Build Enhanced Prompt
+        // =========================================================================
+        log.step(4, 'BUILD EMOTION-ENHANCED PROMPT');
+
+        let prompt = promptEngine.buildUltimatePrompt({
             brief: data.brief,
             creatorStyle,
             niche: data.niche || 'reaction',
-            expression: data.expression || 'excited',
+            expression: enhancedExpression,
             hasFace,
             thumbnailText: '',  // Text handled separately by 3D renderer
             additionalContext: data.additionalContext
         });
 
+        // Enhance prompt with emotion keywords if Tier 2 enabled
+        if (V9_PRO_FEATURES.emotionDetection && emotionData) {
+            const emotionKeywords = emotionService.getEmotionPromptEnhancement(enhancedExpression);
+            if (Array.isArray(emotionKeywords) && emotionKeywords.length > 0) {
+                prompt += `, ${emotionKeywords.slice(0, 3).join(', ')}`;
+                log.info(`Added emotion keywords: ${emotionKeywords.slice(0, 3).join(', ')}`);
+            }
+        }
+
         log.info(`Prompt built (${prompt.length} chars)`);
         job.progress(20);
 
         // =========================================================================
-        // STEP 4: Generate Thumbnails via PRO Pipeline
+        // STEP 5: Generate Thumbnails via PRO Pipeline
         // =========================================================================
-        log.step(4, 'GENERATE VIA PRO PIPELINE (Multi-Model + Multi-Pass)');
+        log.step(5, 'GENERATE VIA PRO PIPELINE (Multi-Model + Multi-Pass)');
 
         let pipelineResult;
         try {
@@ -276,9 +338,63 @@ async function processJobV9Pro(job) {
         job.progress(70);
 
         // =========================================================================
-        // STEP 5: Upload Final Images
+        // STEP 6: Tier 2 Post-Processing (Face Enhancement + Style Transfer)
         // =========================================================================
-        log.step(5, 'UPLOAD WORLD-CLASS THUMBNAILS');
+        log.step(6, 'TIER 2: FACE ENHANCEMENT & STYLE TRANSFER');
+
+        const facePreset = data.faceEnhancement || (emotionData && emotionData.viralScore > 85 ? 'viral' : 'thumbnail');
+        const stylePreset = data.stylePreset || null;
+
+        for (let i = 0; i < pipelineResult.variants.length; i++) {
+            const variant = pipelineResult.variants[i];
+
+            try {
+                // Apply face enhancement if enabled and has face images
+                if (V9_PRO_FEATURES.faceEnhancement && hasFace && facePreset) {
+                    log.info(`Applying face enhancement (${facePreset}) to variant ${i + 1}`);
+
+                    const enhanced = await faceService.enhanceFace(
+                        variant.imageBuffer,
+                        { preset: facePreset }
+                    );
+
+                    if (enhanced) {
+                        variant.imageBuffer = enhanced;
+                        variant.tier2Applied = variant.tier2Applied || {};
+                        variant.tier2Applied.faceEnhancement = facePreset;
+                        log.info(`Face enhancement applied successfully`);
+                    }
+                }
+
+                // Apply style transfer if requested
+                if (V9_PRO_FEATURES.styleTransfer && stylePreset) {
+                    log.info(`Applying style transfer (${stylePreset}) to variant ${i + 1}`);
+
+                    const styled = await styleService.applyStyle(
+                        variant.imageBuffer,
+                        stylePreset
+                    );
+
+                    if (styled) {
+                        variant.imageBuffer = styled;
+                        variant.tier2Applied = variant.tier2Applied || {};
+                        variant.tier2Applied.styleTransfer = stylePreset;
+                        log.info(`Style transfer applied successfully`);
+                    }
+                }
+
+            } catch (tier2Err) {
+                log.warn(`Tier 2 processing failed for variant ${i + 1}, using original`, tier2Err);
+                // Continue with original image if Tier 2 fails
+            }
+        }
+
+        job.progress(85);
+
+        // =========================================================================
+        // STEP 7: Upload Final Images
+        // =========================================================================
+        log.step(7, 'UPLOAD WORLD-CLASS THUMBNAILS');
 
         const storedVariants = [];
 
@@ -324,7 +440,18 @@ async function processJobV9Pro(job) {
                 recommendation: variant.recommendation,
                 pipeline: 'V9_PRO',
                 features: pipelineResult.metadata.features,
-                ...variant.metadata
+                ...variant.metadata,
+
+                // Tier 2 metadata
+                tier2: {
+                    emotion: emotionData ? {
+                        detected: enhancedExpression,
+                        viralScore: emotionData.viralScore,
+                        colors: emotionData.colorAssociation
+                    } : null,
+                    faceEnhancement: variant.tier2Applied?.faceEnhancement || null,
+                    styleTransfer: variant.tier2Applied?.styleTransfer || null
+                }
             };
 
             await db.query(
