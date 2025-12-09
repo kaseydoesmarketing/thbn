@@ -1,5 +1,6 @@
 var axios = require('axios');
 var config = require('../config/nano');
+var imageModels = require('../config/imageModels');
 
 /**
  * Google Gemini Image Generation Client
@@ -19,15 +20,14 @@ class GeminiImageClient {
         this.apiKey = config.nanoBanana.apiKey;
         this.baseUrl = 'https://generativelanguage.googleapis.com/v1beta';
 
-        // Primary model: gemini-2.5-flash-image (latest stable for image generation)
-        // Fallback: gemini-2.0-flash-exp (confirmed working)
-        // Set GEMINI_MODEL env var to override
-        this.model = process.env.GEMINI_MODEL || 'gemini-2.5-flash-image';
+        // Use imageModels config for model selection
+        // Primary: gemini-3-pro-image-preview, Fallback: gemini-2.5-flash-image
+        this.model = imageModels.getActiveModel();
         this.timeout = config.nanoBanana.timeout || 120000; // 2 min timeout for image gen
 
-        // Fallback model if primary fails
+        // Fallback model from config
         this.useFallback = false;
-        this.fallbackModel = 'gemini-2.0-flash-exp';
+        this.fallbackModel = imageModels.getFallbackModel();
 
         // Rate limiting for image models:
         // Free tier: ~10-20 RPM, ~100 RPD
@@ -36,6 +36,17 @@ class GeminiImageClient {
         this.requestQueue = [];
         this.lastRequestTime = 0;
         this.minRequestInterval = 4000; // 4 seconds between requests (~15 RPM safe)
+
+        // Metrics tracking for cost and performance
+        this.metrics = {
+            totalRequests: 0,
+            successfulRequests: 0,
+            failedRequests: 0,
+            totalCost: 0,
+            totalImagesGenerated: 0,
+            lastRequestTime: null,
+            sessionStartTime: new Date().toISOString()
+        };
     }
 
     /**
@@ -102,7 +113,7 @@ class GeminiImageClient {
             var faceImages = payload.faceImages || [];
             var useRawPrompt = payload.useRawPrompt !== false; // Default to TRUE - trust promptEngine
             var variantCount = Math.min(Math.max(payload.variantCount || 2, 1), 6);
-            var generationNonce = payload.generationNonce || `run-${Date.now()}`;
+            var generationNonce = payload.generationNonce || 'run-' + Date.now();
             var forceNewComposition = payload.forceNewComposition !== false;
 
             // Use prompt directly if it's already professionally crafted (from promptEngine)
@@ -158,12 +169,26 @@ class GeminiImageClient {
 
             console.log('[Gemini] Successfully generated ' + variants.length + ' variants');
 
+            // Track successful generation with cost
+            var costInfo = this.trackGeneration(variants.length, true);
+            console.log('[Gemini] Generation cost: $' + costInfo.cost + ' for ' + variants.length + ' images');
+
             return {
                 status: 'completed',
-                variants: variants
+                variants: variants,
+                metadata: {
+                    model: costInfo.model,
+                    modelConfig: imageModels.getModelConfig(costInfo.model),
+                    imageCount: variants.length,
+                    cost: costInfo.cost,
+                    timestamp: costInfo.timestamp,
+                    usedFallback: this.useFallback
+                }
             };
 
         } catch (error) {
+            // Track failed generation
+            this.trackGeneration(0, false);
             this.handleError(error);
         }
     }
@@ -262,7 +287,7 @@ class GeminiImageClient {
             // Extract image from response
             var candidates = response.data.candidates || [];
             if (candidates.length > 0) {
-                var responseParts = candidates[0].content?.parts || [];
+                var responseParts = candidates[0].content && candidates[0].content.parts ? candidates[0].content.parts : [];
                 for (var j = 0; j < responseParts.length; j++) {
                     var part = responseParts[j];
                     if (part.inlineData) {
@@ -350,10 +375,137 @@ class GeminiImageClient {
         return { status: 'completed' };
     }
 
+    /**
+     * Get current model configuration
+     * @returns {Object} Current model info
+     */
+    getCurrentModel() {
+        var modelId = this.useFallback ? this.fallbackModel : this.model;
+        return {
+            id: modelId,
+            config: imageModels.getModelConfig(modelId),
+            isFallback: this.useFallback
+        };
+    }
+
+    /**
+     * Get detailed model information
+     * @returns {Object} Model details with pricing and limits
+     */
+    getModelInfo() {
+        var currentModel = this.getCurrentModel();
+        return {
+            current: currentModel,
+            primary: {
+                id: this.model,
+                config: imageModels.getModelConfig(this.model)
+            },
+            fallback: {
+                id: this.fallbackModel,
+                config: imageModels.getModelConfig(this.fallbackModel)
+            },
+            available: imageModels.getAllModels()
+        };
+    }
+
+    /**
+     * Estimate cost for image generation
+     * @param {number} imageCount - Number of images to generate
+     * @returns {Object} Cost estimation
+     */
+    estimateCost(imageCount) {
+        imageCount = imageCount || 1;
+        var modelId = this.useFallback ? this.fallbackModel : this.model;
+        var modelConfig = imageModels.getModelConfig(modelId);
+        var costPerImage = modelConfig ? modelConfig.pricing.imagesGenerated : 0;
+
+        return {
+            model: modelId,
+            imageCount: imageCount,
+            costPerImage: costPerImage,
+            totalCost: (costPerImage * imageCount).toFixed(4),
+            currency: 'USD'
+        };
+    }
+
+    /**
+     * Track a generation for cost and metrics
+     * @param {number} imageCount - Number of images generated
+     * @param {boolean} success - Whether generation succeeded
+     * @returns {Object} Generation cost info
+     */
+    trackGeneration(imageCount, success) {
+        imageCount = imageCount || 1;
+        var modelId = this.useFallback ? this.fallbackModel : this.model;
+        var modelConfig = imageModels.getModelConfig(modelId);
+        var costPerImage = modelConfig ? modelConfig.pricing.imagesGenerated : 0;
+        var generationCost = costPerImage * imageCount;
+
+        this.metrics.totalRequests++;
+        this.metrics.lastRequestTime = new Date().toISOString();
+
+        if (success) {
+            this.metrics.successfulRequests++;
+            this.metrics.totalImagesGenerated += imageCount;
+            this.metrics.totalCost += generationCost;
+        } else {
+            this.metrics.failedRequests++;
+        }
+
+        return {
+            model: modelId,
+            imageCount: imageCount,
+            cost: generationCost.toFixed(4),
+            success: success,
+            timestamp: this.metrics.lastRequestTime
+        };
+    }
+
+    /**
+     * Get current metrics
+     * @returns {Object} Metrics summary
+     */
+    getMetrics() {
+        var successRate = this.metrics.totalRequests > 0
+            ? ((this.metrics.successfulRequests / this.metrics.totalRequests) * 100).toFixed(2)
+            : 0;
+
+        return {
+            totalRequests: this.metrics.totalRequests,
+            successfulRequests: this.metrics.successfulRequests,
+            failedRequests: this.metrics.failedRequests,
+            successRate: successRate + '%',
+            totalImagesGenerated: this.metrics.totalImagesGenerated,
+            totalCost: this.metrics.totalCost.toFixed(4),
+            averageCostPerImage: this.metrics.totalImagesGenerated > 0
+                ? (this.metrics.totalCost / this.metrics.totalImagesGenerated).toFixed(4)
+                : '0.0000',
+            lastRequestTime: this.metrics.lastRequestTime,
+            sessionStartTime: this.metrics.sessionStartTime,
+            currentModel: this.getCurrentModel()
+        };
+    }
+
+    /**
+     * Reset metrics (for testing or admin purposes)
+     */
+    resetMetrics() {
+        this.metrics = {
+            totalRequests: 0,
+            successfulRequests: 0,
+            failedRequests: 0,
+            totalCost: 0,
+            totalImagesGenerated: 0,
+            lastRequestTime: null,
+            sessionStartTime: new Date().toISOString()
+        };
+        console.log('[Gemini] Metrics reset');
+    }
+
     handleError(error) {
         if (error.response) {
             var status = error.response.status;
-            var message = error.response.data?.error?.message || error.message;
+            var message = error.response.data && error.response.data.error ? error.response.data.error.message : error.message;
 
             if (status === 400) {
                 throw new Error('Gemini API Bad Request: ' + message);
@@ -380,7 +532,11 @@ class GeminiImageClient {
 /**
  * Build distinct variant prompts that still share a cohesive mood
  */
-function buildVariantPrompts(basePrompt, count, providedPrompts = [], forceNewComposition = true, generationNonce = 'nonce') {
+function buildVariantPrompts(basePrompt, count, providedPrompts, forceNewComposition, generationNonce) {
+    providedPrompts = providedPrompts || [];
+    forceNewComposition = forceNewComposition !== false;
+    generationNonce = generationNonce || 'nonce';
+    
     var prompts = [];
     var total = Math.min(Math.max(count || 2, 1), 6);
     var layoutVariants = [
@@ -408,10 +564,10 @@ function buildVariantPrompts(basePrompt, count, providedPrompts = [], forceNewCo
         ].join(' ');
 
         var variantId = String.fromCharCode(65 + i);
-        var uniqueness = forceNewComposition ? `Unique composition token: ${generationNonce}-${i}.` : '';
+        var uniqueness = forceNewComposition ? 'Unique composition token: ' + generationNonce + '-' + i + '.' : '';
 
         prompts.push(
-            `${basePrompt}\n\n[VARIANT ${variantId} DESIGN]\n${layoutNote}\n${cleanDesignRules}\nKeep overall color palette and mood consistent across variants for clean A/B tests. ${uniqueness}`
+            basePrompt + '\n\n[VARIANT ' + variantId + ' DESIGN]\n' + layoutNote + '\n' + cleanDesignRules + '\nKeep overall color palette and mood consistent across variants for clean A/B tests. ' + uniqueness
         );
     }
 

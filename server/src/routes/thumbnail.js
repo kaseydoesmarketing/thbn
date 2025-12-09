@@ -4,6 +4,7 @@ var db = require('../db/connection');
 var thumbnailQueue = require('../queues/thumbnailQueue');
 var authMiddleware = require('../middleware/auth');
 var { generationLimiter } = require('../middleware/rateLimit');
+var { requireCredits } = require('../middleware/creditCheck');
 
 // Require authentication for all thumbnail routes
 router.use(authMiddleware.requireAuth);
@@ -11,7 +12,8 @@ router.use(authMiddleware.requireAuth);
 // POST /api/generate
 // Starts a thumbnail generation job - rate limited (20 req/hour per user)
 // v2.1: Added creatorStyle for Alex Hormozi / Iman Gadzhi / Magnates Media styles
-router.post('/generate', generationLimiter, async function(req, res) {
+// v9.2: Added credit requirement (1 credit per generation)
+router.post('/generate', generationLimiter, requireCredits(1), async function(req, res) {
     try {
         var niche = req.body.niche || 'reaction';
         var expression = req.body.expression || 'excited';

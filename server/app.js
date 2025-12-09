@@ -9,6 +9,9 @@ var nanoConfig = require('./src/config/nano');
 var thumbnailRoutes = require('./src/routes/thumbnail');
 var facesRoutes = require('./src/routes/faces');
 var authRoutes = require('./src/routes/auth');
+var stripeRoutes = require('./src/routes/stripe');
+var billingRoutes = require('./src/routes/billing');
+var adminRoutes = require('./src/routes/admin');
 var db = require('./src/db/connection');
 var redis = require('./src/config/redis');
 var storageService = require('./src/services/storageService');
@@ -49,6 +52,9 @@ if (process.env.NODE_ENV === 'development') {
 // Auth routes handle their own per-route auth middleware
 app.use('/api/auth', authRoutes);
 app.use('/api/faces', facesRoutes);
+app.use('/api/billing', billingRoutes);  // Billing routes (requires auth)
+app.use('/api/stripe', stripeRoutes);    // Stripe webhooks (no auth, signature verification)
+app.use('/api/admin', adminRoutes);      // Admin routes (requires admin role)
 app.use('/api', thumbnailRoutes);  // Keep at /api for /api/generate, /api/jobs, etc.
 
 // Health Check - comprehensive
@@ -57,7 +63,7 @@ app.get('/health', async function(req, res) {
         status: 'ok',
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
-        version: '9.1.0',
+        version: '9.2.0',
         pipeline: 'V9_PRO',
         features: {
             tier1: true,  // Multi-Model, Multi-Pass, Color Grading, 3D Text
@@ -164,9 +170,15 @@ process.on('SIGINT', shutdown);
 
 // Start Server
 if (require.main === module) {
+    // Initialize admin audit table on startup
+    var adminAuth = require('./src/middleware/adminAuth');
+    adminAuth.ensureAuditTable().catch(function(err) {
+        console.warn('[Server] Failed to create audit table:', err.message);
+    });
+
     app.listen(PORT, function() {
         console.log('\n========================================');
-        console.log('  Thumbnail Builder Server v2.0');
+        console.log('  Thumbnail Builder Server v9.2.0');
         console.log('========================================');
         console.log('  Port:        ' + PORT);
         console.log('  Environment: ' + (process.env.NODE_ENV || 'development'));

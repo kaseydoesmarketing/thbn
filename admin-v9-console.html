@@ -1,0 +1,1883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThumbnailBuilder v9.2.0 - Admin Console</title>
+    <link rel="stylesheet" href="admin-console-styles.css?v=1.0.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="admin-console">
+        <!-- ================================================================
+             HEADER
+             ================================================================ -->
+        <header class="console-header">
+            <div class="header-left">
+                <a href="/" class="logo">
+                    <div class="logo-icon">
+                        <svg width="24" height="24" viewBox="0 0 32 32" fill="none">
+                            <rect width="32" height="32" rx="8" fill="url(#logoGrad)"/>
+                            <path d="M12 8L24 16L12 24V8Z" fill="white"/>
+                            <defs>
+                                <linearGradient id="logoGrad" x1="0" y1="0" x2="32" y2="32">
+                                    <stop offset="0%" stop-color="#8B5CF6"/>
+                                    <stop offset="100%" stop-color="#3B82F6"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+                    <span class="logo-text">
+                        <span class="logo-primary">Thumbnail</span><span class="logo-accent">Builder</span>
+                    </span>
+                </a>
+                <div class="header-divider"></div>
+                <span class="console-badge">
+                    <span class="version-badge">v9.2.0</span>
+                    Admin Console
+                </span>
+            </div>
+            <div class="header-right">
+                <div class="header-status" id="system-status">
+                    <span class="status-dot status-healthy"></span>
+                    <span class="status-text">System Healthy</span>
+                </div>
+                <div class="user-info">
+                    <span class="user-email" id="admin-email">admin@example.com</span>
+                    <button class="btn-logout" onclick="logout()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+                            <polyline points="16 17 21 12 16 7"/>
+                            <line x1="21" y1="12" x2="9" y2="12"/>
+                        </svg>
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- ================================================================
+             MAIN CONTENT
+             ================================================================ -->
+        <div class="console-content">
+            <!-- Sidebar Navigation -->
+            <nav class="console-nav">
+                <button class="nav-item active" data-tab="overview" onclick="switchTab('overview')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7"/>
+                        <rect x="14" y="3" width="7" height="7"/>
+                        <rect x="14" y="14" width="7" height="7"/>
+                        <rect x="3" y="14" width="7" height="7"/>
+                    </svg>
+                    <span>Overview</span>
+                </button>
+                <button class="nav-item" data-tab="models" onclick="switchTab('models')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                        <path d="M2 17l10 5 10-5"/>
+                        <path d="M2 12l10 5 10-5"/>
+                    </svg>
+                    <span>Models</span>
+                </button>
+                <button class="nav-item" data-tab="keys" onclick="switchTab('keys')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+                    </svg>
+                    <span>API Keys</span>
+                </button>
+                <button class="nav-item" data-tab="analytics" onclick="switchTab('analytics')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="20" x2="18" y2="10"/>
+                        <line x1="12" y1="20" x2="12" y2="4"/>
+                        <line x1="6" y1="20" x2="6" y2="14"/>
+                    </svg>
+                    <span>Analytics</span>
+                </button>
+                <button class="nav-item" data-tab="credits" onclick="switchTab('credits')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 6v6l4 2"/>
+                    </svg>
+                    <span>Credits</span>
+                </button>
+                <button class="nav-item" data-tab="health" onclick="switchTab('health')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                    </svg>
+                    <span>Health</span>
+                </button>
+                <button class="nav-item" data-tab="test" onclick="switchTab('test')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="5 3 19 12 5 21 5 3"/>
+                    </svg>
+                    <span>Test</span>
+                </button>
+            </nav>
+
+            <!-- Tab Content -->
+            <main class="console-main">
+                <!-- ============================================================
+                     OVERVIEW TAB
+                     ============================================================ -->
+                <section class="tab-content active" id="tab-overview">
+                    <div class="tab-header">
+                        <h1>Dashboard Overview</h1>
+                        <button class="btn-refresh" onclick="refreshOverview()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M23 4v6h-6"/>
+                                <path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/>
+                            </svg>
+                            Refresh
+                        </button>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card stat-primary">
+                            <div class="stat-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                                    <path d="M21 15l-5-5L5 21"/>
+                                </svg>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="stat-today">--</div>
+                                <div class="stat-label">Today's Generations</div>
+                            </div>
+                        </div>
+                        <div class="stat-card stat-success">
+                            <div class="stat-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
+                                    <polyline points="16 7 22 7 22 13"/>
+                                </svg>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="stat-week">--</div>
+                                <div class="stat-label">This Week</div>
+                            </div>
+                        </div>
+                        <div class="stat-card stat-info">
+                            <div class="stat-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                                    <circle cx="9" cy="7" r="4"/>
+                                    <path d="M23 21v-2a4 4 0 00-3-3.87"/>
+                                    <path d="M16 3.13a4 4 0 010 7.75"/>
+                                </svg>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="stat-users">--</div>
+                                <div class="stat-label">Active Users</div>
+                            </div>
+                        </div>
+                        <div class="stat-card stat-warning">
+                            <div class="stat-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <path d="M12 6v6l4 2"/>
+                                </svg>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="stat-credits">--</div>
+                                <div class="stat-label">Credits Used</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-grid">
+                        <div class="panel panel-chart">
+                            <div class="panel-header">
+                                <h2>Generation Activity</h2>
+                                <select id="chart-period" onchange="updateUsageChart()">
+                                    <option value="week">Last 7 Days</option>
+                                    <option value="month">Last 30 Days</option>
+                                </select>
+                            </div>
+                            <div class="panel-content">
+                                <canvas id="usage-chart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="panel panel-queue">
+                            <div class="panel-header">
+                                <h2>Queue Status</h2>
+                            </div>
+                            <div class="panel-content">
+                                <div class="queue-stats">
+                                    <div class="queue-stat">
+                                        <span class="queue-value" id="queue-active">0</span>
+                                        <span class="queue-label">Active</span>
+                                    </div>
+                                    <div class="queue-stat">
+                                        <span class="queue-value" id="queue-waiting">0</span>
+                                        <span class="queue-label">Waiting</span>
+                                    </div>
+                                    <div class="queue-stat">
+                                        <span class="queue-value" id="queue-completed">0</span>
+                                        <span class="queue-label">Completed</span>
+                                    </div>
+                                    <div class="queue-stat queue-failed">
+                                        <span class="queue-value" id="queue-failed">0</span>
+                                        <span class="queue-label">Failed</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="panel panel-recent">
+                            <div class="panel-header">
+                                <h2>Recent Generations</h2>
+                                <a href="#" onclick="switchTab('analytics'); return false;">View All</a>
+                            </div>
+                            <div class="panel-content">
+                                <div class="recent-jobs-list" id="recent-jobs">
+                                    <div class="loading-placeholder">Loading...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================================
+                     MODELS TAB
+                     ============================================================ -->
+                <section class="tab-content" id="tab-models">
+                    <div class="tab-header">
+                        <h1>Model Configuration</h1>
+                        <button class="btn-secondary" onclick="resetModels()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8"/>
+                                <path d="M3 3v5h5"/>
+                            </svg>
+                            Reset to Defaults
+                        </button>
+                    </div>
+
+                    <div class="models-layout">
+                        <div class="current-config-panel">
+                            <h2>Current Configuration</h2>
+                            <div class="config-cards">
+                                <div class="config-card">
+                                    <div class="config-label">Primary Model</div>
+                                    <div class="config-value" id="current-primary">--</div>
+                                    <div class="config-meta" id="primary-cost">$0.00/image</div>
+                                </div>
+                                <div class="config-card">
+                                    <div class="config-label">Fallback Model</div>
+                                    <div class="config-value" id="current-fallback">--</div>
+                                    <div class="config-meta" id="fallback-cost">$0.00/image</div>
+                                </div>
+                                <div class="config-card">
+                                    <div class="config-label">Last Updated</div>
+                                    <div class="config-value config-time" id="config-updated">--</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="models-list-panel">
+                            <h2>Available Models</h2>
+                            <div class="models-grid" id="models-list">
+                                <div class="loading-placeholder">Loading models...</div>
+                            </div>
+                        </div>
+
+                        <div class="cost-comparison-panel">
+                            <h2>Cost Comparison</h2>
+                            <div class="cost-input">
+                                <label>Estimate for</label>
+                                <input type="number" id="cost-image-count" value="1000" min="1">
+                                <span>images</span>
+                                <button class="btn-small" onclick="updateCostComparison()">Calculate</button>
+                            </div>
+                            <div class="cost-table" id="cost-comparison">
+                                <div class="loading-placeholder">Loading...</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================================
+                     API KEYS TAB
+                     ============================================================ -->
+                <section class="tab-content" id="tab-keys">
+                    <div class="tab-header">
+                        <h1>API Key Management</h1>
+                        <button class="btn-refresh" onclick="refreshKeyStatus()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M23 4v6h-6"/>
+                                <path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/>
+                            </svg>
+                            Refresh Status
+                        </button>
+                    </div>
+
+                    <div class="keys-grid" id="keys-list">
+                        <div class="loading-placeholder">Loading API keys...</div>
+                    </div>
+
+                    <!-- Rotate Key Modal -->
+                    <div class="modal" id="rotate-key-modal">
+                        <div class="modal-backdrop" onclick="closeModal('rotate-key-modal')"></div>
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3>Rotate API Key</h3>
+                                <button class="modal-close" onclick="closeModal('rotate-key-modal')">&times;</button>
+                            </div>
+                            <div class="modal-body">
+                                <p class="modal-warning">
+                                    Warning: Rotating this key will update it in memory. A server restart may be required for full effect.
+                                </p>
+                                <div class="form-group">
+                                    <label>Key Name</label>
+                                    <input type="text" id="rotate-key-name" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label>New Key Value</label>
+                                    <input type="password" id="rotate-key-value" placeholder="Enter new API key">
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn-secondary" onclick="closeModal('rotate-key-modal')">Cancel</button>
+                                <button class="btn-primary" onclick="confirmRotateKey()">Rotate Key</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================================
+                     ANALYTICS TAB
+                     ============================================================ -->
+                <section class="tab-content" id="tab-analytics">
+                    <div class="tab-header">
+                        <h1>Usage Analytics</h1>
+                        <div class="tab-actions">
+                            <select id="analytics-period" onchange="refreshAnalytics()">
+                                <option value="week">Last 7 Days</option>
+                                <option value="month" selected>Last 30 Days</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="analytics-layout">
+                        <div class="analytics-chart-panel">
+                            <h2>Generation Trends</h2>
+                            <canvas id="analytics-chart"></canvas>
+                        </div>
+
+                        <div class="analytics-costs-panel">
+                            <h2>Cost Breakdown</h2>
+                            <div class="cost-breakdown" id="cost-breakdown">
+                                <div class="loading-placeholder">Loading...</div>
+                            </div>
+                        </div>
+
+                        <div class="analytics-users-panel">
+                            <h2>Top Users by Generations</h2>
+                            <table class="data-table" id="top-users-table">
+                                <thead>
+                                    <tr>
+                                        <th>User</th>
+                                        <th>Generations</th>
+                                        <th>Success Rate</th>
+                                        <th>Last Active</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="top-users-body">
+                                    <tr><td colspan="4" class="loading-placeholder">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="analytics-jobs-panel">
+                            <h2>Recent Generation History</h2>
+                            <table class="data-table" id="recent-jobs-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>User</th>
+                                        <th>Status</th>
+                                        <th>Style</th>
+                                        <th>Variants</th>
+                                        <th>Created</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recent-jobs-body">
+                                    <tr><td colspan="6" class="loading-placeholder">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================================
+                     CREDITS TAB
+                     ============================================================ -->
+                <section class="tab-content" id="tab-credits">
+                    <div class="tab-header">
+                        <h1>Credit & Plan Editor</h1>
+                    </div>
+
+                    <div class="credits-layout">
+                        <div class="user-search-panel">
+                            <h2>Search User</h2>
+                            <div class="search-box">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="11" cy="11" r="8"/>
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                                </svg>
+                                <input type="text" id="user-search-input" placeholder="Search by email or user ID..." onkeyup="debounceUserSearch(event)">
+                            </div>
+                            <div class="search-results" id="user-search-results">
+                                <div class="search-hint">Enter at least 2 characters to search</div>
+                            </div>
+                        </div>
+
+                        <div class="user-details-panel" id="user-details-panel" style="display: none;">
+                            <h2>User Details</h2>
+                            <div class="user-info-card" id="selected-user-info">
+                                <!-- Populated by JS -->
+                            </div>
+
+                            <div class="credit-actions">
+                                <h3>Adjust Credits</h3>
+                                <div class="credit-form">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Action</label>
+                                            <select id="credit-action">
+                                                <option value="add">Add Credits</option>
+                                                <option value="remove">Remove Credits</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Amount</label>
+                                            <input type="number" id="credit-amount" min="1" value="10">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Reason</label>
+                                        <input type="text" id="credit-reason" placeholder="Reason for adjustment">
+                                    </div>
+                                    <button class="btn-primary" onclick="adjustCredits()">Apply Adjustment</button>
+                                </div>
+                            </div>
+
+                            <div class="subscription-actions">
+                                <h3>Subscription</h3>
+                                <div id="subscription-info">
+                                    <div class="loading-placeholder">Select a user to view subscription</div>
+                                </div>
+                                <button class="btn-secondary" onclick="refreshSubscription()" id="refresh-sub-btn" disabled>
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M23 4v6h-6"/>
+                                        <path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/>
+                                    </svg>
+                                    Refresh from Stripe
+                                </button>
+                            </div>
+
+                            <div class="transactions-panel">
+                                <h3>Credit Transaction History</h3>
+                                <div class="transactions-list" id="transactions-list">
+                                    <div class="loading-placeholder">Select a user to view transactions</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================================
+                     HEALTH TAB
+                     ============================================================ -->
+                <section class="tab-content" id="tab-health">
+                    <div class="tab-header">
+                        <h1>System Health Monitor</h1>
+                        <div class="tab-actions">
+                            <button class="btn-danger" onclick="clearCache()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="3 6 5 6 21 6"/>
+                                    <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                                </svg>
+                                Clear Cache
+                            </button>
+                            <button class="btn-refresh" onclick="refreshHealth()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M23 4v6h-6"/>
+                                    <path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/>
+                                </svg>
+                                Refresh
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="health-layout">
+                        <div class="services-panel">
+                            <h2>Service Status</h2>
+                            <div class="services-grid" id="services-grid">
+                                <div class="loading-placeholder">Loading services...</div>
+                            </div>
+                        </div>
+
+                        <div class="server-panel">
+                            <h2>Server Statistics</h2>
+                            <div class="server-stats" id="server-stats">
+                                <div class="loading-placeholder">Loading...</div>
+                            </div>
+                        </div>
+
+                        <div class="queue-panel">
+                            <h2>Queue Statistics</h2>
+                            <div class="queue-details" id="queue-details">
+                                <div class="loading-placeholder">Loading...</div>
+                            </div>
+                        </div>
+
+                        <div class="errors-panel">
+                            <h2>Recent Errors</h2>
+                            <div class="errors-list" id="errors-list">
+                                <div class="loading-placeholder">Loading errors...</div>
+                            </div>
+                        </div>
+
+                        <div class="audit-panel">
+                            <h2>Admin Audit Log</h2>
+                            <div class="audit-list" id="audit-list">
+                                <div class="loading-placeholder">Loading audit log...</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================================
+                     TEST GENERATION TAB
+                     ============================================================ -->
+                <section class="tab-content" id="tab-test">
+                    <div class="tab-header">
+                        <h1>Test Generation Tool</h1>
+                        <span class="rate-limit-info">Rate limit: 10 tests/hour</span>
+                    </div>
+
+                    <div class="test-layout">
+                        <div class="test-form-panel">
+                            <h2>Quick Test</h2>
+                            <form id="test-form" onsubmit="submitTestGeneration(event)">
+                                <div class="form-group">
+                                    <label>Brief / Scene Description</label>
+                                    <textarea id="test-brief" rows="3" placeholder="Describe the thumbnail scene..." required></textarea>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Creator Style</label>
+                                        <select id="test-style">
+                                            <option value="auto">Auto (Niche-Based)</option>
+                                            <option value="mrbeast">MrBeast Style</option>
+                                            <option value="hormozi">Alex Hormozi Style</option>
+                                            <option value="gadzhi">Iman Gadzhi Style</option>
+                                            <option value="magnates">Magnates Media Style</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Niche</label>
+                                        <select id="test-niche">
+                                            <option value="reaction">Reaction</option>
+                                            <option value="gaming">Gaming</option>
+                                            <option value="finance">Finance</option>
+                                            <option value="fitness">Fitness</option>
+                                            <option value="cooking">Cooking</option>
+                                            <option value="tech">Tech</option>
+                                            <option value="beauty">Beauty</option>
+                                            <option value="travel">Travel</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Expression</label>
+                                        <select id="test-expression">
+                                            <option value="excited">Excited</option>
+                                            <option value="shocked">Shocked</option>
+                                            <option value="confident">Confident</option>
+                                            <option value="serious">Serious</option>
+                                            <option value="happy">Happy</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Thumbnail Text (Optional)</label>
+                                        <input type="text" id="test-text" placeholder="Main text overlay...">
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn-primary btn-generate" id="test-submit-btn">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polygon points="5 3 19 12 5 21 5 3"/>
+                                    </svg>
+                                    Generate Test Thumbnail
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="test-result-panel">
+                            <h2>Test Result</h2>
+                            <div class="test-status" id="test-status">
+                                <div class="test-placeholder">
+                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                                        <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                        <circle cx="8.5" cy="8.5" r="1.5"/>
+                                        <path d="M21 15l-5-5L5 21"/>
+                                    </svg>
+                                    <p>No test running</p>
+                                    <span>Submit a test to see results here</span>
+                                </div>
+                            </div>
+
+                            <div class="test-metadata" id="test-metadata" style="display: none;">
+                                <h3>Generation Metadata</h3>
+                                <div class="metadata-grid">
+                                    <div class="metadata-item">
+                                        <span class="metadata-label">Model</span>
+                                        <span class="metadata-value" id="meta-model">--</span>
+                                    </div>
+                                    <div class="metadata-item">
+                                        <span class="metadata-label">Duration</span>
+                                        <span class="metadata-value" id="meta-duration">--</span>
+                                    </div>
+                                    <div class="metadata-item">
+                                        <span class="metadata-label">Est. Cost</span>
+                                        <span class="metadata-value" id="meta-cost">--</span>
+                                    </div>
+                                    <div class="metadata-item">
+                                        <span class="metadata-label">Variants</span>
+                                        <span class="metadata-value" id="meta-variants">--</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="test-variants" id="test-variants" style="display: none;">
+                                <h3>Generated Variants</h3>
+                                <div class="variants-grid" id="variants-grid">
+                                    <!-- Populated by JS -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+
+        <!-- Toast Container -->
+        <div class="toast-container" id="toast-container"></div>
+    </div>
+
+    <script>
+        // ==========================================================================
+        // CONFIGURATION
+        // ==========================================================================
+        const API_BASE = '/api/admin';
+        const AUTH_API = '/api/auth';
+
+        let currentUserId = null;
+        let selectedUserId = null;
+        let usageChart = null;
+        let analyticsChart = null;
+        let testJobId = null;
+        let testPollInterval = null;
+        let userSearchTimeout = null;
+
+        // ==========================================================================
+        // AUTHENTICATION
+        // ==========================================================================
+        async function checkAuth() {
+            const token = localStorage.getItem('tb_token');
+            if (!token) {
+                window.location.href = '/login.html';
+                return false;
+            }
+
+            try {
+                const res = await fetch(AUTH_API + '/me', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+
+                if (!res.ok) throw new Error('Auth failed');
+
+                const data = await res.json();
+                if (data.user.role !== 'admin') {
+                    showToast('Access denied. Admin only.', 'error');
+                    window.location.href = '/';
+                    return false;
+                }
+
+                currentUserId = data.user.id;
+                document.getElementById('admin-email').textContent = data.user.email;
+                return true;
+            } catch (err) {
+                localStorage.removeItem('tb_token');
+                window.location.href = '/login.html';
+                return false;
+            }
+        }
+
+        function getAuthHeaders() {
+            return {
+                'Authorization': 'Bearer ' + localStorage.getItem('tb_token'),
+                'Content-Type': 'application/json'
+            };
+        }
+
+        function logout() {
+            localStorage.removeItem('tb_token');
+            localStorage.removeItem('tb_user');
+            window.location.href = '/login.html';
+        }
+
+        // ==========================================================================
+        // TAB NAVIGATION
+        // ==========================================================================
+        function switchTab(tabName) {
+            // Update nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.tab === tabName) {
+                    item.classList.add('active');
+                }
+            });
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById('tab-' + tabName).classList.add('active');
+
+            // Load tab data
+            switch (tabName) {
+                case 'overview': refreshOverview(); break;
+                case 'models': loadModels(); break;
+                case 'keys': loadKeyStatus(); break;
+                case 'analytics': refreshAnalytics(); break;
+                case 'health': refreshHealth(); break;
+            }
+        }
+
+        // ==========================================================================
+        // OVERVIEW TAB
+        // ==========================================================================
+        async function refreshOverview() {
+            try {
+                const res = await fetch(API_BASE + '/analytics/overview', {
+                    headers: getAuthHeaders()
+                });
+
+                if (!res.ok) throw new Error('Failed to load overview');
+                const data = await res.json();
+
+                // Update stats
+                document.getElementById('stat-today').textContent = data.overview.generations.today;
+                document.getElementById('stat-week').textContent = data.overview.generations.week;
+                document.getElementById('stat-users').textContent = data.overview.users.active;
+                document.getElementById('stat-credits').textContent = data.overview.credits.totalUsed.toLocaleString();
+
+                // Update queue
+                document.getElementById('queue-active').textContent = data.overview.queue.active || 0;
+                document.getElementById('queue-waiting').textContent = data.overview.queue.waiting || 0;
+                document.getElementById('queue-completed').textContent = data.overview.queue.completed || 0;
+                document.getElementById('queue-failed').textContent = data.overview.queue.failed || 0;
+
+                // Update system status
+                updateSystemStatus('healthy');
+
+                // Load usage chart
+                await updateUsageChart();
+
+                // Load recent jobs
+                await loadRecentJobs();
+
+            } catch (error) {
+                console.error('Overview error:', error);
+                showToast('Failed to load overview', 'error');
+            }
+        }
+
+        async function updateUsageChart() {
+            const period = document.getElementById('chart-period').value;
+
+            try {
+                const res = await fetch(API_BASE + '/analytics/usage?period=' + period, {
+                    headers: getAuthHeaders()
+                });
+
+                if (!res.ok) throw new Error('Failed to load usage data');
+                const data = await res.json();
+
+                const ctx = document.getElementById('usage-chart').getContext('2d');
+
+                if (usageChart) {
+                    usageChart.destroy();
+                }
+
+                usageChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.data.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })),
+                        datasets: [
+                            {
+                                label: 'Successful',
+                                data: data.data.map(d => d.successful),
+                                borderColor: '#22c55e',
+                                backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                                fill: true,
+                                tension: 0.4
+                            },
+                            {
+                                label: 'Failed',
+                                data: data.data.map(d => d.failed),
+                                borderColor: '#ef4444',
+                                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                                fill: true,
+                                tension: 0.4
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: { color: '#94a3b8' }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: { color: 'rgba(148, 163, 184, 0.1)' },
+                                ticks: { color: '#94a3b8' }
+                            },
+                            y: {
+                                grid: { color: 'rgba(148, 163, 184, 0.1)' },
+                                ticks: { color: '#94a3b8' }
+                            }
+                        }
+                    }
+                });
+
+            } catch (error) {
+                console.error('Chart error:', error);
+            }
+        }
+
+        async function loadRecentJobs() {
+            try {
+                const res = await fetch(API_BASE + '/analytics/recent-jobs?limit=5', {
+                    headers: getAuthHeaders()
+                });
+
+                if (!res.ok) throw new Error('Failed to load recent jobs');
+                const data = await res.json();
+
+                const container = document.getElementById('recent-jobs');
+
+                if (data.jobs.length === 0) {
+                    container.innerHTML = '<div class="empty-state">No recent generations</div>';
+                    return;
+                }
+
+                container.innerHTML = data.jobs.map(job => `
+                    <div class="recent-job-item">
+                        <div class="job-status status-${job.status}"></div>
+                        <div class="job-info">
+                            <span class="job-id">#${job.id}</span>
+                            <span class="job-style">${escapeHtml(job.style_preset || job.niche)}</span>
+                        </div>
+                        <div class="job-meta">
+                            <span class="job-user">${escapeHtml(job.user_email || 'Unknown')}</span>
+                            <span class="job-time">${formatTimeAgo(job.created_at)}</span>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (error) {
+                console.error('Recent jobs error:', error);
+            }
+        }
+
+        // ==========================================================================
+        // MODELS TAB
+        // ==========================================================================
+        async function loadModels() {
+            try {
+                const res = await fetch(API_BASE + '/models', {
+                    headers: getAuthHeaders()
+                });
+
+                if (!res.ok) throw new Error('Failed to load models');
+                const data = await res.json();
+
+                // Update current config
+                document.getElementById('current-primary').textContent = data.currentConfig.primaryModel;
+                document.getElementById('current-fallback').textContent = data.currentConfig.fallbackModel;
+                document.getElementById('config-updated').textContent = formatTimeAgo(data.currentConfig.lastUpdated);
+
+                // Find primary and fallback costs
+                const primaryModel = data.models.find(m => m.id === data.currentConfig.primaryModel);
+                const fallbackModel = data.models.find(m => m.id === data.currentConfig.fallbackModel);
+
+                if (primaryModel) {
+                    document.getElementById('primary-cost').textContent = '$' + primaryModel.pricing.imagesGenerated.toFixed(4) + '/image';
+                }
+                if (fallbackModel) {
+                    document.getElementById('fallback-cost').textContent = '$' + fallbackModel.pricing.imagesGenerated.toFixed(4) + '/image';
+                }
+
+                // Render models list
+                const container = document.getElementById('models-list');
+                container.innerHTML = data.models.map(model => `
+                    <div class="model-card ${model.isPrimary ? 'model-primary' : ''} ${model.isFallback ? 'model-fallback' : ''}">
+                        <div class="model-header">
+                            <span class="model-name">${escapeHtml(model.name)}</span>
+                            <span class="model-status status-${model.status}">${model.status}</span>
+                        </div>
+                        <div class="model-description">${escapeHtml(model.description)}</div>
+                        <div class="model-pricing">
+                            <span class="price-label">Cost per image:</span>
+                            <span class="price-value">$${model.pricing.imagesGenerated.toFixed(4)}</span>
+                        </div>
+                        <div class="model-limits">
+                            <span>${model.limits.maxRPM} RPM</span>
+                            <span>${model.limits.maxRPD} RPD</span>
+                        </div>
+                        <div class="model-features">
+                            ${model.features.map(f => `<span class="feature-tag">${escapeHtml(f)}</span>`).join('')}
+                        </div>
+                        <div class="model-actions">
+                            <button class="btn-small ${model.isPrimary ? 'btn-disabled' : ''}"
+                                    onclick="switchModel('${model.id}', 'primary')"
+                                    ${model.isPrimary ? 'disabled' : ''}>
+                                ${model.isPrimary ? 'Primary' : 'Set as Primary'}
+                            </button>
+                            <button class="btn-small btn-secondary ${model.isFallback ? 'btn-disabled' : ''}"
+                                    onclick="switchModel('${model.id}', 'fallback')"
+                                    ${model.isFallback ? 'disabled' : ''}>
+                                ${model.isFallback ? 'Fallback' : 'Set as Fallback'}
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Load cost comparison
+                await updateCostComparison();
+
+            } catch (error) {
+                console.error('Models error:', error);
+                showToast('Failed to load models', 'error');
+            }
+        }
+
+        async function switchModel(modelId, type) {
+            try {
+                const res = await fetch(API_BASE + '/models/switch', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ modelId, type })
+                });
+
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.error?.message || 'Failed to switch model');
+                }
+
+                showToast(`${type} model switched to ${modelId}`, 'success');
+                await loadModels();
+
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        }
+
+        async function resetModels() {
+            if (!confirm('Reset models to default configuration?')) return;
+
+            try {
+                const res = await fetch(API_BASE + '/models/reset', {
+                    method: 'POST',
+                    headers: getAuthHeaders()
+                });
+
+                if (!res.ok) throw new Error('Failed to reset models');
+
+                showToast('Models reset to defaults', 'success');
+                await loadModels();
+
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        }
+
+        async function updateCostComparison() {
+            const imageCount = parseInt(document.getElementById('cost-image-count').value) || 1000;
+
+            try {
+                const res = await fetch(API_BASE + '/models/cost-comparison?imageCount=' + imageCount, {
+                    headers: getAuthHeaders()
+                });
+
+                if (!res.ok) throw new Error('Failed to load cost comparison');
+                const data = await res.json();
+
+                const container = document.getElementById('cost-comparison');
+                container.innerHTML = `
+                    <table class="cost-table-inner">
+                        <thead>
+                            <tr>
+                                <th>Model</th>
+                                <th>Per Image</th>
+                                <th>Total (${imageCount.toLocaleString()} images)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${data.comparison.models.map(m => `
+                                <tr class="${m.id === data.comparison.currentPrimary ? 'row-primary' : ''}">
+                                    <td>
+                                        ${escapeHtml(m.name)}
+                                        ${m.recommended ? '<span class="recommended-badge">Recommended</span>' : ''}
+                                    </td>
+                                    <td>$${m.costPerImage.toFixed(4)}</td>
+                                    <td>$${m.totalCost}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+
+            } catch (error) {
+                console.error('Cost comparison error:', error);
+            }
+        }
+
+        // ==========================================================================
+        // API KEYS TAB
+        // ==========================================================================
+        async function loadKeyStatus() {
+            await refreshKeyStatus();
+        }
+
+        async function refreshKeyStatus() {
+            try {
+                const res = await fetch(API_BASE + '/keys/status', {
+                    headers: getAuthHeaders()
+                });
+
+                if (!res.ok) throw new Error('Failed to load key status');
+                const data = await res.json();
+
+                const container = document.getElementById('keys-list');
+                container.innerHTML = data.keys.map(key => `
+                    <div class="key-card">
+                        <div class="key-header">
+                            <span class="key-name">${escapeHtml(key.name)}</span>
+                            <span class="key-health health-${key.configured ? 'configured' : 'missing'}">
+                                ${key.configured ? 'Configured' : 'Missing'}
+                            </span>
+                        </div>
+                        <div class="key-service">${escapeHtml(key.service)}</div>
+                        <div class="key-masked">
+                            <code>${escapeHtml(key.masked)}</code>
+                        </div>
+                        <div class="key-meta">
+                            ${key.required ? '<span class="required-badge">Required</span>' : '<span class="optional-badge">Optional</span>'}
+                        </div>
+                        <div class="key-actions">
+                            <button class="btn-small" onclick="testKey('${key.name}')" ${!key.configured ? 'disabled' : ''}>
+                                Test Connection
+                            </button>
+                            <button class="btn-small btn-secondary" onclick="openRotateModal('${key.name}')">
+                                Rotate Key
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (error) {
+                console.error('Key status error:', error);
+                showToast('Failed to load key status', 'error');
+            }
+        }
+
+        async function testKey(keyName) {
+            try {
+                showToast('Testing ' + keyName + '...', 'info');
+
+                const res = await fetch(API_BASE + '/keys/test', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ keyName })
+                });
+
+                if (!res.ok) throw new Error('Test failed');
+                const data = await res.json();
+
+                if (data.result.success) {
+                    showToast(keyName + ': ' + data.result.message + ' (' + data.result.responseTime + 'ms)', 'success');
+                } else {
+                    showToast(keyName + ': ' + data.result.message, 'error');
+                }
+
+            } catch (error) {
+                showToast('Failed to test key', 'error');
+            }
+        }
+
+        function openRotateModal(keyName) {
+            document.getElementById('rotate-key-name').value = keyName;
+            document.getElementById('rotate-key-value').value = '';
+            document.getElementById('rotate-key-modal').classList.add('open');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('open');
+        }
+
+        async function confirmRotateKey() {
+            const keyName = document.getElementById('rotate-key-name').value;
+            const newValue = document.getElementById('rotate-key-value').value;
+
+            if (!newValue) {
+                showToast('Please enter the new key value', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetch(API_BASE + '/keys/rotate', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ keyName, newValue })
+                });
+
+                if (!res.ok) throw new Error('Rotation failed');
+
+                showToast('Key rotated successfully', 'success');
+                closeModal('rotate-key-modal');
+                await refreshKeyStatus();
+
+            } catch (error) {
+                showToast('Failed to rotate key', 'error');
+            }
+        }
+
+        // ==========================================================================
+        // ANALYTICS TAB
+        // ==========================================================================
+        async function refreshAnalytics() {
+            const period = document.getElementById('analytics-period').value;
+
+            try {
+                // Load usage chart
+                const usageRes = await fetch(API_BASE + '/analytics/usage?period=' + period, {
+                    headers: getAuthHeaders()
+                });
+                const usageData = await usageRes.json();
+
+                const ctx = document.getElementById('analytics-chart').getContext('2d');
+
+                if (analyticsChart) {
+                    analyticsChart.destroy();
+                }
+
+                analyticsChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: usageData.data.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })),
+                        datasets: [
+                            {
+                                label: 'Successful',
+                                data: usageData.data.map(d => d.successful),
+                                backgroundColor: '#22c55e'
+                            },
+                            {
+                                label: 'Failed',
+                                data: usageData.data.map(d => d.failed),
+                                backgroundColor: '#ef4444'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: { color: '#94a3b8' }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                stacked: true,
+                                grid: { color: 'rgba(148, 163, 184, 0.1)' },
+                                ticks: { color: '#94a3b8' }
+                            },
+                            y: {
+                                stacked: true,
+                                grid: { color: 'rgba(148, 163, 184, 0.1)' },
+                                ticks: { color: '#94a3b8' }
+                            }
+                        }
+                    }
+                });
+
+                // Load cost breakdown
+                const costRes = await fetch(API_BASE + '/analytics/costs?period=' + period, {
+                    headers: getAuthHeaders()
+                });
+                const costData = await costRes.json();
+
+                document.getElementById('cost-breakdown').innerHTML = `
+                    <div class="cost-summary">
+                        <div class="cost-item">
+                            <span class="cost-label">Total Generations</span>
+                            <span class="cost-value">${costData.costs.totalGenerations.toLocaleString()}</span>
+                        </div>
+                        <div class="cost-item">
+                            <span class="cost-label">Cost per Image</span>
+                            <span class="cost-value">$${costData.costs.costPerImage.toFixed(4)}</span>
+                        </div>
+                        <div class="cost-item cost-total">
+                            <span class="cost-label">Estimated Total</span>
+                            <span class="cost-value">$${costData.costs.estimatedTotalCost}</span>
+                        </div>
+                        <div class="cost-breakdown-detail">
+                            <div class="breakdown-item">
+                                <span>Gemini API</span>
+                                <span>$${costData.costs.breakdown.geminiApi}</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span>Storage</span>
+                                <span>$${costData.costs.breakdown.storage}</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span>Processing</span>
+                                <span>$${costData.costs.breakdown.processing}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Load top users
+                const usersRes = await fetch(API_BASE + '/analytics/top-users?limit=10', {
+                    headers: getAuthHeaders()
+                });
+                const usersData = await usersRes.json();
+
+                document.getElementById('top-users-body').innerHTML = usersData.topUsers.map(user => `
+                    <tr>
+                        <td>${escapeHtml(user.email)}</td>
+                        <td>${user.generation_count}</td>
+                        <td>${user.generation_count > 0 ? ((user.successful_count / user.generation_count) * 100).toFixed(0) + '%' : 'N/A'}</td>
+                        <td>${user.last_generation ? formatTimeAgo(user.last_generation) : 'Never'}</td>
+                    </tr>
+                `).join('') || '<tr><td colspan="4">No data</td></tr>';
+
+                // Load recent jobs
+                const jobsRes = await fetch(API_BASE + '/analytics/recent-jobs?limit=20', {
+                    headers: getAuthHeaders()
+                });
+                const jobsData = await jobsRes.json();
+
+                document.getElementById('recent-jobs-body').innerHTML = jobsData.jobs.map(job => `
+                    <tr>
+                        <td>#${job.id}</td>
+                        <td>${escapeHtml(job.user_email || 'Unknown')}</td>
+                        <td><span class="status-badge status-${job.status}">${job.status}</span></td>
+                        <td>${escapeHtml(job.style_preset || job.niche)}</td>
+                        <td>${job.variant_count}</td>
+                        <td>${formatTimeAgo(job.created_at)}</td>
+                    </tr>
+                `).join('') || '<tr><td colspan="6">No data</td></tr>';
+
+            } catch (error) {
+                console.error('Analytics error:', error);
+                showToast('Failed to load analytics', 'error');
+            }
+        }
+
+        // ==========================================================================
+        // CREDITS TAB
+        // ==========================================================================
+        function debounceUserSearch(event) {
+            clearTimeout(userSearchTimeout);
+            const query = event.target.value.trim();
+
+            if (query.length < 2) {
+                document.getElementById('user-search-results').innerHTML = '<div class="search-hint">Enter at least 2 characters to search</div>';
+                return;
+            }
+
+            userSearchTimeout = setTimeout(() => searchUsers(query), 300);
+        }
+
+        async function searchUsers(query) {
+            try {
+                const res = await fetch(API_BASE + '/users/search?q=' + encodeURIComponent(query), {
+                    headers: getAuthHeaders()
+                });
+
+                if (!res.ok) throw new Error('Search failed');
+                const data = await res.json();
+
+                const container = document.getElementById('user-search-results');
+
+                if (data.users.length === 0) {
+                    container.innerHTML = '<div class="no-results">No users found</div>';
+                    return;
+                }
+
+                container.innerHTML = data.users.map(user => `
+                    <div class="search-result-item" onclick="selectUser(${user.id})">
+                        <div class="result-main">
+                            <span class="result-email">${escapeHtml(user.email)}</span>
+                            <span class="result-status status-${user.status}">${user.status}</span>
+                        </div>
+                        <div class="result-meta">
+                            <span>ID: ${user.id}</span>
+                            <span>Credits: ${user.credits_remaining}</span>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (error) {
+                console.error('User search error:', error);
+                showToast('Search failed', 'error');
+            }
+        }
+
+        async function selectUser(userId) {
+            selectedUserId = userId;
+            document.getElementById('user-details-panel').style.display = 'block';
+            document.getElementById('refresh-sub-btn').disabled = false;
+
+            try {
+                const res = await fetch(API_BASE + '/users/' + userId + '/credits', {
+                    headers: getAuthHeaders()
+                });
+
+                if (!res.ok) throw new Error('Failed to load user details');
+                const data = await res.json();
+
+                const user = data.user;
+                document.getElementById('selected-user-info').innerHTML = `
+                    <div class="user-detail-header">
+                        <h3>${escapeHtml(user.email)}</h3>
+                        <span class="status-badge status-${user.status}">${user.status}</span>
+                    </div>
+                    <div class="user-detail-grid">
+                        <div class="detail-item">
+                            <span class="detail-label">User ID</span>
+                            <span class="detail-value">${user.id}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Role</span>
+                            <span class="detail-value">${user.role}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Credits Remaining</span>
+                            <span class="detail-value credit-value">${user.credits.remaining}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Credits Used</span>
+                            <span class="detail-value">${user.credits.used}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Total Allocated</span>
+                            <span class="detail-value">${user.credits.allocated}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Joined</span>
+                            <span class="detail-value">${new Date(user.createdAt).toLocaleDateString()}</span>
+                        </div>
+                    </div>
+                `;
+
+                // Load subscription info
+                const subInfo = document.getElementById('subscription-info');
+                if (user.subscription) {
+                    subInfo.innerHTML = `
+                        <div class="subscription-detail">
+                            <span class="sub-plan">${escapeHtml(user.subscription.plan_name || 'Unknown Plan')}</span>
+                            <span class="sub-status status-${user.subscription.status}">${user.subscription.status}</span>
+                            <div class="sub-period">
+                                Period: ${new Date(user.subscription.current_period_start).toLocaleDateString()} -
+                                ${new Date(user.subscription.current_period_end).toLocaleDateString()}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    subInfo.innerHTML = '<div class="no-subscription">No active subscription</div>';
+                }
+
+                // Load transactions
+                await loadTransactions(userId);
+
+            } catch (error) {
+                console.error('User details error:', error);
+                showToast('Failed to load user details', 'error');
+            }
+        }
+
+        async function loadTransactions(userId) {
+            try {
+                const res = await fetch(API_BASE + '/users/' + userId + '/transactions?limit=20', {
+                    headers: getAuthHeaders()
+                });
+
+                if (!res.ok) throw new Error('Failed to load transactions');
+                const data = await res.json();
+
+                const container = document.getElementById('transactions-list');
+
+                if (data.transactions.length === 0) {
+                    container.innerHTML = '<div class="no-transactions">No transactions found</div>';
+                    return;
+                }
+
+                container.innerHTML = data.transactions.map(tx => `
+                    <div class="transaction-item tx-${tx.type.includes('allocation') ? 'credit' : 'debit'}">
+                        <div class="tx-main">
+                            <span class="tx-amount">${tx.amount > 0 && tx.type.includes('allocation') ? '+' : ''}${tx.amount}</span>
+                            <span class="tx-type">${escapeHtml(tx.type)}</span>
+                        </div>
+                        <div class="tx-details">
+                            <span class="tx-reason">${escapeHtml(tx.reason || 'No reason')}</span>
+                            <span class="tx-balance">Balance: ${tx.balance_before} -> ${tx.balance_after}</span>
+                        </div>
+                        <div class="tx-time">${formatTimeAgo(tx.created_at)}</div>
+                    </div>
+                `).join('');
+
+            } catch (error) {
+                console.error('Transactions error:', error);
+            }
+        }
+
+        async function adjustCredits() {
+            if (!selectedUserId) {
+                showToast('Please select a user first', 'error');
+                return;
+            }
+
+            const action = document.getElementById('credit-action').value;
+            const amount = parseInt(document.getElementById('credit-amount').value);
+            const reason = document.getElementById('credit-reason').value;
+
+            if (!amount || amount <= 0) {
+                showToast('Please enter a valid amount', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetch(API_BASE + '/users/' + selectedUserId + '/credits/adjust', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ action, amount, reason })
+                });
+
+                if (!res.ok) throw new Error('Failed to adjust credits');
+                const data = await res.json();
+
+                showToast(`Credits adjusted: ${data.result.previousBalance} -> ${data.result.newBalance}`, 'success');
+                await selectUser(selectedUserId);
+
+            } catch (error) {
+                showToast('Failed to adjust credits', 'error');
+            }
+        }
+
+        async function refreshSubscription() {
+            if (!selectedUserId) return;
+
+            try {
+                const res = await fetch(API_BASE + '/users/' + selectedUserId + '/subscription/refresh', {
+                    method: 'POST',
+                    headers: getAuthHeaders()
+                });
+
+                if (!res.ok) throw new Error('Failed to refresh subscription');
+                const data = await res.json();
+
+                showToast('Subscription refreshed from Stripe', 'success');
+                await selectUser(selectedUserId);
+
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        }
+
+        // ==========================================================================
+        // HEALTH TAB
+        // ==========================================================================
+        async function refreshHealth() {
+            try {
+                const res = await fetch(API_BASE + '/health/detailed', {
+                    headers: getAuthHeaders()
+                });
+
+                if (!res.ok) throw new Error('Failed to load health');
+                const data = await res.json();
+
+                // Update system status
+                updateSystemStatus(data.health.status);
+
+                // Services grid
+                const servicesGrid = document.getElementById('services-grid');
+                const services = Object.entries(data.health.services);
+                servicesGrid.innerHTML = services.map(([name, service]) => `
+                    <div class="service-card service-${service.status}">
+                        <div class="service-icon">
+                            <span class="status-dot status-${service.status}"></span>
+                        </div>
+                        <div class="service-info">
+                            <span class="service-name">${capitalizeFirst(name)}</span>
+                            <span class="service-status">${escapeHtml(service.message || service.status)}</span>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Server stats
+                const serverStats = document.getElementById('server-stats');
+                serverStats.innerHTML = `
+                    <div class="server-stat">
+                        <span class="stat-label">Uptime</span>
+                        <span class="stat-value">${data.health.server.uptimeFormatted}</span>
+                    </div>
+                    <div class="server-stat">
+                        <span class="stat-label">Memory (Heap)</span>
+                        <span class="stat-value">${data.health.server.memory.heapUsed} / ${data.health.server.memory.heapTotal}</span>
+                    </div>
+                    <div class="server-stat">
+                        <span class="stat-label">RSS Memory</span>
+                        <span class="stat-value">${data.health.server.memory.rss}</span>
+                    </div>
+                    <div class="server-stat">
+                        <span class="stat-label">Node Version</span>
+                        <span class="stat-value">${data.health.server.nodeVersion}</span>
+                    </div>
+                `;
+
+                // Queue details
+                const queueDetails = document.getElementById('queue-details');
+                queueDetails.innerHTML = `
+                    <div class="queue-detail-grid">
+                        <div class="queue-detail-item">
+                            <span class="detail-value">${data.health.queue.active}</span>
+                            <span class="detail-label">Active</span>
+                        </div>
+                        <div class="queue-detail-item">
+                            <span class="detail-value">${data.health.queue.waiting}</span>
+                            <span class="detail-label">Waiting</span>
+                        </div>
+                        <div class="queue-detail-item">
+                            <span class="detail-value">${data.health.queue.completed}</span>
+                            <span class="detail-label">Completed</span>
+                        </div>
+                        <div class="queue-detail-item queue-failed">
+                            <span class="detail-value">${data.health.queue.failed}</span>
+                            <span class="detail-label">Failed</span>
+                        </div>
+                    </div>
+                `;
+
+                // Load errors
+                await loadErrors();
+
+                // Load audit log
+                await loadAuditLog();
+
+            } catch (error) {
+                console.error('Health error:', error);
+                showToast('Failed to load health status', 'error');
+            }
+        }
+
+        async function loadErrors() {
+            try {
+                const res = await fetch(API_BASE + '/logs/errors?limit=20', {
+                    headers: getAuthHeaders()
+                });
+
+                if (!res.ok) throw new Error('Failed to load errors');
+                const data = await res.json();
+
+                const container = document.getElementById('errors-list');
+
+                if (data.errors.length === 0) {
+                    container.innerHTML = '<div class="no-errors">No recent errors</div>';
+                    return;
+                }
+
+                container.innerHTML = data.errors.map(error => `
+                    <div class="error-item">
+                        <div class="error-header">
+                            <span class="error-id">#${error.id}</span>
+                            <span class="error-time">${formatTimeAgo(error.createdAt)}</span>
+                        </div>
+                        <div class="error-message">${escapeHtml(error.message)}</div>
+                        <div class="error-context">
+                            User: ${error.userId} | Niche: ${escapeHtml(error.context?.niche || 'N/A')}
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (error) {
+                console.error('Errors load error:', error);
+            }
+        }
+
+        async function loadAuditLog() {
+            try {
+                const res = await fetch(API_BASE + '/logs/audit?limit=20', {
+                    headers: getAuthHeaders()
+                });
+
+                if (!res.ok) throw new Error('Failed to load audit log');
+                const data = await res.json();
+
+                const container = document.getElementById('audit-list');
+
+                if (data.logs.length === 0) {
+                    container.innerHTML = '<div class="no-audit">No audit entries</div>';
+                    return;
+                }
+
+                container.innerHTML = data.logs.map(log => `
+                    <div class="audit-item audit-${log.success ? 'success' : 'failure'}">
+                        <div class="audit-header">
+                            <span class="audit-action">${escapeHtml(log.action)}</span>
+                            <span class="audit-status">${log.success ? 'Success' : 'Failed'}</span>
+                        </div>
+                        <div class="audit-details">
+                            <span>Admin: ${escapeHtml(log.admin_email || 'Unknown')}</span>
+                            <span>${formatTimeAgo(log.created_at)}</span>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (error) {
+                console.error('Audit log error:', error);
+            }
+        }
+
+        async function clearCache() {
+            if (!confirm('Clear all cached data? This may temporarily affect performance.')) return;
+
+            try {
+                const res = await fetch(API_BASE + '/cache/clear', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ pattern: '*' })
+                });
+
+                if (!res.ok) throw new Error('Failed to clear cache');
+
+                showToast('Cache cleared successfully', 'success');
+
+            } catch (error) {
+                showToast('Failed to clear cache', 'error');
+            }
+        }
+
+        // ==========================================================================
+        // TEST GENERATION TAB
+        // ==========================================================================
+        async function submitTestGeneration(event) {
+            event.preventDefault();
+
+            const brief = document.getElementById('test-brief').value;
+            const creatorStyle = document.getElementById('test-style').value;
+            const niche = document.getElementById('test-niche').value;
+            const expression = document.getElementById('test-expression').value;
+            const thumbnailText = document.getElementById('test-text').value;
+
+            const submitBtn = document.getElementById('test-submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Generating...';
+
+            try {
+                const res = await fetch(API_BASE + '/test/generate', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ brief, creatorStyle, niche, expression, thumbnailText })
+                });
+
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.error?.message || 'Generation failed');
+                }
+
+                const data = await res.json();
+                testJobId = data.job.id;
+
+                // Show status
+                document.getElementById('test-status').innerHTML = `
+                    <div class="test-running">
+                        <div class="spinner"></div>
+                        <p>Generating test thumbnail...</p>
+                        <span>Job ID: #${testJobId}</span>
+                    </div>
+                `;
+
+                // Poll for completion
+                pollTestJob();
+
+            } catch (error) {
+                showToast(error.message, 'error');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Generate Test Thumbnail';
+            }
+        }
+
+        async function pollTestJob() {
+            if (!testJobId) return;
+
+            try {
+                const res = await fetch(API_BASE + '/test/job/' + testJobId, {
+                    headers: getAuthHeaders()
+                });
+
+                if (!res.ok) throw new Error('Failed to get job status');
+                const data = await res.json();
+
+                if (data.job.status === 'completed') {
+                    // Show results
+                    document.getElementById('test-status').innerHTML = `
+                        <div class="test-complete">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+                                <polyline points="22 4 12 14.01 9 11.01"/>
+                            </svg>
+                            <p>Generation Complete!</p>
+                        </div>
+                    `;
+
+                    // Show metadata
+                    document.getElementById('test-metadata').style.display = 'block';
+                    document.getElementById('meta-model').textContent = data.job.metadata.currentModel;
+                    document.getElementById('meta-duration').textContent = (data.job.metadata.durationSeconds || 0).toFixed(1) + 's';
+                    document.getElementById('meta-cost').textContent = '$0.04';
+                    document.getElementById('meta-variants').textContent = data.job.variants.length;
+
+                    // Show variants
+                    if (data.job.variants.length > 0) {
+                        document.getElementById('test-variants').style.display = 'block';
+                        document.getElementById('variants-grid').innerHTML = data.job.variants.map(v => `
+                            <div class="variant-card">
+                                <img src="${v.url}" alt="${escapeHtml(v.label)}" loading="lazy">
+                                <span class="variant-label">${escapeHtml(v.label)}</span>
+                            </div>
+                        `).join('');
+                    }
+
+                    clearInterval(testPollInterval);
+                    document.getElementById('test-submit-btn').disabled = false;
+                    document.getElementById('test-submit-btn').innerHTML = `
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="5 3 19 12 5 21 5 3"/>
+                        </svg>
+                        Generate Test Thumbnail
+                    `;
+
+                } else if (data.job.status === 'failed') {
+                    document.getElementById('test-status').innerHTML = `
+                        <div class="test-failed">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="15" y1="9" x2="9" y2="15"/>
+                                <line x1="9" y1="9" x2="15" y2="15"/>
+                            </svg>
+                            <p>Generation Failed</p>
+                            <span>${escapeHtml(data.job.error || 'Unknown error')}</span>
+                        </div>
+                    `;
+
+                    clearInterval(testPollInterval);
+                    document.getElementById('test-submit-btn').disabled = false;
+                    document.getElementById('test-submit-btn').innerHTML = `
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="5 3 19 12 5 21 5 3"/>
+                        </svg>
+                        Generate Test Thumbnail
+                    `;
+
+                } else {
+                    // Still processing, continue polling
+                    setTimeout(pollTestJob, 2000);
+                }
+
+            } catch (error) {
+                console.error('Poll error:', error);
+                setTimeout(pollTestJob, 3000);
+            }
+        }
+
+        // ==========================================================================
+        // UTILITY FUNCTIONS
+        // ==========================================================================
+        function escapeHtml(text) {
+            if (text === null || text === undefined) return '';
+            const div = document.createElement('div');
+            div.textContent = String(text);
+            return div.innerHTML;
+        }
+
+        function formatTimeAgo(dateStr) {
+            if (!dateStr) return 'Never';
+            const date = new Date(dateStr);
+            const now = new Date();
+            const diff = (now - date) / 1000;
+
+            if (diff < 60) return 'Just now';
+            if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+            if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+            if (diff < 604800) return Math.floor(diff / 86400) + 'd ago';
+            return date.toLocaleDateString();
+        }
+
+        function capitalizeFirst(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        function updateSystemStatus(status) {
+            const statusEl = document.getElementById('system-status');
+            const dot = statusEl.querySelector('.status-dot');
+            const text = statusEl.querySelector('.status-text');
+
+            dot.className = 'status-dot status-' + status;
+            text.textContent = status === 'healthy' ? 'System Healthy' :
+                               status === 'degraded' ? 'System Degraded' : 'System Error';
+        }
+
+        function showToast(message, type) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast toast-' + type;
+            toast.textContent = message;
+            container.appendChild(toast);
+
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        // ==========================================================================
+        // INITIALIZATION
+        // ==========================================================================
+        (async function init() {
+            const authed = await checkAuth();
+            if (authed) {
+                refreshOverview();
+            }
+        })();
+    </script>
+</body>
+</html>

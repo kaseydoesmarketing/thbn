@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThumbnailBuilder Command Center - Create Viral Thumbnails</title>
+    <link rel="stylesheet" href="design-system.css?v=2.0.1">
+    <link rel="stylesheet" href="command-center-styles.css?v=1.0.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Skip Link for Accessibility -->
+    <a href="#main-canvas" class="skip-link">Skip to main content</a>
+
+    <!-- ========================================================================
+         HEADER - 64px Fixed
+         ======================================================================== -->
+    <header class="cc-header" role="banner">
+        <div class="cc-header__left">
+            <a href="/" class="cc-logo" aria-label="ThumbnailBuilder Home">
+                <div class="cc-logo__icon">
+                    <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 8L24 16L12 24V8Z" fill="white"/>
+                    </svg>
+                </div>
+                <span class="cc-logo__text">
+                    <span class="cc-logo__primary">Thumbnail</span><span class="cc-logo__accent">Builder</span>
+                </span>
+            </a>
+            <div class="cc-header__divider"></div>
+            <span class="cc-header__mode">
+                <span class="cc-badge cc-badge--version">V9</span>
+                Command Center
+            </span>
+        </div>
+
+        <div class="cc-header__center">
+            <div class="cc-credits" id="credits-display" role="status" aria-live="polite">
+                <svg class="cc-credits__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 6v6l4 2"/>
+                </svg>
+                <span class="cc-credits__value" id="credits-value">--</span>
+                <span class="cc-credits__label">credits</span>
+                <button class="cc-credits__add" aria-label="Add credits" title="Add more credits">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"/>
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="cc-header__right">
+            <button class="cc-header__btn cc-header__btn--ghost" aria-label="Help">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+            </button>
+            <button class="cc-header__btn cc-header__btn--ghost" aria-label="Settings">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+            </button>
+            <div class="cc-user-menu" id="user-menu">
+                <button class="cc-user-menu__trigger" aria-haspopup="true" aria-expanded="false">
+                    <div class="cc-user-menu__avatar" id="user-avatar">
+                        <span id="user-initials">TB</span>
+                    </div>
+                    <svg class="cc-user-menu__chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ========================================================================
+         MAIN 3-COLUMN LAYOUT
+         ======================================================================== -->
+    <div class="cc-layout">
+        <!-- ====================================================================
+             LEFT SIDEBAR - Projects & Library (240px)
+             ==================================================================== -->
+        <aside class="cc-sidebar-left" role="complementary" aria-label="Projects and Library">
+            <div class="cc-panel cc-panel--glass">
+                <div class="cc-panel__header">
+                    <h2 class="cc-panel__title">Projects</h2>
+                    <button class="cc-btn cc-btn--icon cc-btn--ghost" aria-label="Create new project">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Stepper Navigation -->
+                <nav class="cc-stepper" aria-label="Creation steps">
+                    <button class="cc-step cc-step--active" data-step="1" aria-current="step">
+                        <div class="cc-step__indicator">1</div>
+                        <div class="cc-step__content">
+                            <div class="cc-step__title">Face</div>
+                            <div class="cc-step__description">Upload photos</div>
+                        </div>
+                    </button>
+                    <button class="cc-step" data-step="2">
+                        <div class="cc-step__indicator">2</div>
+                        <div class="cc-step__content">
+                            <div class="cc-step__title">Style</div>
+                            <div class="cc-step__description">Niche & expression</div>
+                        </div>
+                    </button>
+                    <button class="cc-step" data-step="3">
+                        <div class="cc-step__indicator">3</div>
+                        <div class="cc-step__content">
+                            <div class="cc-step__title">Content</div>
+                            <div class="cc-step__description">Text & scene</div>
+                        </div>
+                    </button>
+                    <button class="cc-step" data-step="4">
+                        <div class="cc-step__indicator">4</div>
+                        <div class="cc-step__content">
+                            <div class="cc-step__title">Compose</div>
+                            <div class="cc-step__description">Position & outfit</div>
+                        </div>
+                    </button>
+                    <button class="cc-step" data-step="5">
+                        <div class="cc-step__indicator">5</div>
+                        <div class="cc-step__content">
+                            <div class="cc-step__title">Generate</div>
+                            <div class="cc-step__description">Create & export</div>
+                        </div>
+                    </button>
+                </nav>
+
+                <!-- Recent Projects -->
+                <div class="cc-section">
+                    <h3 class="cc-section__title">Recent</h3>
+                    <div class="cc-project-list" id="recent-projects">
+                        <div class="cc-project-item cc-project-item--empty">
+                            <span class="cc-project-item__text">No recent projects</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Saved Templates -->
+                <div class="cc-section">
+                    <h3 class="cc-section__title">Saved</h3>
+                    <div class="cc-project-list" id="saved-projects">
+                        <div class="cc-project-item cc-project-item--empty">
+                            <span class="cc-project-item__text">No saved templates</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ====================================================================
+             MAIN CANVAS AREA (Flexible)
+             ==================================================================== -->
+        <main class="cc-main" id="main-canvas" role="main" aria-label="Canvas preview area">
+            <!-- Preview Section -->
+            <section class="cc-canvas">
+                <div class="cc-canvas__wrapper">
+                    <!-- Canvas Frame -->
+                    <div class="cc-preview-frame" id="preview-frame">
+                        <!-- Placeholder State -->
+                        <div class="cc-preview-placeholder" id="preview-placeholder">
+                            <div class="cc-preview-placeholder__icon">
+                                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                                    <path d="M21 15l-5-5L5 21"/>
+                                </svg>
+                            </div>
+                            <p class="cc-preview-placeholder__text">Your thumbnail preview</p>
+                            <p class="cc-preview-placeholder__hint">1920 x 1080 px</p>
+                        </div>
+
+                        <!-- Preview Image -->
+                        <img class="cc-preview-image" id="preview-image" src="" alt="Thumbnail preview" style="display: none;">
+
+                        <!-- Safe Frame Overlay -->
+                        <div class="cc-safe-frame" id="safe-frame-overlay">
+                            <div class="cc-safe-frame__border"></div>
+                            <div class="cc-safe-frame__corner cc-safe-frame__corner--tl"></div>
+                            <div class="cc-safe-frame__corner cc-safe-frame__corner--tr"></div>
+                            <div class="cc-safe-frame__corner cc-safe-frame__corner--bl"></div>
+                            <div class="cc-safe-frame__corner cc-safe-frame__corner--br"></div>
+                            <div class="cc-safe-frame__danger">Duration</div>
+                        </div>
+
+                        <!-- Heuristics Toggle -->
+                        <button class="cc-heuristics-toggle" id="heuristics-toggle" aria-label="Toggle quality checklist" aria-pressed="false">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 11l3 3L22 4"/>
+                                <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+                            </svg>
+                        </button>
+
+                        <!-- Heuristics Overlay -->
+                        <div class="cc-heuristics-overlay" id="heuristics-overlay" role="status" aria-live="polite">
+                            <div class="cc-heuristics-overlay__header">
+                                <span class="cc-heuristics-overlay__title">Quality Check</span>
+                                <span class="cc-heuristics-overlay__score" id="heuristics-score">85%</span>
+                            </div>
+                            <div class="cc-heuristics-item" id="h-face">
+                                <svg class="cc-heuristics-item__icon cc-heuristics-item__icon--pass" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                <span>Face dominant</span>
+                            </div>
+                            <div class="cc-heuristics-item" id="h-text">
+                                <svg class="cc-heuristics-item__icon cc-heuristics-item__icon--pass" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                <span>Text readable</span>
+                            </div>
+                            <div class="cc-heuristics-item" id="h-contrast">
+                                <svg class="cc-heuristics-item__icon cc-heuristics-item__icon--pass" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                <span>High contrast</span>
+                            </div>
+                            <div class="cc-heuristics-item" id="h-separation">
+                                <svg class="cc-heuristics-item__icon cc-heuristics-item__icon--warn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <line x1="12" y1="8" x2="12" y2="12"/>
+                                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                                </svg>
+                                <span>Subject separated</span>
+                            </div>
+                            <div class="cc-heuristics-item" id="h-logos">
+                                <svg class="cc-heuristics-item__icon cc-heuristics-item__icon--pass" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                <span>Logos legible</span>
+                            </div>
+                        </div>
+
+                        <!-- Loading Overlay -->
+                        <div class="thumbnail-loading" id="loading-overlay">
+                            <div class="thumbnail-loading__metamorphosis">
+                                <div class="thumbnail-loading__blocks">
+                                    <div class="thumbnail-loading__block"></div>
+                                    <div class="thumbnail-loading__block"></div>
+                                    <div class="thumbnail-loading__block"></div>
+                                    <div class="thumbnail-loading__block"></div>
+                                    <div class="thumbnail-loading__block"></div>
+                                    <div class="thumbnail-loading__block"></div>
+                                    <div class="thumbnail-loading__block"></div>
+                                    <div class="thumbnail-loading__block"></div>
+                                    <div class="thumbnail-loading__block"></div>
+                                    <div class="thumbnail-loading__block"></div>
+                                    <div class="thumbnail-loading__block"></div>
+                                    <div class="thumbnail-loading__block"></div>
+                                </div>
+                                <div class="thumbnail-loading__glow-frame"></div>
+                            </div>
+                            <div class="thumbnail-loading__messages">
+                                <span class="thumbnail-loading__message active">Analyzing composition...</span>
+                            </div>
+                            <div class="thumbnail-loading__progress">
+                                <div class="thumbnail-loading__progress-track">
+                                    <div class="thumbnail-loading__progress-fill" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <button class="thumbnail-loading__cancel">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Variant Strip -->
+                <div class="cc-variant-strip">
+                    <div class="cc-variant-strip__header">
+                        <span class="cc-variant-strip__title">Generated Variants</span>
+                        <span class="cc-variant-strip__count" id="variant-count">0 variants</span>
+                    </div>
+                    <div class="cc-variant-strip__track" id="variant-strip">
+                        <div class="cc-variant-strip__empty">
+                            Variants will appear here after generation
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Navigation Buttons -->
+            <div class="cc-nav-buttons">
+                <button class="cc-btn cc-btn--secondary" id="btn-back" disabled>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6"/>
+                    </svg>
+                    Back
+                </button>
+                <button class="cc-btn cc-btn--primary" id="btn-next">
+                    Continue
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"/>
+                    </svg>
+                </button>
+            </div>
+        </main>
+
+        <!-- ====================================================================
+             RIGHT SIDEBAR - Controls Panel (320px)
+             ==================================================================== -->
+        <aside class="cc-sidebar-right" role="complementary" aria-label="Controls panel">
+            <!-- Creator Styles Section -->
+            <section class="cc-panel cc-panel--glass">
+                <div class="cc-panel__header">
+                    <h2 class="cc-panel__title">Creator Styles</h2>
+                </div>
+
+                <div class="cc-creator-styles" id="creator-styles">
+                    <!-- Auto Style -->
+                    <button class="cc-creator-card cc-creator-card--active" data-style="auto">
+                        <div class="cc-creator-card__icon cc-creator-card__icon--auto">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                            </svg>
+                        </div>
+                        <div class="cc-creator-card__content">
+                            <span class="cc-creator-card__name">Auto</span>
+                            <span class="cc-creator-card__desc">Smart Selection</span>
+                        </div>
+                        <span class="cc-creator-card__check">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                        </span>
+                    </button>
+
+                    <!-- MrBeast Style -->
+                    <button class="cc-creator-card" data-style="mrbeast">
+                        <div class="cc-creator-card__icon cc-creator-card__icon--mrbeast">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                                <path d="M2 17l10 5 10-5"/>
+                                <path d="M2 12l10 5 10-5"/>
+                            </svg>
+                        </div>
+                        <div class="cc-creator-card__content">
+                            <span class="cc-creator-card__name">MrBeast</span>
+                            <span class="cc-creator-card__desc">High Engagement</span>
+                        </div>
+                        <span class="cc-badge cc-badge--engagement">Popular</span>
+                    </button>
+
+                    <!-- Hormozi Style -->
+                    <button class="cc-creator-card" data-style="hormozi">
+                        <div class="cc-creator-card__icon cc-creator-card__icon--hormozi">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="3" width="20" height="14" rx="2"/>
+                                <line x1="8" y1="21" x2="16" y2="21"/>
+                                <line x1="12" y1="17" x2="12" y2="21"/>
+                            </svg>
+                        </div>
+                        <div class="cc-creator-card__content">
+                            <span class="cc-creator-card__name">Hormozi</span>
+                            <span class="cc-creator-card__desc">Professional</span>
+                        </div>
+                        <span class="cc-badge cc-badge--professional">Pro</span>
+                    </button>
+
+                    <!-- Gadzhi Style -->
+                    <button class="cc-creator-card" data-style="gadzhi">
+                        <div class="cc-creator-card__icon cc-creator-card__icon--gadzhi">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                                <path d="M12 22V12"/>
+                                <path d="M20 17l-8 5-8-5"/>
+                            </svg>
+                        </div>
+                        <div class="cc-creator-card__content">
+                            <span class="cc-creator-card__name">Gadzhi</span>
+                            <span class="cc-creator-card__desc">Premium</span>
+                        </div>
+                        <span class="cc-badge cc-badge--premium">Elite</span>
+                    </button>
+
+                    <!-- Magnates Style -->
+                    <button class="cc-creator-card" data-style="magnates">
+                        <div class="cc-creator-card__icon cc-creator-card__icon--magnates">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 11a9 9 0 0 1 9 9"/>
+                                <path d="M4 4a16 16 0 0 1 16 16"/>
+                                <circle cx="5" cy="19" r="1"/>
+                            </svg>
+                        </div>
+                        <div class="cc-creator-card__content">
+                            <span class="cc-creator-card__name">Magnates</span>
+                            <span class="cc-creator-card__desc">Cinematic</span>
+                        </div>
+                        <span class="cc-badge cc-badge--cinematic">Film</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Text Controls Section -->
+            <section class="cc-panel cc-panel--glass">
+                <div class="cc-panel__header">
+                    <h2 class="cc-panel__title">Text Controls</h2>
+                </div>
+
+                <!-- Text Position -->
+                <div class="cc-control-group">
+                    <div class="cc-control-group__header">
+                        <span class="cc-control-group__label">Text Position</span>
+                        <div class="cc-control-group__toggle">
+                            <input type="checkbox" id="text-auto-position" checked>
+                            <label for="text-auto-position">Auto</label>
+                        </div>
+                    </div>
+                    <div class="cc-position-grid" id="text-position-grid">
+                        <button class="cc-position-btn" data-position="top-left" aria-label="Top left"></button>
+                        <button class="cc-position-btn" data-position="top-center" aria-label="Top center"></button>
+                        <button class="cc-position-btn" data-position="top-right" aria-label="Top right"></button>
+                        <button class="cc-position-btn" data-position="middle-left" aria-label="Middle left"></button>
+                        <button class="cc-position-btn" data-position="middle-center" aria-label="Middle center"></button>
+                        <button class="cc-position-btn cc-position-btn--active" data-position="middle-right" aria-label="Middle right"></button>
+                        <button class="cc-position-btn" data-position="bottom-left" aria-label="Bottom left"></button>
+                        <button class="cc-position-btn" data-position="bottom-center" aria-label="Bottom center"></button>
+                        <button class="cc-position-btn" data-position="bottom-right" aria-label="Bottom right"></button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Subject Controls Section -->
+            <section class="cc-panel cc-panel--glass">
+                <div class="cc-panel__header">
+                    <h2 class="cc-panel__title">Subject Controls</h2>
+                </div>
+
+                <!-- Subject Position -->
+                <div class="cc-control-group">
+                    <span class="cc-control-group__label">Subject Position</span>
+                    <div class="cc-position-grid" id="subject-position-grid">
+                        <button class="cc-position-btn" data-position="top-left" aria-label="Top left"></button>
+                        <button class="cc-position-btn" data-position="top-center" aria-label="Top center"></button>
+                        <button class="cc-position-btn" data-position="top-right" aria-label="Top right"></button>
+                        <button class="cc-position-btn cc-position-btn--active" data-position="middle-left" aria-label="Middle left"></button>
+                        <button class="cc-position-btn" data-position="middle-center" aria-label="Middle center"></button>
+                        <button class="cc-position-btn" data-position="middle-right" aria-label="Middle right"></button>
+                        <button class="cc-position-btn" data-position="bottom-left" aria-label="Bottom left"></button>
+                        <button class="cc-position-btn" data-position="bottom-center" aria-label="Bottom center"></button>
+                        <button class="cc-position-btn" data-position="bottom-right" aria-label="Bottom right"></button>
+                    </div>
+                </div>
+
+                <!-- Subject Scale -->
+                <div class="cc-control-group">
+                    <div class="cc-slider-header">
+                        <span class="cc-slider-label">Subject Scale</span>
+                        <span class="cc-slider-value" id="subject-scale-value">100%</span>
+                    </div>
+                    <input type="range" class="cc-slider" id="subject-scale-slider" min="50" max="150" value="100" aria-label="Subject scale">
+                </div>
+            </section>
+
+            <!-- Outfit Section -->
+            <section class="cc-panel cc-panel--glass cc-panel--outfit">
+                <div class="cc-panel__header">
+                    <h2 class="cc-panel__title">
+                        Outfit
+                        <span class="cc-badge cc-badge--new">NEW</span>
+                    </h2>
+                    <div class="cc-toggle-inline">
+                        <span class="cc-toggle-inline__label">Keep original</span>
+                        <label class="cc-toggle">
+                            <input type="checkbox" class="cc-toggle__input" id="keep-original-outfit">
+                            <span class="cc-toggle__track">
+                                <span class="cc-toggle__thumb"></span>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="cc-outfit-presets" id="outfit-presets">
+                    <button class="cc-outfit-preset cc-outfit-preset--selected" data-outfit="tech-hoodie">
+                        <span class="cc-outfit-preset__icon">&#129525;</span>
+                        <span class="cc-outfit-preset__label">Tech Hoodie</span>
+                    </button>
+                    <button class="cc-outfit-preset" data-outfit="streetwear">
+                        <span class="cc-outfit-preset__icon">&#128085;</span>
+                        <span class="cc-outfit-preset__label">Streetwear</span>
+                    </button>
+                    <button class="cc-outfit-preset" data-outfit="business-casual">
+                        <span class="cc-outfit-preset__icon">&#128084;</span>
+                        <span class="cc-outfit-preset__label">Business</span>
+                    </button>
+                    <button class="cc-outfit-preset" data-outfit="full-suit">
+                        <span class="cc-outfit-preset__icon">&#129333;</span>
+                        <span class="cc-outfit-preset__label">Full Suit</span>
+                    </button>
+                    <button class="cc-outfit-preset" data-outfit="plain-tee">
+                        <span class="cc-outfit-preset__icon">&#128090;</span>
+                        <span class="cc-outfit-preset__label">Plain Tee</span>
+                    </button>
+                    <button class="cc-outfit-preset" data-outfit="custom">
+                        <span class="cc-outfit-preset__icon">&#10024;</span>
+                        <span class="cc-outfit-preset__label">Custom</span>
+                    </button>
+                </div>
+
+                <div class="cc-outfit-custom" id="outfit-custom">
+                    <input type="text" class="cc-input" id="custom-outfit-input" placeholder="Describe custom outfit...">
+                </div>
+
+                <div class="cc-outfit-colors">
+                    <button class="cc-color-swatch cc-color-swatch--selected" data-color="#000000" style="background: #000000;" title="Black" aria-label="Black"></button>
+                    <button class="cc-color-swatch" data-color="#FFFFFF" style="background: #FFFFFF;" title="White" aria-label="White"></button>
+                    <button class="cc-color-swatch" data-color="#1E3A8A" style="background: #1E3A8A;" title="Navy" aria-label="Navy"></button>
+                    <button class="cc-color-swatch" data-color="#7C3AED" style="background: #7C3AED;" title="Purple" aria-label="Purple"></button>
+                    <button class="cc-color-swatch" data-color="#DC2626" style="background: #DC2626;" title="Red" aria-label="Red"></button>
+                    <button class="cc-color-swatch" data-color="#059669" style="background: #059669;" title="Green" aria-label="Green"></button>
+                </div>
+            </section>
+
+            <!-- Post-Processing Section -->
+            <section class="cc-panel cc-panel--glass cc-panel--glassy">
+                <div class="cc-panel__header">
+                    <h2 class="cc-panel__title">
+                        <svg class="cc-panel__title-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                        </svg>
+                        Glassy Mode
+                    </h2>
+                    <span class="cc-badge cc-badge--new">NEW</span>
+                </div>
+
+                <div class="cc-glassy-presets" id="glassy-presets">
+                    <button class="cc-glassy-preset" data-intensity="0">Off</button>
+                    <button class="cc-glassy-preset" data-intensity="25">Subtle</button>
+                    <button class="cc-glassy-preset cc-glassy-preset--selected" data-intensity="50">Balanced</button>
+                    <button class="cc-glassy-preset" data-intensity="75">Cinematic</button>
+                    <button class="cc-glassy-preset" data-intensity="100">Dramatic</button>
+                </div>
+
+                <div class="cc-control-group">
+                    <div class="cc-slider-header">
+                        <span class="cc-slider-label">Intensity</span>
+                        <span class="cc-slider-value cc-slider-value--accent" id="glassy-intensity-value">50%</span>
+                    </div>
+                    <input type="range" class="cc-slider cc-slider--purple" id="glassy-intensity-slider" min="0" max="100" value="50" aria-label="Glassy intensity">
+                </div>
+
+                <!-- Safe Frame Toggle -->
+                <div class="cc-control-group cc-control-group--inline">
+                    <label class="cc-toggle">
+                        <input type="checkbox" class="cc-toggle__input" id="safe-frame-toggle">
+                        <span class="cc-toggle__track">
+                            <span class="cc-toggle__thumb"></span>
+                        </span>
+                    </label>
+                    <span class="cc-toggle-label">Show Safe Frame</span>
+                </div>
+            </section>
+
+            <!-- Summary Section -->
+            <section class="cc-panel cc-panel--glass cc-panel--summary">
+                <div class="cc-summary">
+                    <div class="cc-summary__item">
+                        <div class="cc-summary__icon">&#128205;</div>
+                        <div class="cc-summary__content">
+                            <span class="cc-summary__label">Subject</span>
+                            <span class="cc-summary__value" id="summary-position">Middle-Left @ 100%</span>
+                        </div>
+                    </div>
+                    <div class="cc-summary__item">
+                        <div class="cc-summary__icon">&#128084;</div>
+                        <div class="cc-summary__content">
+                            <span class="cc-summary__label">Outfit</span>
+                            <span class="cc-summary__value" id="summary-outfit">Tech Hoodie (Black)</span>
+                        </div>
+                    </div>
+                    <div class="cc-summary__item">
+                        <div class="cc-summary__icon">&#10024;</div>
+                        <div class="cc-summary__content">
+                            <span class="cc-summary__label">Glassy Mode</span>
+                            <span class="cc-summary__value" id="summary-glassy">Balanced (50%)</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </aside>
+    </div>
+
+    <!-- ========================================================================
+         SCRIPTS
+         ======================================================================== -->
+    <script src="app-v8.js"></script>
+    <script>
+        // Credit Display Integration
+        (function() {
+            async function fetchCredits() {
+                try {
+                    const token = localStorage.getItem('tb_auth_token');
+                    if (!token) return;
+
+                    const response = await fetch('/api/billing/credits', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        const creditsValue = document.getElementById('credits-value');
+                        if (creditsValue && data.credits !== undefined) {
+                            creditsValue.textContent = data.credits.toLocaleString();
+                        }
+                    }
+                } catch (error) {
+                    console.warn('[Credits] Failed to fetch:', error);
+                }
+            }
+
+            // Fetch on load and periodically
+            fetchCredits();
+            setInterval(fetchCredits, 60000);
+        })();
+
+        // Creator Style Cards - Extend existing functionality
+        (function() {
+            const cards = document.querySelectorAll('.cc-creator-card');
+
+            cards.forEach(card => {
+                card.addEventListener('click', () => {
+                    cards.forEach(c => c.classList.remove('cc-creator-card--active'));
+                    card.classList.add('cc-creator-card--active');
+
+                    // Update state if exists
+                    if (window.state) {
+                        window.state.creatorStyle = card.dataset.style;
+                    }
+
+                    console.log('[V9] Creator style:', card.dataset.style);
+                });
+            });
+        })();
+
+        // Update class names to match new CSS while preserving functionality
+        (function() {
+            // Map old classes to new for position grids
+            document.querySelectorAll('.cc-position-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const grid = this.closest('.cc-position-grid');
+                    grid.querySelectorAll('.cc-position-btn').forEach(b => {
+                        b.classList.remove('cc-position-btn--active');
+                        b.classList.remove('active');
+                    });
+                    this.classList.add('cc-position-btn--active');
+                    this.classList.add('active');
+                });
+            });
+
+            // Outfit presets
+            document.querySelectorAll('.cc-outfit-preset').forEach(preset => {
+                preset.addEventListener('click', function() {
+                    document.querySelectorAll('.cc-outfit-preset').forEach(p => {
+                        p.classList.remove('cc-outfit-preset--selected');
+                        p.classList.remove('selected');
+                    });
+                    this.classList.add('cc-outfit-preset--selected');
+                    this.classList.add('selected');
+
+                    // Show/hide custom input
+                    const isCustom = this.dataset.outfit === 'custom';
+                    document.getElementById('outfit-custom').classList.toggle('cc-outfit-custom--visible', isCustom);
+                });
+            });
+
+            // Color swatches
+            document.querySelectorAll('.cc-color-swatch').forEach(swatch => {
+                swatch.addEventListener('click', function() {
+                    document.querySelectorAll('.cc-color-swatch').forEach(s => {
+                        s.classList.remove('cc-color-swatch--selected');
+                        s.classList.remove('selected');
+                    });
+                    this.classList.add('cc-color-swatch--selected');
+                    this.classList.add('selected');
+                });
+            });
+
+            // Glassy presets
+            document.querySelectorAll('.cc-glassy-preset').forEach(preset => {
+                preset.addEventListener('click', function() {
+                    document.querySelectorAll('.cc-glassy-preset').forEach(p => {
+                        p.classList.remove('cc-glassy-preset--selected');
+                        p.classList.remove('selected');
+                    });
+                    this.classList.add('cc-glassy-preset--selected');
+                    this.classList.add('selected');
+                });
+            });
+
+            // Step navigation
+            document.querySelectorAll('.cc-step').forEach(step => {
+                step.addEventListener('click', function() {
+                    document.querySelectorAll('.cc-step').forEach(s => {
+                        s.classList.remove('cc-step--active');
+                        s.classList.remove('step--active');
+                    });
+                    this.classList.add('cc-step--active');
+                    this.classList.add('step--active');
+                });
+            });
+        })();
+    </script>
+</body>
+</html>

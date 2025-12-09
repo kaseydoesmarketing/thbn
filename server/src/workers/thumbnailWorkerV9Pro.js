@@ -54,11 +54,15 @@ const emotionService = require('../services/emotionExpressionService');
 const faceService = require('../services/faceEnhancementService');
 const styleService = require('../services/styleTransferService');
 
+// Stripe Service (for credit deduction)
+const stripeService = require('../services/stripeService');
+
 // V8 Services (for fallback)
 const { processJobV8 } = require('./thumbnailWorkerV8');
 
 // Legacy services
 const nanoClient = require('../services/nanoClient');
+const imageModels = require('../config/imageModels');
 const promptEngine = require('../services/promptEngine');
 
 // =============================================================================
@@ -434,13 +438,27 @@ async function processJobV9Pro(job) {
                 log.info(`Saved variant ${label} locally`);
             }
 
-            // Store in database with quality metadata
+            // Get cost tracking from nanoClient
+            const modelId = imageModels.getActiveModel();
+            const modelConfig = imageModels.getModelConfig(modelId);
+            const costPerImage = modelConfig ? modelConfig.pricing.imagesGenerated : 0;
+
+            // Store in database with quality and cost metadata
             const metadata = {
                 score: variant.score,
                 recommendation: variant.recommendation,
                 pipeline: 'V9_PRO',
                 features: pipelineResult.metadata.features,
                 ...variant.metadata,
+
+                // Cost tracking metadata
+                cost: {
+                    model: modelId,
+                    modelName: modelConfig ? modelConfig.name : 'unknown',
+                    costPerImage: costPerImage,
+                    currency: 'USD',
+                    timestamp: new Date().toISOString()
+                },
 
                 // Tier 2 metadata
                 tier2: {
@@ -472,22 +490,52 @@ async function processJobV9Pro(job) {
         }
 
         // =========================================================================
-        // COMPLETE
+        // COMPLETE & DEDUCT CREDITS
         // =========================================================================
         await db.query(
             'UPDATE thumbnail_jobs SET status = $1, updated_at = NOW() WHERE id = $2',
             ['completed', jobId]
         );
 
+        // Deduct 1 credit for successful generation
+        try {
+            const creditResult = await stripeService.deductCredits(
+                userId,
+                1,
+                jobId,
+                'Thumbnail generation (V9 PRO)'
+            );
+
+            if (creditResult.success) {
+                log.info(`Credit deducted. New balance: ${creditResult.newBalance}`);
+            } else {
+                log.warn(`Failed to deduct credit: ${creditResult.message}`);
+            }
+        } catch (creditError) {
+            // Don't fail the job if credit deduction fails (already generated)
+            log.error('Credit deduction error (non-fatal)', creditError);
+        }
+
         job.progress(100);
 
         const duration = Date.now() - pipelineStart;
+        
+        // Calculate total cost for this job
+        const currentModelId = imageModels.getActiveModel();
+        const currentModelConfig = imageModels.getModelConfig(currentModelId);
+        const totalCost = storedVariants.length * (currentModelConfig ? currentModelConfig.pricing.imagesGenerated : 0);
+        
         log.info('Job completed successfully', {
             variantCount: storedVariants.length,
             pipeline: 'V9_PRO',
             durationMs: duration,
             model: pipelineResult.metadata.model,
-            features: pipelineResult.metadata.features
+            features: pipelineResult.metadata.features,
+            cost: {
+                model: currentModelId,
+                totalCost: totalCost.toFixed(4),
+                currency: 'USD'
+            }
         });
 
         return {
@@ -603,6 +651,22 @@ async function processJobQuick(job) {
             'UPDATE thumbnail_jobs SET status = $1, updated_at = NOW() WHERE id = $2',
             ['completed', jobId]
         );
+
+        // Deduct 1 credit for successful generation
+        try {
+            const creditResult = await stripeService.deductCredits(
+                userId,
+                1,
+                jobId,
+                'Thumbnail generation (V9 QUICK)'
+            );
+
+            if (creditResult.success) {
+                log.info(`Credit deducted. New balance: ${creditResult.newBalance}`);
+            }
+        } catch (creditError) {
+            log.error('Credit deduction error (non-fatal)', creditError);
+        }
 
         job.progress(100);
 

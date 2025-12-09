@@ -1,0 +1,187 @@
+<!--
+  Premium Loading State Component - 4-Step Narrative
+  ThumbnailBuilder Command Center v9.2.0
+
+  Usage: Replace the loading overlay in create-v9-command-center.html
+
+  Steps:
+  1. Reading your hook
+  2. Designing layout & style
+  3. Calling Nano Banana
+  4. Polishing colors & text
+-->
+
+<div class="thumbnail-loading" id="loading-overlay">
+    <!-- Pulsing Logo -->
+    <div class="thumbnail-loading__logo" aria-label="ThumbnailBuilder Logo">
+        TB
+    </div>
+
+    <!-- 4-Step Progress -->
+    <div class="thumbnail-loading__steps" role="status" aria-live="polite">
+        <!-- Step 1: Reading Hook -->
+        <div class="thumbnail-loading__step pending" data-step="1">
+            <div class="thumbnail-loading__step-icon" aria-hidden="true">○</div>
+            <div class="thumbnail-loading__step-text">Reading your hook</div>
+        </div>
+
+        <!-- Step 2: Designing Layout -->
+        <div class="thumbnail-loading__step pending" data-step="2">
+            <div class="thumbnail-loading__step-icon" aria-hidden="true">○</div>
+            <div class="thumbnail-loading__step-text">Designing layout & style</div>
+        </div>
+
+        <!-- Step 3: Calling AI -->
+        <div class="thumbnail-loading__step pending" data-step="3">
+            <div class="thumbnail-loading__step-icon" aria-hidden="true">○</div>
+            <div class="thumbnail-loading__step-text">Calling Nano Banana</div>
+        </div>
+
+        <!-- Step 4: Polishing -->
+        <div class="thumbnail-loading__step pending" data-step="4">
+            <div class="thumbnail-loading__step-icon" aria-hidden="true">○</div>
+            <div class="thumbnail-loading__step-text">Polishing colors & text</div>
+        </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="thumbnail-loading__progress">
+        <div class="thumbnail-loading__progress-track">
+            <div class="thumbnail-loading__progress-fill" id="loading-progress-bar" style="width: 0%"></div>
+        </div>
+    </div>
+
+    <!-- Cancel Button -->
+    <button class="thumbnail-loading__cancel" id="cancel-generation">Cancel</button>
+</div>
+
+<script>
+/**
+ * Premium Loading State Controller
+ * Controls the 4-step animation based on job progress
+ */
+(function() {
+    // Step thresholds (based on job.progress() percentages)
+    const STEP_THRESHOLDS = {
+        1: 25,   // 0-25%: Reading hook
+        2: 50,   // 25-50%: Designing layout
+        3: 75,   // 50-75%: Calling AI
+        4: 100   // 75-100%: Polishing
+    };
+
+    /**
+     * Update loading state based on progress percentage
+     * @param {number} progress - Progress percentage (0-100)
+     */
+    window.updateLoadingState = function(progress) {
+        const steps = document.querySelectorAll('.thumbnail-loading__step');
+        const progressBar = document.getElementById('loading-progress-bar');
+
+        // Update progress bar
+        if (progressBar) {
+            progressBar.style.width = progress + '%';
+        }
+
+        // Determine current step
+        let currentStep = 1;
+        if (progress >= 75) currentStep = 4;
+        else if (progress >= 50) currentStep = 3;
+        else if (progress >= 25) currentStep = 2;
+
+        // Update step states
+        steps.forEach((step, index) => {
+            const stepNumber = index + 1;
+            const icon = step.querySelector('.thumbnail-loading__step-icon');
+
+            // Remove all states
+            step.classList.remove('pending', 'active', 'completed');
+
+            if (stepNumber < currentStep) {
+                // Completed step
+                step.classList.add('completed');
+                icon.textContent = '✓';
+            } else if (stepNumber === currentStep) {
+                // Active step
+                step.classList.add('active');
+                icon.textContent = '⟳';
+            } else {
+                // Pending step
+                step.classList.add('pending');
+                icon.textContent = '○';
+            }
+        });
+    };
+
+    /**
+     * Show loading overlay
+     */
+    window.showLoading = function() {
+        const overlay = document.getElementById('loading-overlay');
+        if (overlay) {
+            overlay.classList.add('active');
+            updateLoadingState(0);
+        }
+    };
+
+    /**
+     * Hide loading overlay
+     */
+    window.hideLoading = function() {
+        const overlay = document.getElementById('loading-overlay');
+        if (overlay) {
+            overlay.classList.remove('active');
+        }
+    };
+
+    /**
+     * Complete all steps (success animation)
+     */
+    window.completeLoading = function() {
+        updateLoadingState(100);
+        setTimeout(hideLoading, 1000); // Show completion for 1 second
+    };
+
+    // Cancel button handler
+    const cancelBtn = document.getElementById('cancel-generation');
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', function() {
+            // Dispatch cancel event for app-v8.js to handle
+            const event = new CustomEvent('cancelGeneration');
+            document.dispatchEvent(event);
+            hideLoading();
+        });
+    }
+})();
+</script>
+
+<!--
+  INTEGRATION NOTES:
+
+  1. Add to <head> in create-v9-command-center.html:
+     <link rel="stylesheet" href="loading-state-premium.css">
+
+  2. Replace existing loading overlay with this component
+
+  3. Update app-v8.js to call:
+     - showLoading() when starting generation
+     - updateLoadingState(progress) during job polling
+     - completeLoading() on success
+     - hideLoading() on error
+
+  4. Example integration in app-v8.js:
+
+     // On generate button click
+     showLoading();
+
+     // During job polling (every 2 seconds)
+     const jobData = await checkJobStatus(jobId);
+     if (jobData.progress) {
+         updateLoadingState(jobData.progress);
+     }
+
+     // On success
+     completeLoading();
+
+     // On error
+     hideLoading();
+-->
